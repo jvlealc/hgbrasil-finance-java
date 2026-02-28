@@ -3,10 +3,10 @@ package io.github.jvlealc.hgbrasil.finance.client.core;
 import java.util.List;
 
 /**
- * <h5>
+ * <b>
  *     Interface de contrato que encapsula operações HTTP (GET)
  *     realizadas para API da HGBrasil.
- * </h5>
+ * </b>
  *
  * @param <T> Representa o tipo de resposta de ativo, seja Ações, FIIs,
  * Moedas e Índices que seguem um mesmo padrão, ou Criptoativos.

@@ -5,7 +5,7 @@ import java.time.Duration;
 import java.util.concurrent.Executors;
 
 /**
- *<h5>Http Client para comunicação com a API financeira da HGBrasil.</h5>
+ *<b>Http Client para comunicação com a API financeira da HGBrasil.</b>
  * Esta classe utiliza de Virtual Threads e deve ser instanciada via {@link #builder()}.
  * */
 public final class HGBrasilClient {
@@ -14,6 +14,7 @@ public final class HGBrasilClient {
 
     private final String apiKey;
     private final HttpClient httpClient;
+    private final AssetOperations assetOperations;
 
     private HGBrasilClient(String apiKey, Duration timeout) {
         this.apiKey = apiKey;
@@ -21,6 +22,7 @@ public final class HGBrasilClient {
                 .connectTimeout(timeout != null ? timeout : Duration.ofSeconds(TIMEOUT_DURATION_SECONDS))
                 .executor(Executors.newVirtualThreadPerTaskExecutor())
                 .build();
+        this.assetOperations = new AssetOperations(httpClient, apiKey);
     }
 
     /**
@@ -66,5 +68,13 @@ public final class HGBrasilClient {
         public HGBrasilClient build() {
             return new HGBrasilClient(this.apiKey, timeout);
         }
+    }
+
+    /**
+     * Acessa as operações de busca de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas e Índices).
+     * @return instância de {@link AssetOperations}
+     * */
+    public AssetOperations getAssetOperations() {
+        return this.assetOperations;
     }
 }
