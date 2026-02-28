@@ -5,8 +5,16 @@ name: Java CI with Maven
 on:
   push:
     branches: [ "main" ]
+    paths-ignore:
+      - 'LICENSE'
+      - '**/*.md'
+      - '.gitignore'
   pull_request:
     branches: [ "main" ]
+    paths-ignore:
+      - 'LICENSE'
+      - '**/*.md'
+      - '.gitignore'    
 
 jobs:
   build:
