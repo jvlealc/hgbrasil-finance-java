@@ -12,7 +12,7 @@ import java.util.List;
  * Representação que agrupa dados de resposta do ativo (Ações, FIIs, BDRs, Moedas e Índices).
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
-public record AssetTicker(
+public record AssetResult(
         // campos de erro
         Boolean error,
         String message,

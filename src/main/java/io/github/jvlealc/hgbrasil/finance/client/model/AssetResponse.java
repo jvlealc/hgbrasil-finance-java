@@ -10,7 +10,7 @@ public record AssetResponse(
         String by,
         @JsonProperty("valid_key")
         boolean validKey,
-        Map<String, AssetTicker> results,
+        Map<String, AssetResult> results,
         @JsonProperty("execution_time")
         double executionTime,
         @JsonProperty("from_cache")
