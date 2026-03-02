@@ -9,6 +9,9 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -25,6 +28,9 @@ import static org.mockito.Mockito.when;
 class AssetOperationsTest {
 
     private static final String MOCK_API_KEY = "fakeKey";
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .build();
 
     @Mock
     private HttpClient httpClientMock;
@@ -36,11 +42,11 @@ class AssetOperationsTest {
 
     @BeforeEach
     void setUp() {
-        assetOperation = new AssetOperations(httpClientMock, MOCK_API_KEY);
+        assetOperation = new AssetOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test
-    @DisplayName("Should return correct mapped AssetResponse when the API responds successfully.")
+    @DisplayName("Should return correct mapped AssetResponse when the API responds successfully")
     void shouldReturnAssetResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
         String expectedResponse = """
             {
@@ -67,12 +73,12 @@ class AssetOperationsTest {
 
         assertNotNull(actualResponse, "AssetResponse must not be null");
         assertTrue(actualResponse.results().containsKey("ITSA4"), "AssetResponse must contain key ITSA4");
-        assertEquals("Itaúsa", actualResponse.results().get("ITSA4").name(), "AssetResponse must have correct name.");
-        assertEquals(new BigDecimal("14.63"), actualResponse.results().get("ITSA4").price(), "AssetResponse must have correct price.");
+        assertEquals("Itaúsa", actualResponse.results().get("ITSA4").name(), "AssetResponse must have correct name");
+        assertEquals(new BigDecimal("14.63"), actualResponse.results().get("ITSA4").price(), "AssetResponse must have correct price");
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException with correct error message when API key is invalid.")
+    @DisplayName("Should throw HGBrasilAPIException with correct error message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() throws IOException, InterruptedException {
         String invalidKeyResponse = """
             {
@@ -100,7 +106,7 @@ class AssetOperationsTest {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException and contains correct error message when the API returns 'Símbolo inválido.'.")
+    @DisplayName("Should throw HGBrasilAPIException and contains correct error message when the API returns 'Símbolo inválido.'")
     void shouldThrowException_whenApiReturnsInvalidSymbol() throws IOException, InterruptedException {
         String invalidSymbolResponse = """    
                 {
@@ -126,52 +132,52 @@ class AssetOperationsTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbol is blank or null.")
+    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbol is blank or null")
     void shouldThrowException_whenSymbolIsBlank() {
         String expectedMessage = "Parameter symbol must not be blank or null.";
 
         IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbol("   ");
-        }, "Must have throw the IllegalArgumentException.");
+        }, "Must have throw the IllegalArgumentException");
 
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbol(null);
-        }, "Must have throw the IllegalArgumentException.");
+        }, "Must have throw the IllegalArgumentException");
 
         assertEquals(expectedMessage, exception1.getMessage());
         assertEquals(expectedMessage, exception2.getMessage());
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbols varargs/array is empty or null.")
+    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbols varargs/array is empty or null")
     void shouldThrowException_whenSymbolsVarargsIsEmpty() {
         String[] symbolsEmpty = new String[0];
         String expectedMessage = "Parameter symbols must not be empty or null.";
 
         IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbols(symbolsEmpty);
-        }, "Must have throw the IllegalArgumentException for empty list.");
+        }, "Must have throw the IllegalArgumentException for empty list");
 
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbols( (String[]) null );
-        }, "Must have throw the IllegalArgumentException for null list.");
+        }, "Must have throw the IllegalArgumentException for null list");
 
         assertEquals(expectedMessage, exception1.getMessage());
         assertEquals(expectedMessage, exception2.getMessage());
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbols list is empty or null.")
+    @DisplayName("Should throw IllegalArgumentException and correct error message when entering symbols list is empty or null")
     void shouldThrowException_whenSymbolsListIsEmpty() {
         String expectedMessage = "Parameter symbols must not be empty or null.";
 
         IllegalArgumentException exception1 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbols(List.of());
-        }, "Must have throw the IllegalArgumentException for empty list.");
+        }, "Must have throw the IllegalArgumentException for empty list");
 
         IllegalArgumentException exception2 = assertThrows(IllegalArgumentException.class, () -> {
             assetOperation.getBySymbols( (List<String>) null );
-        }, "Must have throw the IllegalArgumentException for null list.");
+        }, "Must have throw the IllegalArgumentException for null list");
 
         assertEquals(expectedMessage, exception1.getMessage());
         assertEquals(expectedMessage, exception2.getMessage());
