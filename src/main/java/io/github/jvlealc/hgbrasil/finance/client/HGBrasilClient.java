@@ -1,4 +1,10 @@
-package io.github.jvlealc.hgbrasil.finance.client.core;
+package io.github.jvlealc.hgbrasil.finance.client;
+
+import io.github.jvlealc.hgbrasil.finance.client.core.*;
+import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
+import tools.jackson.databind.ObjectMapper;
+import tools.jackson.databind.json.JsonMapper;
+import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
@@ -7,22 +13,26 @@ import java.util.concurrent.Executors;
 /**
  *<b>Http Client para comunicação com a API financeira da HGBrasil.</b>
  * Esta classe utiliza de Virtual Threads e deve ser instanciada via {@link #builder()}.
+ * Atua como um Facade que fornece acesso as classes que realizam as operações.
  * */
 public final class HGBrasilClient {
 
     private static final long TIMEOUT_DURATION_SECONDS = 20L;
+    private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
+            .addModule(new JavaTimeModule())
+            .build();
 
-    private final String apiKey;
-    private final HttpClient httpClient;
-    private final AssetOperations assetOperations;
+    private final HGBrasilOperations<AssetResponse> assetOperations;
+    private final ExchangeOperations exchangeOperations;
 
     private HGBrasilClient(String apiKey, Duration timeout) {
-        this.apiKey = apiKey;
-        this.httpClient = HttpClient.newBuilder()
+        HttpClient httpClient = HttpClient.newBuilder()
                 .connectTimeout(timeout != null ? timeout : Duration.ofSeconds(TIMEOUT_DURATION_SECONDS))
                 .executor(Executors.newVirtualThreadPerTaskExecutor())
                 .build();
-        this.assetOperations = new AssetOperations(httpClient, apiKey);
+
+        this.assetOperations = new AssetOperations(apiKey, httpClient, OBJECT_MAPPER);
+        this.exchangeOperations = new DefaultExchangeOperations(apiKey, httpClient, OBJECT_MAPPER);
     }
 
     /**
@@ -66,15 +76,18 @@ public final class HGBrasilClient {
          * @return {@link HGBrasilClient}
          * */
         public HGBrasilClient build() {
+            if (apiKey == null || apiKey.isBlank()) {
+                throw new IllegalArgumentException("HGBrasil API Key is required to build the client.");
+            }
             return new HGBrasilClient(this.apiKey, timeout);
         }
     }
 
     /**
-     * Acessa as operações de busca de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas e Índices).
+     * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas e Índices).
      * @return instância de {@link AssetOperations}
      * */
-    public AssetOperations getAssetOperations() {
+    public HGBrasilOperations<AssetResponse> getAssetOperations() {
         return this.assetOperations;
     }
 }
