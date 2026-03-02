@@ -58,6 +58,8 @@
         <jackson.datatype.version>3.0.0-rc2</jackson.datatype.version>
         <junit.version>6.1.0-M1</junit.version>
         <mockito.version>5.21.0</mockito.version>
+        <sl4j.version>2.0.17</sl4j.version>
+        <logback.version>1.5.32</logback.version>
     </properties>
 
     <dependencies>
@@ -97,6 +99,20 @@
             <groupId>org.mockito</groupId>
             <artifactId>mockito-junit-jupiter</artifactId>
             <version>${mockito.version}</version>
+            <scope>test</scope>
+        </dependency>
+
+        <!-- logs -->
+        <dependency>
+            <groupId>org.slf4j</groupId>
+            <artifactId>slf4j-api</artifactId>
+            <version>${sl4j.version}</version>
+            <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>ch.qos.logback</groupId>
+            <artifactId>logback-classic</artifactId>
+            <version>${logback.version}</version>
             <scope>test</scope>
         </dependency>
     </dependencies>
