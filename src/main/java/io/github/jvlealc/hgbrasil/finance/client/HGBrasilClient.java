@@ -90,4 +90,12 @@ public final class HGBrasilClient {
     public HGBrasilOperations<AssetResponse> getAssetOperations() {
         return this.assetOperations;
     }
+
+    /**
+     * Acessa as operações de busca de câmbio de moedas em relação ao Real (BRL) e cotação de Bitcoin.
+     * @return instância de {@link DefaultExchangeOperations}
+     * */
+    public ExchangeOperations getExchangeOperations() {
+        return exchangeOperations;
+    }
 }
