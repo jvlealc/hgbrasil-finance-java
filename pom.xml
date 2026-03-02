@@ -50,6 +50,7 @@
         <doclint>none</doclint>
         <maven.compiler.plugin.version>3.15.0</maven.compiler.plugin.version>
         <maven.surefire.plugin.version>3.5.5</maven.surefire.plugin.version>
+        <maven.failsafe.plugin.version>3.5.5</maven.failsafe.plugin.version>
         <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
@@ -118,6 +119,23 @@
                 <configuration>
                     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
+            </plugin>
+
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-failsafe-plugin</artifactId>
+                <version>${maven.failsafe.plugin.version}</version>
+                <configuration>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                </configuration>
+                <executions>
+                    <execution>
+                        <goals>
+                            <goal>integration-test</goal>
+                            <goal>verify</goal>
+                        </goals>
+                    </execution>
+                </executions>
             </plugin>
 
             <plugin>
