@@ -10,7 +10,10 @@ import java.net.http.HttpRequest;
 import java.util.List;
 
 /**
- * Realiza operações HTTP para busca de dados de ativos (Ações, FIIs, Moedas, Índices).
+ * Implementa operações para busca de dados de ativos (Ações, FIIs, Moedas, Índices).]
+ *
+ * Esta classe NÃO deve ser instancianda diretamente, utilize a classe {@link HGBrasilClient}
+ * para realizar as operações.
  * */
 public final class AssetOperations extends AbstractHGBrasilOperations implements HGBrasilOperations<AssetResponse> {
 
