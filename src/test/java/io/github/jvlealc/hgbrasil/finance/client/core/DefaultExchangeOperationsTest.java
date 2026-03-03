@@ -1,5 +1,7 @@
 package io.github.jvlealc.hgbrasil.finance.client.core;
 
+import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinExchange;
+import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -18,6 +20,8 @@ import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.util.Map;
+import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -70,13 +74,12 @@ class DefaultExchangeOperationsTest {
 
         when(httpResponseMock.statusCode()).thenReturn(200);
         when(httpResponseMock.body()).thenReturn(expectedResponse);
-
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
         CurrenciesResponse actualResponse = exchangeOperations.getCurrencies();
 
-        assertAll("Verify successfully responses integrity",
+        assertAll("Verify successfully currencies responses integrity",
                 () -> assertNotNull(actualResponse, "CurrenciesResponse must not be null"),
                 () -> assertTrue(actualResponse.validKey(), "Valid key must be true"),
                 () -> assertEquals("BRL",
@@ -89,7 +92,7 @@ class DefaultExchangeOperationsTest {
                                 .currencies()
                                 .getRates()
                                 .containsKey("USD"),
-                        "CurrencyData rates map must contain key 'USD'"
+                        "Exchanges rate map must contain key 'USD'"
                 ),
                 () -> assertEquals(new BigDecimal("5.1429"),
                         actualResponse.results().currencies().getRates().get("USD").buy(),
@@ -99,10 +102,9 @@ class DefaultExchangeOperationsTest {
 
         ArgumentCaptor<HttpRequest> requestCaptor = ArgumentCaptor.forClass(HttpRequest.class);
         verify(httpClientMock).send(requestCaptor.capture(), any());
-
         HttpRequest capturedRequest = requestCaptor.getValue();
 
-        assertAll("Verify HTTP Request details",
+        assertAll("Verify currencies HTTP Request details",
                 () -> assertEquals("GET", capturedRequest.method(), "HTTP method must be GET"),
                 () -> assertTrue(capturedRequest.uri()
                                 .toString()
@@ -122,8 +124,70 @@ class DefaultExchangeOperationsTest {
                 () -> assertEquals("application/json",
                         capturedRequest.headers()
                                 .firstValue("Accept")
-                                .get(),
+                                .orElse(null),
                         "Accept header must be application/json"
+                )
+        );
+    }
+
+    @Test
+    @DisplayName("Should return Bitcoin exchanges when API responds successfully")
+    void shouldReturnBitcoinResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
+        String expectedResponse = """
+                        {
+                          "by": "default",
+                          "valid_key": true,
+                          "results": {
+                            "bitcoin": {
+                              "blockchain_info": {
+                                "name": "Blockchain.info",
+                                "format": [
+                                  "USD",
+                                  "en_US"
+                                ],
+                                "last": 67506.91,
+                                "buy": 67506.91,
+                                "sell": 67506.91,
+                                "variation": -2.211
+                              },
+                              "bitstamp": {
+                               "name": "BitStamp",
+                               "format": [
+                                 "USD",
+                                 "en_US"
+                               ],
+                               "last": 67512,
+                               "buy": 67514,
+                               "sell": 67513,
+                               "variation": -1.987
+                             }
+                            }
+                          },
+                          "execution_time": 0,
+                          "from_cache": true
+                        }
+                """;
+
+        when(httpResponseMock.statusCode()).thenReturn(200);
+        when(httpResponseMock.body()).thenReturn(expectedResponse);
+        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+                .thenReturn(httpResponseMock);
+
+        BitcoinResponse actualResponse = exchangeOperations.getBitcoin();
+
+        Map<String, BitcoinExchange> bitcoin = actualResponse.results().bitcoin();
+
+        assertAll("Verify successfully Bitcoin exchanges responses",
+                () -> assertNotNull(actualResponse, "Bitcoin response must not be null"),
+                () -> assertTrue(actualResponse.validKey(), "Valid key must be true"),
+                () -> assertTrue(bitcoin.containsKey("blockchain_info") && bitcoin.containsKey("bitstamp"),
+                        "Response must be contain keys blockchain_info and bitstamp exchanges"
+                ),
+                () -> assertEquals(new BigDecimal("-2.211"),
+                        bitcoin
+                                .get("blockchain_info")
+                                .variation(),
+                        "Bitcoin variation must be mapped correctly"
                 )
         );
     }
