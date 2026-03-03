@@ -14,6 +14,7 @@ import java.util.List;
 import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
+@TestInstance(TestInstance.Lifecycle.PER_CLASS)
 public class HGBrasilClientIT {
 
     private static final Logger LOG =  LoggerFactory.getLogger(HGBrasilClientIT.class);
@@ -23,17 +24,19 @@ public class HGBrasilClientIT {
     private HGBrasilOperations<AssetResponse> assetOperations;
     private ExchangeOperations exchangeOperations;
 
-    @BeforeEach
-    void setUp() {
-        // ci: skipped!
+    @BeforeAll
+    void setup() {
         Assumptions.assumeTrue(HGBRASIL_API_KEY != null && !HGBRASIL_API_KEY.isBlank(),
                 "API key is missing. Skipping integrations test.");
 
         client = HGBrasilClient.builder()
                 .apiKey(HGBRASIL_API_KEY)
                 .timeout(Duration.ofSeconds(30L))
-                .build();
+                .build();;
+    }
 
+    @BeforeEach
+    void beforeEach() {
         assetOperations = client.getAssetOperations();
         exchangeOperations = client.getExchangeOperations();
     }
