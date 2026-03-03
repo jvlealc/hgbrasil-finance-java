@@ -118,7 +118,7 @@ class AbstractHGBrasilOperationsTest {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException and correct error message when HttpClient throws IOException")
+    @DisplayName("Should throw HGBrasilAPIException and correct message when HttpClient throws IOException")
     void shouldThrowException_whenNetworkFailure() throws IOException, InterruptedException {
         when(httpClientMock.send(any(), any())).thenThrow(new IOException("Timeout no Ubuntu"));
 
@@ -127,7 +127,7 @@ class AbstractHGBrasilOperationsTest {
                 "Must have throw the IOException"
         );
 
-        assertTrue(exception.getMessage().contains("Network failure"),
+        assertTrue(exception.getMessage().contains("I/O or parsing"),
                 "Must have correct API error message");
     }
 
@@ -159,6 +159,6 @@ class AbstractHGBrasilOperationsTest {
                 "Must have throw HGBrasilAPIException"
         );
 
-        assertTrue(exception.getMessage().contains("API responds HTTP error"), "Must have correct API error message");
+        assertTrue(exception.getMessage().contains("HTTP Error "), "Must have correct API error message");
     }
 }
