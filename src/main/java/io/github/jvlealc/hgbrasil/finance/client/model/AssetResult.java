@@ -48,8 +48,4 @@ public record AssetResult(
         @JsonProperty("updated_at")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime updatedAt
-) {
-        public boolean isError() {
-            return Boolean.TRUE.equals(error);
-        }
-}
+) {}
