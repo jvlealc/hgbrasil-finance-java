@@ -1,5 +1,6 @@
 package io.github.jvlealc.hgbrasil.finance.client.core;
 
+import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 import io.github.jvlealc.hgbrasil.finance.client.HGBrasilClient;
 import tools.jackson.databind.ObjectMapper;
@@ -35,5 +36,17 @@ public final class DefaultExchangeOperations extends AbstractHGBrasilOperations 
                 .build();
 
         return sendRequest(request, CurrenciesResponse.class);
+    }
+
+    @Override
+    public BitcoinResponse getBitcoin() {
+        String url = BASE_URL + "&field=bitcoin&key=" + apiKey;
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create(url))
+                .GET()
+                .header("Accept", "application/json")
+                .build();
+
+        return sendRequest(request, BitcoinResponse.class);
     }
 }
