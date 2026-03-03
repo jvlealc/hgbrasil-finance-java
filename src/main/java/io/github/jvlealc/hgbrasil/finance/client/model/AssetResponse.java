@@ -6,9 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.Map;
 
 /**
- * Modelo de resposta para obter a cotação de uma ação listada no IBOVESPA através do símbolo desse título.
- *
- * <a href="https://console.hgbrasil.com/documentation/finance"> HGBrasil doc - API Dados Financeiros</a>
+ * Modelo de resposta de um ativo (Ações, FIIs, Moedas, Índices e Criptoativos).
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AssetResponse(

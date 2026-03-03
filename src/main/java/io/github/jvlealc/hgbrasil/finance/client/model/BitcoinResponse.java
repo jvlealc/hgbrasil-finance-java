@@ -3,6 +3,9 @@ package io.github.jvlealc.hgbrasil.finance.client.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
+/**
+ * Modelo de resposta que agrupa cotações do Bitcoin nas pricipais corretoras
+ * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record BitcoinResponse(
         String by,

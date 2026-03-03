@@ -4,12 +4,10 @@ import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 
 /**
- * <b>
- *     Interface de contrato que encapsula operações HTTP (GET)
- *     realizadas para API da HGBrasil.
- * </b>
+ * Interface de contrato que encapsula operações HTTP (GET)
+ * de câmbio de moedas fiduciárias e cotação do Bitcoin.
  *
- * Realiza operações de câmbio de moedas e cotação do Bitcoin.
+ * @see <a href="https://hgbrasil.com/docs/finance">Documentação Oficial da HGBrasil</a>
  * */
 public interface ExchangeOperations {
 

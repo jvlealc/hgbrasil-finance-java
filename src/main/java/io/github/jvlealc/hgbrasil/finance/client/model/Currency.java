@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.math.BigDecimal;
 
 /**
- * Informações do câmbio da moeda
+ * Mapeia informações do câmbio da moeda
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Currency(

@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Modelo de resposta que agrupa dados dos ativos (Ações, FIIs, BDRs, Moedas e Índices).
- * do bloco 'results' do JSON.
+ * Mapeia dados detalhados dos ativos do objeto 'results' do JSON.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AssetResult(

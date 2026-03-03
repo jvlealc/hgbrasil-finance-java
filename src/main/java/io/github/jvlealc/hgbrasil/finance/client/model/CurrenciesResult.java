@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonSetter;
 
 /**
- * Modelo de resposta que agrupa dados das Moedas do bloco 'results' do JSON.
+ * Mapeia dados cambiais das Moedas do objeto 'results' do JSON.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CurrenciesResult(

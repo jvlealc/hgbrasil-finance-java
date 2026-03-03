@@ -6,8 +6,6 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 /**
  * Modelo de resposta que agrupa cotações de diversas moedas internacionais
  * em relação ao Real (BRL).
- *
- * <a href="https://hgbrasil.com/docs/finance/currencies"> HGBrasil doc - Moedas</a>
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CurrenciesResponse(
