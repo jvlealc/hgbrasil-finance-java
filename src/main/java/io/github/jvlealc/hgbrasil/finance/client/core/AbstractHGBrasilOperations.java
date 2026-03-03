@@ -29,36 +29,31 @@ abstract class AbstractHGBrasilOperations {
      * @param request Objeto HttpRequest configurado.
      * @param responseType Classe de destino para o mapeamento do JSON.
      * @param <T> Tipo do objeto de retorno.
-     * @return Objeto mapeado a partir da resposta da API.
-     * @throws HGBrasilAPIException Caso a API retorne um erro (mesmo em HTTP 200) ou falha de rede.
-     * @throws RuntimeException Para interrupções de thread ou erros inesperados de processamento.
+     * @return Objeto do tipo T mapeado a partir da resposta da API.
+     * @throws HGBrasilAPIException Caso a API retorne um erro HTTP, de negócio, parsing de JSON ou falha de rede
      */
     <T> T sendRequest(HttpRequest request, Class<T> responseType) {
         try {
             HttpResponse<String> response = httpClient.send(request, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 400) {
-                throw new HGBrasilAPIException("API responds HTTP error: %d - %s".formatted(response.statusCode(), response.body()));
+                throw new HGBrasilAPIException("HTTP Error %d from HGBrasil API: %s".formatted(response.statusCode(), response.body()));
             }
 
             JsonNode rootNode = objectMapper.readTree(response.body());
-            JsonNode resultNode =  rootNode.get("results");
+            JsonNode resultNode =  rootNode.path("results");
 
-            if (resultNode.isObject() && resultNode.has("error") && resultNode.get("error").asBoolean()) {
+            if (resultNode.path("error").asBoolean(false)) {
                 String errorMessage = resultNode.path("message").asString("Unknown API error.");
-                throw new HGBrasilAPIException("API error details: " + errorMessage);
+                throw new HGBrasilAPIException("HGBrasil API error: %s".formatted(errorMessage));
             }
 
             return objectMapper.treeToValue(rootNode, responseType);
 
-        } catch (HGBrasilAPIException e) {
-            throw e;
         } catch (IOException e) {
-            throw new HGBrasilAPIException("Network failure when calling HGBrasil.", e);
+            throw new HGBrasilAPIException("I/O or parsing error while calling HGBrasil API.", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new RuntimeException("Thread interrupted during request.", e);
-        } catch (Exception e) {
-            throw new RuntimeException("Unexpected error: " + e.getMessage(), e);
+            throw new HGBrasilAPIException("Thread interrupted during HGBrasil API call.", e);
         }
     }
 }
