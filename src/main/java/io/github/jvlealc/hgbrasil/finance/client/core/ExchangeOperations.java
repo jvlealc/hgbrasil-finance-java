@@ -1,5 +1,6 @@
 package io.github.jvlealc.hgbrasil.finance.client.core;
 
+import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 
 /**
@@ -24,6 +25,6 @@ public interface ExchangeOperations {
      *
      * @return Modelo de resposta do Bitcoin nas corretoras.
      */
-//     BitcoinResponse getBitcoin();
+     BitcoinResponse getBitcoin();
 }
 
