@@ -16,7 +16,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 @Tag("integration")
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
-public class HGBrasilClientIT {
+class HGBrasilClientIT {
 
     private static final Logger LOG =  LoggerFactory.getLogger(HGBrasilClientIT.class);
     private static final String HGBRASIL_API_KEY = System.getenv("HGBRASIL_API_KEY");
