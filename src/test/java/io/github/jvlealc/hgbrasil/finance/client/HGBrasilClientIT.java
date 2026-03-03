@@ -3,6 +3,7 @@ package io.github.jvlealc.hgbrasil.finance.client;
 import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
 import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilOperations;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
+import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -32,7 +33,7 @@ public class HGBrasilClientIT {
         client = HGBrasilClient.builder()
                 .apiKey(HGBRASIL_API_KEY)
                 .timeout(Duration.ofSeconds(30L))
-                .build();;
+                .build();
     }
 
     @BeforeEach
@@ -45,19 +46,36 @@ public class HGBrasilClientIT {
     class ExchangeOperationsIT {
 
         @Test
-        @DisplayName("Should fetch real currencies data")
+        @DisplayName("Should fetch currencies rate")
         void shouldFetchCurrencies() {
             CurrenciesResponse response = exchangeOperations.getCurrencies();
 
             assertNotNull(response, "Currencies response must not be null");
+            assertEquals("BRL", response.results().currencies().getSource(), "Currencies response must contain BRL in 'source' field");
+            assertTrue(response.results().currencies().getRates().containsKey("EUR"), "Currencies rates must contain key EUR");
             assertTrue(response.validKey(), "API Key must be valid");
+
+            LOG.debug("Currencies response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should fetch currencies data")
+        void shouldFetchBitcoin() {
+            BitcoinResponse response = exchangeOperations.getBitcoin();
+
+            assertNotNull(response, "Bitcoin response must not be null");
+            assertTrue(response.results().bitcoin().containsKey("blockchain_info"), "Response must be contain key blockchain_info");
+            assertTrue(response.validKey(), "API Key must be valid");
+
+            LOG.debug("Bitcoin response:\n{}\n", response);
         }
     }
 
     @Nested
     class AssetOperationsIT {
+
         @Test
-        @DisplayName("Should fetch real asset data by symbol")
+        @DisplayName("Should fetch asset data by symbol")
         void shouldFetchAssetBySymbol() {
             String symbol = "PETR4";
             AssetResponse response = assetOperations.getBySymbol(symbol);
@@ -68,11 +86,11 @@ public class HGBrasilClientIT {
             assertNotNull(response.results().get("PETR4").price(), "Asset price must not be null");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug(response.toString());
+            LOG.debug("Single symbol - Asset response:\n{}\n", response);
         }
 
         @Test
-        @DisplayName("Should fetch real asset data by symbol list")
+        @DisplayName("Should fetch asset data by symbol list")
         void shouldFetchAssetBySymbolList() {
             List<String> symbols = List.of("PETR4", "BPAC11", "RBRY11");
             AssetResponse response = assetOperations.getBySymbols(symbols);
@@ -90,11 +108,11 @@ public class HGBrasilClientIT {
 
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug(response.toString());
+            LOG.debug("List - Asset response:\n{}\n", response);
         }
 
         @Test
-        @DisplayName("Should fetch real asset data by symbol varargs")
+        @DisplayName("Should fetch asset data by symbol varargs")
         void shouldFetchAssetBySymbolVarargs() {
             String[] symbols = {"KNCA11", "JURO11", "USDBRL"};
             AssetResponse response = assetOperations.getBySymbols(symbols);
@@ -115,7 +133,7 @@ public class HGBrasilClientIT {
 
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug(response.toString());
+            LOG.debug("Varargs - Asset response:\n{}", response);
         }
 
         @Test
@@ -130,7 +148,7 @@ public class HGBrasilClientIT {
             assertNotNull(response.results().get("UNEXISTENTSYMBOL11").message(), "UNEXISTENTSYMBOL11 field 'message' must not be null");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug(response.toString());
+            LOG.debug("Non-existent symbol - Asset response:\n{}\n", response);
         }
 
         @Test
