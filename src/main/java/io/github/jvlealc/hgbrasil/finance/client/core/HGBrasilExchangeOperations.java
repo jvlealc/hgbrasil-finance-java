@@ -15,13 +15,13 @@ import java.net.http.HttpRequest;
  * Esta classe NÃO deve ser instancianda diretamente, utilize a classe {@link HGBrasilClient}
  * para realizar as operações.
  * */
-public final class DefaultExchangeOperations extends AbstractHGBrasilOperations implements ExchangeOperations {
+public final class HGBrasilExchangeOperations extends AbstractHGBrasilOperations implements ExchangeOperations {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance?format=json";
 
     private final String apiKey;
 
-    public DefaultExchangeOperations(String apiKey, HttpClient httpClient, ObjectMapper objectMapper) {
+    public HGBrasilExchangeOperations(String apiKey, HttpClient httpClient, ObjectMapper objectMapper) {
         super(httpClient, objectMapper);
         this.apiKey = apiKey;
     }

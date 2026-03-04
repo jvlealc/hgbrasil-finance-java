@@ -1,7 +1,7 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
@@ -22,7 +22,7 @@ class HGBrasilClientIT {
     private static final String HGBRASIL_API_KEY = System.getenv("HGBRASIL_API_KEY");
 
     private HGBrasilClient client;
-    private HGBrasilOperations<AssetResponse> assetOperations;
+    private AssetOperations<AssetResponse> assetOperations;
     private ExchangeOperations exchangeOperations;
 
     @BeforeAll
@@ -43,7 +43,7 @@ class HGBrasilClientIT {
     }
 
     @Nested
-    class ExchangeOperationsIT {
+    class HGBrasilExchangeOperationsIT {
 
         @Test
         @DisplayName("Should fetch currencies rate")
@@ -72,7 +72,7 @@ class HGBrasilClientIT {
     }
 
     @Nested
-    class AssetOperationsIT {
+    class HGBrasilAssetOperationsIT {
 
         @Test
         @DisplayName("Should fetch asset data by symbol")

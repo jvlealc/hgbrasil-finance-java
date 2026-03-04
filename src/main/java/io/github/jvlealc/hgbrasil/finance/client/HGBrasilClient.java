@@ -1,9 +1,9 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.DefaultExchangeOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilAssetOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilExchangeOperations;
 import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -32,7 +32,7 @@ public final class HGBrasilClient {
             .build();
     private static final Executor DEFAULT_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
 
-    private final HGBrasilOperations<AssetResponse> assetOperations;
+    private final AssetOperations<AssetResponse> assetOperations;
     private final ExchangeOperations exchangeOperations;
 
     private HGBrasilClient(String apiKey, Duration timeout, HttpClient customHttpClient, ObjectMapper customObjectMapper, Executor customExecutor) {
@@ -45,8 +45,8 @@ public final class HGBrasilClient {
 
         ObjectMapper finalObjectMapper = customObjectMapper != null ? customObjectMapper : DEFAULT_OBJECT_MAPPER;
 
-        this.assetOperations = new AssetOperations(apiKey, finalClient, finalObjectMapper);
-        this.exchangeOperations = new DefaultExchangeOperations(apiKey, finalClient, finalObjectMapper);
+        this.assetOperations = new HGBrasilAssetOperations(apiKey, finalClient, finalObjectMapper);
+        this.exchangeOperations = new HGBrasilExchangeOperations(apiKey, finalClient, finalObjectMapper);
     }
 
     /**
@@ -127,15 +127,15 @@ public final class HGBrasilClient {
 
     /**
      * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas, Índices e Criptoativos).
-     * @return instância de {@link AssetOperations}
+     * @return instância de {@link HGBrasilAssetOperations}
      * */
-    public HGBrasilOperations<AssetResponse> getAssetOperations() {
+    public AssetOperations<AssetResponse> getAssetOperations() {
         return this.assetOperations;
     }
 
     /**
      * Acessa as operações de busca de câmbio de moedas em relação ao Real (BRL) e cotação de Bitcoin.
-     * @return instância de {@link DefaultExchangeOperations}
+     * @return instância de {@link HGBrasilExchangeOperations}
      * */
     public ExchangeOperations getExchangeOperations() {
         return exchangeOperations;

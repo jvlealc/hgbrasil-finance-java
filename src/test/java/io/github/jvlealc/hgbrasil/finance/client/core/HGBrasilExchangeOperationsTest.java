@@ -21,7 +21,6 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.util.Map;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -29,7 +28,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class DefaultExchangeOperationsTest {
+class HGBrasilExchangeOperationsTest {
 
     private static final String MOCK_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
@@ -42,11 +41,11 @@ class DefaultExchangeOperationsTest {
     @Mock
     private HttpResponse<String> httpResponseMock;
 
-    private DefaultExchangeOperations exchangeOperations;
+    private HGBrasilExchangeOperations exchangeOperations;
 
     @BeforeEach
     void setUp() {
-        exchangeOperations = new DefaultExchangeOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
+        exchangeOperations = new HGBrasilExchangeOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test

@@ -25,7 +25,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AssetOperationsTest {
+class HGBrasilAssetOperationsTest {
 
     private static final String MOCK_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
@@ -38,11 +38,11 @@ class AssetOperationsTest {
     @Mock
     private HttpResponse<String> httpResponseMock;
 
-    private AssetOperations assetOperation;
+    private HGBrasilAssetOperations assetOperation;
 
     @BeforeEach
     void setUp() {
-        assetOperation = new AssetOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
+        assetOperation = new HGBrasilAssetOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test
