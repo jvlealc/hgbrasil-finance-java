@@ -30,7 +30,7 @@ class HGBrasilClientTest {
     }
 
     @Test
-    @DisplayName("Should build HGBrasilClient successfully with all custom configurations ")
+    @DisplayName("Should build HGBrasilClient successfully and initialize its operations with all custom configurations ")
     void shouldBuildClient_withAllCustomConfigs() {
         HttpClient customHttpClient = HttpClient.newHttpClient();
         ObjectMapper customObjectMapper = new ObjectMapper();
@@ -103,5 +103,18 @@ class HGBrasilClientTest {
         );
 
         assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
+    }
+
+    @Test
+    @DisplayName("Should close HGBrasilClient without throwing exception")
+    void shouldCloseClientGracefully() {
+        try (
+                HGBrasilClient client = HGBrasilClient.builder()
+                        .apiKey(VALID_KEY_MOCK)
+                        .build()
+        ) {
+            assertDoesNotThrow(client::close, "Closing the client must not throw any exception");
+            assertDoesNotThrow(client::close, "Closing the client multiple times must not throw any exception");
+        }
     }
 }
