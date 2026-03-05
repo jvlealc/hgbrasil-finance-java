@@ -63,22 +63,23 @@ class HGBrasilAssetOperationsTest {
                 "from_cache": false
             }
             """;
+        String symbol = "ITSA4";
 
         when(httpResponseMock.statusCode()).thenReturn(200);
         when(httpResponseMock.body()).thenReturn(expectedResponse);
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
-        AssetResponse actualResponse = assetOperation.getBySymbol("ITSA4");
+        AssetResponse actualResponse = assetOperation.getBySymbol(symbol);
 
         assertNotNull(actualResponse, "AssetResponse must not be null");
-        assertTrue(actualResponse.results().containsKey("ITSA4"), "AssetResponse must contain key ITSA4");
-        assertEquals("Itaúsa", actualResponse.results().get("ITSA4").name(), "AssetResponse must have correct name");
-        assertEquals(new BigDecimal("14.63"), actualResponse.results().get("ITSA4").price(), "AssetResponse must have correct price");
+        assertTrue(actualResponse.results().containsKey(symbol), "AssetResponse must contain key %s".formatted(symbol));
+        assertEquals("Itaúsa", actualResponse.results().get(symbol).name(), "AssetResponse must have correct name");
+        assertEquals(new BigDecimal("14.63"), actualResponse.results().get(symbol).price(), "AssetResponse must have correct price");
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException with correct error message when API key is invalid")
+    @DisplayName("Should throw HGBrasilAPIException with correct message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() throws IOException, InterruptedException {
         String invalidKeyResponse = """
             {
@@ -106,29 +107,37 @@ class HGBrasilAssetOperationsTest {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException and contains correct error message when the API returns 'Símbolo inválido.'")
-    void shouldThrowException_whenApiReturnsInvalidSymbol() throws IOException, InterruptedException {
+    @DisplayName("Should return AssetResponse with error fields mapped in the record and contains correct message when symbol is invalid")
+    void shouldReturnAssetResponseWithError_whenInvalidSymbol() throws IOException, InterruptedException {
         String invalidSymbolResponse = """    
                 {
-                    "by": "symbol",
-                    "valid_key": true,
-                    "results": {
-                        "error": true,
-                        "message": "Símbolo inválido."
-                    },
-                    "execution_time": 0.0,
-                    "from_cache": true
+                  "by": "symbol",
+                  "valid_key": true,
+                  "results": {
+                    "FALSE_ASSET_88": {
+                      "error": true,
+                      "message": "Error to get Stock for #FALSE_ASSET_88: Erro 852 - Símbolo não encontrado, por favor entre em contato conosco em console.hgbrasil.com."
+                    }
+                  },
+                  "execution_time": 0.0,
+                  "from_cache": true
                 }""";
+        String invalidSymbol = "FALSE_ASSET_88";
 
         when(httpResponseMock.statusCode()).thenReturn(200);
         when(httpResponseMock.body()).thenReturn(invalidSymbolResponse);
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
-        HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () -> {
-            assetOperation.getBySymbol("FALSE_ASSET_88");
-        });
-        assertTrue(exception.getMessage().contains("Símbolo inválido."), "Must have correct API error message");
+        AssetResponse actualResponse = assetOperation.getBySymbol(invalidSymbol);
+
+        assertAll("Verify mapping AssetResponse integrity",
+                () -> assertNotNull(actualResponse, "AssetResponse must not be null"),
+                () -> assertNotNull(actualResponse.results().get(invalidSymbol), "AssetResponse must have invalid symbol research into 'results' obj"),
+                () -> assertTrue(actualResponse.results().containsKey(invalidSymbol), "AssetResponse must contain key %s".formatted(invalidSymbol)),
+                () -> assertTrue(actualResponse.results().get(invalidSymbol).message().contains("Símbolo não encontrado,"), "Must have correct API error message"),
+                () -> assertTrue(actualResponse.results().get(invalidSymbol).error(), "Field 'error' must be true")
+        );
     }
 
     @Test
