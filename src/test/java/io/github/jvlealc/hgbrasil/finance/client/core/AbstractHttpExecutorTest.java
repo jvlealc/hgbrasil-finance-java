@@ -1,7 +1,6 @@
 package io.github.jvlealc.hgbrasil.finance.client.core;
 
 import io.github.jvlealc.hgbrasil.finance.client.exception.HGBrasilAPIException;
-import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -14,7 +13,6 @@ import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
 
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
@@ -25,7 +23,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
-class AbstractHGBrasilOperationsTest {
+class AbstractHttpExecutorTest {
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
@@ -44,8 +42,10 @@ class AbstractHGBrasilOperationsTest {
             .header("Accept", "application/json")
             .build();
 
+    private record SomeFakeResponse(String status, int code) {}
+
     // Classe concreta para realização de testes
-    private static final class TestConcreteHGBrasilOperations  extends AbstractHGBrasilOperations {
+    private static final class TestConcreteHGBrasilOperations  extends AbstractHttpExecutor {
         TestConcreteHGBrasilOperations(HttpClient httpClient, ObjectMapper objectMapper) {
             super(httpClient, objectMapper);
         }
@@ -57,70 +57,33 @@ class AbstractHGBrasilOperationsTest {
     }
 
     @Test
-    @DisplayName("Should return correct mapped CurrenciesResponse when the API responds successfully")
-    void shouldReturnCurrenciesResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
+    @DisplayName("Should execute request and map to the generic type when successfully")
+    void shouldExecuteRequestAndMapToGenericType_whenSuccess() throws IOException, InterruptedException {
         String expectedResponse = """
                 {
-                  "by": "default",
-                  "valid_key": true,
-                  "results": {
-                    "currencies": {
-                      "source": "BRL",
-                      "USD": {
-                        "name": "Dollar",
-                        "buy": 5.1366,
-                        "sell": 5.1311,
-                        "variation": 0.164
-                      }
-                    }
-                  },
-                  "execution_time": 0.0,
-                  "from_cache": true
+                    "status": "success",
+                    "code": 200
                 }
                 """;
+
         when(httpResponseMock.statusCode()).thenReturn(200);
         when(httpResponseMock.body()).thenReturn(expectedResponse);
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
-        CurrenciesResponse actualResponse = testOperations.sendRequest(fakeRequest, CurrenciesResponse.class);
+        SomeFakeResponse actualResponse = testOperations.sendRequest(fakeRequest, SomeFakeResponse.class);
 
-        assertAll("Verify successfully responses integrity",
-                () -> assertNotNull(actualResponse, "CurrenciesResponse must not be null"),
-                () -> assertEquals("BRL", actualResponse.results().
-                                currencies()
-                                .getSource(),
-                        "Source must be BRL"
-                ),
-                () -> assertTrue(actualResponse.results()
-                                .currencies()
-                                .getRates()
-                                .containsKey("USD"),
-                        "CurrencyData rates map must contain key 'USD'"
-                ),
-                () -> assertEquals("Dollar",
-                        actualResponse.results()
-                                .currencies()
-                                .getRates()
-                                .get("USD")
-                                .name(),
-                        "Currency must have correct name"
-                ),
-                () -> assertEquals(new BigDecimal("5.1311"),
-                        actualResponse.results()
-                                .currencies()
-                                .getRates()
-                                .get("USD")
-                                .sell(),
-                        "Currency sell price must be mapped correctly"
-                )
+        assertAll("Verify successful generic mapping",
+            () -> assertNotNull(actualResponse, "Mapped response must not be null"),
+            () -> assertEquals("success", actualResponse.status, "Must map string field correctly"),
+            () -> assertEquals(200, actualResponse.code, "Must map integer field correctly")
         );
     }
 
     @Test
     @DisplayName("Should throw HGBrasilAPIException and correct message when HttpClient throws IOException")
     void shouldThrowException_whenNetworkFailure() throws IOException, InterruptedException {
-        when(httpClientMock.send(any(), any())).thenThrow(new IOException("Timeout no Ubuntu"));
+        when(httpClientMock.send(any(), any())).thenThrow(new IOException("Timeout in Ubuntu"));
 
         HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () ->
                         testOperations.sendRequest(fakeRequest, String.class),
