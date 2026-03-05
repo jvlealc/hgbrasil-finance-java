@@ -1,4 +1,4 @@
-package io.github.jvlealc.hgbrasil.finance.client.exception;
+package io.github.jvlealc.hgbrasil.finance.client;
 
 /**
  * Exceção lançada quando ocorrer um erro ou recusa da requisição pela API HGBrasil

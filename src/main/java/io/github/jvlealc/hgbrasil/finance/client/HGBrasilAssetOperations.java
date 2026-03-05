@@ -1,7 +1,6 @@
-package io.github.jvlealc.hgbrasil.finance.client.core;
+package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
-import io.github.jvlealc.hgbrasil.finance.client.HGBrasilClient;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.URI;
@@ -10,18 +9,19 @@ import java.net.http.HttpRequest;
 import java.util.List;
 
 /**
- * Implementa operações para busca de dados de ativos (Ações, FIIs, Moedas, Índices).]
- *
- * Esta classe NÃO deve ser instancianda diretamente, utilize a classe {@link HGBrasilClient}
- * para realizar as operações.
+ * Implementação interna padrão de {@link AssetOperations}.
+ * <p>
+ * Possui visibilidade restrita (package-private) e a sua instanciação e o ciclo de vida desta classe
+ * são gerenciados exclusivamente pelo facade {@link HGBrasilClient}.
+ * </p>
  * */
-public final class HGBrasilAssetOperations extends AbstractHttpExecutor implements AssetOperations<AssetResponse> {
+final class HGBrasilAssetOperations extends AbstractHttpExecutor implements AssetOperations {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance/stock_price?format=json";
 
     private final String apiKey;
 
-    public HGBrasilAssetOperations(String apiKey, HttpClient httpClient, ObjectMapper objectMapper) {
+    HGBrasilAssetOperations(String apiKey, HttpClient httpClient, ObjectMapper objectMapper) {
         super(httpClient, objectMapper);
         this.apiKey = apiKey;
     }

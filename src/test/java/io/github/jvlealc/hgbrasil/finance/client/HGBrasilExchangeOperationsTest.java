@@ -1,4 +1,4 @@
-package io.github.jvlealc.hgbrasil.finance.client.core;
+package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinExchange;
 import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;

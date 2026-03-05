@@ -1,4 +1,6 @@
-package io.github.jvlealc.hgbrasil.finance.client.core;
+package io.github.jvlealc.hgbrasil.finance.client;
+
+import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 
 import java.util.List;
 
@@ -8,31 +10,30 @@ import java.util.List;
  * Também pode recuperar lista de ações de maiores altas e baixas do dia.
  *
  * @see <a href="https://hgbrasil.com/docs/finance/stocks">Documentação Oficial da HGBrasil - Bolsa de Valores</a>
- * @param <T> O modelo de resposta dos ativos
  */
-public interface AssetOperations<T> {
+public interface AssetOperations {
 
     /**
      * Busca dados de um único ativo.
      *
      * @param symbol símbolo/ticker do ativo
-     * @return T representação de resposta do ativo
+     * @return representação de resposta do ativo
      * */
-    T getBySymbol(String symbol);
+    AssetResponse getBySymbol(String symbol);
 
     /**
      * Busca dados de de multiplos ativos.
      *
      * @param symbols varargs de símbolos/tickers dos ativos
-     * @return T representação de resposta dos ativos
+     * @return representação de resposta dos ativos
      * */
-    T getBySymbols(String... symbols);
+    AssetResponse getBySymbols(String... symbols);
 
     /**
      * Busca dados de de multiplos ativos.
      *
      * @param symbols lista de símbolos/tickers dos ativos
-     * @return T representação de resposta dos ativos
+     * @return representação de resposta dos ativos
      * */
-    T getBySymbols(List<String> symbols);
+    AssetResponse getBySymbols(List<String> symbols);
 }

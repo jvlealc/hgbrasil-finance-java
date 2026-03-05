@@ -1,9 +1,5 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.IbovespaOperations;
-import io.github.jvlealc.hgbrasil.finance.client.exception.HGBrasilAPIException;
 import io.github.jvlealc.hgbrasil.finance.client.model.*;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
@@ -24,7 +20,7 @@ class HGBrasilClientIT {
     private static final String INVALID_API_KEY = "invalid-api-key";
 
     private HGBrasilClient client;
-    private AssetOperations<AssetResponse> assetOperations;
+    private AssetOperations assetOperations;
     private ExchangeOperations exchangeOperations;
     private IbovespaOperations ibovespaOperations;
 
@@ -54,7 +50,6 @@ class HGBrasilClientIT {
     @Test
     @DisplayName("Should throw HGBrasilAPIException with API message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() {
-        HGBrasilAPIException exception;
         try (
                 var clientWithInvalidKey = HGBrasilClient.builder()
                         .apiKey(INVALID_API_KEY)
@@ -62,15 +57,15 @@ class HGBrasilClientIT {
         ) {
             String symbol = "PETR4";
 
-            exception = assertThrows(
+            HGBrasilAPIException exception = assertThrows(
                     HGBrasilAPIException.class,
                     () -> clientWithInvalidKey.getAssetOperations().getBySymbol(symbol),
                     "Must throw HGBrasilAPIException"
             );
-        }
-        assertNotNull(exception.getMessage(), "Exception message must not be null");
+            assertNotNull(exception.getMessage(), "Exception message must not be null");
 
-        LOG.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
+            LOG.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
+        }
     }
 
     @Nested

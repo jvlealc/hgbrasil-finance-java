@@ -1,6 +1,5 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.core.*;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -31,7 +30,7 @@ public final class HGBrasilClient implements AutoCloseable {
 
     private final ExecutorService internalExecutor;
 
-    private final AssetOperations<AssetResponse> assetOperations;
+    private final AssetOperations assetOperations;
     private final ExchangeOperations exchangeOperations;
     private final IbovespaOperations ibovespaOperations;
 
@@ -83,7 +82,7 @@ public final class HGBrasilClient implements AutoCloseable {
      * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas, Índices e Criptoativos).
      * @return instância de {@link HGBrasilAssetOperations}
      * */
-    public AssetOperations<AssetResponse> getAssetOperations() {
+    public AssetOperations getAssetOperations() {
         return assetOperations;
     }
 

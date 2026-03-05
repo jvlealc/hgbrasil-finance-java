@@ -1,6 +1,5 @@
-package io.github.jvlealc.hgbrasil.finance.client.core;
+package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.exception.HGBrasilAPIException;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
