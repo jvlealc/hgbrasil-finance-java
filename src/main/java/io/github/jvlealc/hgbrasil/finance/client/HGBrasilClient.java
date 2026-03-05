@@ -1,9 +1,6 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilAssetOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.HGBrasilExchangeOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
-import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.*;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -12,6 +9,7 @@ import tools.jackson.datatype.jsr310.JavaTimeModule;
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
@@ -24,29 +22,53 @@ import java.util.concurrent.Executors;
  *
  * @see <a href="https://hgbrasil.com/docs/finance">Documentação Oficial da HGBrasil</a>
  * */
-public final class HGBrasilClient {
+public final class HGBrasilClient implements AutoCloseable {
 
     private static final long TIMEOUT_DURATION_SECONDS = 20L;
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .build();
-    private static final Executor DEFAULT_EXECUTOR = Executors.newVirtualThreadPerTaskExecutor();
+
+    private final ExecutorService internalExecutor;
 
     private final AssetOperations<AssetResponse> assetOperations;
     private final ExchangeOperations exchangeOperations;
+    private final IbovespaOperations ibovespaOperations;
 
-    private HGBrasilClient(String apiKey, Duration timeout, HttpClient customHttpClient, ObjectMapper customObjectMapper, Executor customExecutor) {
-        HttpClient finalClient = customHttpClient != null ? customHttpClient : HttpClient.newBuilder()
+    private HGBrasilClient(Builder builder) {
+        if (builder.apiKey == null || builder.apiKey.isBlank()) {
+            throw new IllegalArgumentException("HGBrasil API Key is required to build the client.");
+        }
+
+        Duration timeout = builder.timeout != null
+                ? builder.timeout
+                : Duration.ofSeconds(TIMEOUT_DURATION_SECONDS);
+
+        ObjectMapper objectMapper = builder.objectMapper != null
+                ? builder.objectMapper
+                : DEFAULT_OBJECT_MAPPER;
+
+        Executor executor = builder.executor;
+
+        if (executor == null) {
+            this.internalExecutor = Executors.newVirtualThreadPerTaskExecutor();
+            executor = this.internalExecutor;
+        } else {
+            this.internalExecutor = null;
+        }
+
+        HttpClient httpClient = builder.httpClient != null
+                ? builder.httpClient
+                : HttpClient.newBuilder()
                 .version(HttpClient.Version.HTTP_2)
-                .connectTimeout(timeout != null ? timeout : Duration.ofSeconds(TIMEOUT_DURATION_SECONDS))
-                .executor(customExecutor != null ? customExecutor : DEFAULT_EXECUTOR)
+                .connectTimeout(timeout)
+                .executor(executor)
                 .followRedirects(HttpClient.Redirect.NORMAL)
                 .build();
 
-        ObjectMapper finalObjectMapper = customObjectMapper != null ? customObjectMapper : DEFAULT_OBJECT_MAPPER;
-
-        this.assetOperations = new HGBrasilAssetOperations(apiKey, finalClient, finalObjectMapper);
-        this.exchangeOperations = new HGBrasilExchangeOperations(apiKey, finalClient, finalObjectMapper);
+        this.assetOperations = new HGBrasilAssetOperations(builder.apiKey, httpClient, objectMapper);
+        this.exchangeOperations = new HGBrasilExchangeOperations(builder.apiKey, httpClient, objectMapper);
+        this.ibovespaOperations = new HGBrasilIbovespaOperations(builder.apiKey, httpClient, objectMapper);
     }
 
     /**
@@ -58,9 +80,41 @@ public final class HGBrasilClient {
     }
 
     /**
+     * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas, Índices e Criptoativos).
+     * @return instância de {@link HGBrasilAssetOperations}
+     * */
+    public AssetOperations<AssetResponse> getAssetOperations() {
+        return assetOperations;
+    }
+
+    /**
+     * Acessa as operações de busca de câmbio de moedas em relação ao Real (BRL) e cotação de Bitcoin.
+     * @return instância de {@link HGBrasilExchangeOperations}
+     * */
+    public ExchangeOperations getExchangeOperations() {
+        return exchangeOperations;
+    }
+
+    /**
+     * Acessar operação de busca de histórico e detalhes da Ibovespa.
+     * @return instância de {@link HGBrasilIbovespaOperations}
+     * */
+    public IbovespaOperations getIbovespaOperations() {
+        return ibovespaOperations;
+    }
+
+    @Override
+    public void close() {
+        if (internalExecutor != null && !internalExecutor.isShutdown()) {
+            internalExecutor.shutdown();
+        }
+    }
+
+    /**
      * Builder para configuração da {@link HGBrasilClient}.
      * */
     public static final class Builder {
+
         private String apiKey;
         private Duration timeout;
         private HttpClient httpClient;
@@ -118,26 +172,7 @@ public final class HGBrasilClient {
          * @return {@link HGBrasilClient}
          * */
         public HGBrasilClient build() {
-            if (this.apiKey == null || this.apiKey.isBlank()) {
-                throw new IllegalArgumentException("HGBrasil API Key is required to build the client.");
-            }
-            return new HGBrasilClient(this.apiKey, this.timeout, this.httpClient, this.objectMapper,  this.executor);
+            return new HGBrasilClient(this);
         }
-    }
-
-    /**
-     * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas, Índices e Criptoativos).
-     * @return instância de {@link HGBrasilAssetOperations}
-     * */
-    public AssetOperations<AssetResponse> getAssetOperations() {
-        return this.assetOperations;
-    }
-
-    /**
-     * Acessa as operações de busca de câmbio de moedas em relação ao Real (BRL) e cotação de Bitcoin.
-     * @return instância de {@link HGBrasilExchangeOperations}
-     * */
-    public ExchangeOperations getExchangeOperations() {
-        return exchangeOperations;
     }
 }
