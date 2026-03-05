@@ -1,6 +1,5 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
