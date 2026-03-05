@@ -20,7 +20,7 @@ public class HGBrasilIbovespaOperations extends AbstractHttpExecutor implements 
 
     @Override
     public IbovespaResponse getIbovespa() {
-        String url = BASE_URL + "&api_key=" + apiKey;
+        String url = BASE_URL + "&key=" + apiKey;
         HttpRequest request = HttpRequest.newBuilder()
                 .uri(URI.create(url))
                 .GET()
