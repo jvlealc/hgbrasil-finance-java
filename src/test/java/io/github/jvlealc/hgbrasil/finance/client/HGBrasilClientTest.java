@@ -18,15 +18,18 @@ class HGBrasilClientTest {
     @Test
     @DisplayName("Should build HGBrasilClient successfully and initialize its operations when valid API key is provided")
     void shouldBuildClient_whenApiKeyOnlyProvided() {
-        HGBrasilClient hgClient = HGBrasilClient.builder()
-                .apiKey(VALID_KEY_MOCK)
-                .build();
-
-        assertAll("Verify client instantiation and operations initializations",
-                () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized")
-        );
+        try (
+                HGBrasilClient hgClient = HGBrasilClient.builder()
+                        .apiKey(VALID_KEY_MOCK)
+                        .build()
+        ) {
+            assertAll("Verify client instantiation and operations initializations",
+                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
+                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
+                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
+                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
+            );
+        }
     }
 
     @Test
@@ -37,42 +40,46 @@ class HGBrasilClientTest {
         Executor customExecutor = Executors.newSingleThreadExecutor(Thread::new);
         Duration customTimeout = Duration.ofSeconds(10);
 
-        HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
-                .apiKey(VALID_KEY_MOCK)
-                .timeout(customTimeout)
-                .httpClient(customHttpClient)
-                .objectMapper(customObjectMapper)
-                .executor(customExecutor)
-                .build(),
+        try (
+                HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
+                        .apiKey(VALID_KEY_MOCK)
+                        .timeout(customTimeout)
+                        .httpClient(customHttpClient)
+                        .objectMapper(customObjectMapper)
+                        .executor(customExecutor)
+                        .build(),
                 "Must not throws exception"
-        );
-
-        assertAll("Verify client build and operations initializations",
-                () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized")
-        );
+        )) {
+            assertAll("Verify client build and operations initializations",
+                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
+                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
+                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
+                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
+            );
+        }
     }
 
     @Test
-    @DisplayName("Should build HGBrasilClient successfully with partial custom configurations ")
+    @DisplayName("Should build HGBrasilClient successfully and initialize its operations with partial custom configurations ")
     void shouldBuildClient_withPartialCustomConfigs() {
         HttpClient customHttpClient = HttpClient.newHttpClient();
         Duration customTimeout = Duration.ofSeconds(10);
 
-        HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
+        try (
+                HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
                         .apiKey(VALID_KEY_MOCK)
                         .timeout(customTimeout)
                         .httpClient(customHttpClient)
                         .build(),
                 "Must not throws exception"
-        );
-
-        assertAll("Verify client build and operations initializations",
-                () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized")
-        );
+        )) {
+            assertAll("Verify client build and operations initializations",
+                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
+                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
+                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
+                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
+            );
+        }
     }
 
     @Test
@@ -80,11 +87,9 @@ class HGBrasilClientTest {
     void shouldThrowException_whenApiKeyIsBlank() {
         String expectedMessage = "HGBrasil API Key is required to build the client.";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                HGBrasilClient.builder()
-                        .apiKey("   ")
-                        .build(),
-                "Must have throw the IllegalArgumentException when missing API key"
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, HGBrasilClient.builder()
+                        .apiKey("   ")::build,
+                "Must throw IllegalArgumentException when missing API key"
         );
 
         assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
@@ -95,11 +100,9 @@ class HGBrasilClientTest {
     void shouldThrowException_whenApiKeyIsNull() {
         String expectedMessage = "HGBrasil API Key is required to build the client.";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, () ->
-                        HGBrasilClient.builder()
-                                .apiKey(null)
-                                .build(),
-                "Must have throw the IllegalArgumentException when missing API key"
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, HGBrasilClient.builder()
+                        .apiKey(null)::build,
+                "Must throw IllegalArgumentException when missing API key"
         );
 
         assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
