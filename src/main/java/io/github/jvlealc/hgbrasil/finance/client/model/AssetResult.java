@@ -13,11 +13,6 @@ import java.util.List;
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AssetResult(
-        // campos de erro
-        Boolean error,
-        String message,
-
-        // campos de sucesso
         String kind,
         String symbol,
         String name,
@@ -47,5 +42,14 @@ public record AssetResult(
         Long volume,
         @JsonProperty("updated_at")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
-        LocalDateTime updatedAt
-) {}
+        LocalDateTime updatedAt,
+        // campos de erro
+        Boolean error,
+        String message
+) {
+        public AssetResult {
+                if (error == null) {
+                        error = false;
+                }
+        }
+}
