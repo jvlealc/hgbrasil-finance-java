@@ -15,7 +15,7 @@ import java.util.List;
  * Esta classe NÃO deve ser instancianda diretamente, utilize a classe {@link HGBrasilClient}
  * para realizar as operações.
  * */
-public final class HGBrasilAssetOperations extends AbstractHGBrasilOperations implements AssetOperations<AssetResponse> {
+public final class HGBrasilAssetOperations extends AbstractHttpExecutor implements AssetOperations<AssetResponse> {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance/stock_price?format=json";
 

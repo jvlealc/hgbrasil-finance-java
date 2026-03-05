@@ -10,15 +10,16 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 /**
- * Classe base para as operações da API HGBrasil.
- * Centraliza a lógica de comunicação HTTP, tratamento de erros e parsing de JSON.
+ * Classe base para execução de requisições HTTP para API da HGBrasil.
+ * Centraliza a lógica de comunicação HTTP, tratamento de erros e
+ * processamento de respostas de JSON.
  */
-abstract class AbstractHGBrasilOperations {
+abstract class AbstractHttpExecutor {
 
     private final HttpClient httpClient;
     private final ObjectMapper objectMapper;
 
-    AbstractHGBrasilOperations(HttpClient httpClient, ObjectMapper objectMapper) {
+    AbstractHttpExecutor(HttpClient httpClient, ObjectMapper objectMapper) {
         this.httpClient = httpClient;
         this.objectMapper = objectMapper;
     }

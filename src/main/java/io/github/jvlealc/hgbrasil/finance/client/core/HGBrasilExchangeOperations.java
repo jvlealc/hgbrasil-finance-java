@@ -15,7 +15,7 @@ import java.net.http.HttpRequest;
  * Esta classe NÃO deve ser instancianda diretamente, utilize a classe {@link HGBrasilClient}
  * para realizar as operações.
  * */
-public final class HGBrasilExchangeOperations extends AbstractHGBrasilOperations implements ExchangeOperations {
+public final class HGBrasilExchangeOperations extends AbstractHttpExecutor implements ExchangeOperations {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance?format=json";
 
