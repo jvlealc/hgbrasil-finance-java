@@ -2,6 +2,7 @@ package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
 import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
+import io.github.jvlealc.hgbrasil.finance.client.exception.HGBrasilAPIException;
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
@@ -20,6 +21,7 @@ class HGBrasilClientIT {
 
     private static final Logger LOG =  LoggerFactory.getLogger(HGBrasilClientIT.class);
     private static final String HGBRASIL_API_KEY = System.getenv("HGBRASIL_API_KEY");
+    private static final String INVALID_API_KEY = "invalid-api-key";
 
     private HGBrasilClient client;
     private AssetOperations<AssetResponse> assetOperations;
@@ -40,6 +42,24 @@ class HGBrasilClientIT {
     void beforeEach() {
         assetOperations = client.getAssetOperations();
         exchangeOperations = client.getExchangeOperations();
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilAPIException with API message when API key is invalid")
+    void shouldThrowException_whenInvalidApiKey() {
+        var clientWithInvalidKey = HGBrasilClient.builder()
+                .apiKey(INVALID_API_KEY)
+                .build();
+        String symbol = "PETR4";
+
+        HGBrasilAPIException exception = assertThrows(
+                HGBrasilAPIException.class,
+                () -> clientWithInvalidKey.getAssetOperations().getBySymbol(symbol),
+                "Must be throw HGBrasilAPIException"
+        );
+        assertNotNull(exception.getMessage(), "Exception message must not be null");
+
+        LOG.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
     }
 
     @Nested
@@ -120,15 +140,15 @@ class HGBrasilClientIT {
             assertNotNull(response, "Asset response must not be null");
             assertNotNull(response.results(), "Field 'results' must not be null");
             assertTrue(response.results().containsKey("KNCA11"), "Asset response must contain key 'KNCA11'");
-            assertNull(response.results().get("KNCA11").error(), "KNCA11 field 'error' should be null");
+            assertFalse(response.results().get("KNCA11").error(), "KNCA11 field 'error' should be false");
             assertNotNull(response.results().get("KNCA11").price(), "KNCA11 price must not be null");
 
             assertTrue(response.results().containsKey("JURO11"), "Asset response must contain key 'JURO11'");
-            assertNull(response.results().get("JURO11").error(), "JURO11 field 'error' should be null");
+            assertFalse(response.results().get("JURO11").error(), "JURO11 field 'error' should be false");
             assertNotNull(response.results().get("JURO11").price(), "JURO11 price must not be null");
 
             assertTrue(response.results().containsKey("USDBRL"), "Asset response must contain key 'USDBRL'");
-            assertNull(response.results().get("USDBRL").error(), "USDBRL field 'error' should be null");
+            assertFalse(response.results().get("USDBRL").error(), "USDBRL field 'error' should be false");
             assertNotNull(response.results().get("USDBRL").price(), "USDBRL price must not be null");
 
             assertTrue(response.validKey(), "API Key must be valid");
