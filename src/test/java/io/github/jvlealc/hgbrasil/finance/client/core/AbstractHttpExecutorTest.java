@@ -96,13 +96,13 @@ class AbstractHttpExecutorTest {
 
 
     @Test
-    @DisplayName("Should re-interrupt thread and throw RuntimeException when HttpClient throws InterruptedException")
-    void shouldInterruptThread_whenThrowException() throws IOException, InterruptedException {
+    @DisplayName("Should re-interrupt thread and throw HGBrasilAPIException when HttpClient throws InterruptedException")
+    void shouldInterruptThread_whenInterruptedExceptionIsThrow() throws IOException, InterruptedException {
         when(httpClientMock.send(any(), any())).thenThrow(new InterruptedException("Thread killed"));
 
-        RuntimeException exception = assertThrows(RuntimeException.class, () ->
+        HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () ->
                         testOperations.sendRequest(fakeRequest, String.class),
-                "Must have throw the RuntimeException"
+                "Must have throw the HGBrasilAPIException"
         );
 
         assertTrue(Thread.currentThread().isInterrupted(),
