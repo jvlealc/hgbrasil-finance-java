@@ -2,15 +2,15 @@ package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.core.ExchangeOperations;
 import io.github.jvlealc.hgbrasil.finance.client.core.AssetOperations;
+import io.github.jvlealc.hgbrasil.finance.client.core.IbovespaOperations;
 import io.github.jvlealc.hgbrasil.finance.client.exception.HGBrasilAPIException;
-import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
-import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
-import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
+import io.github.jvlealc.hgbrasil.finance.client.model.*;
 import org.junit.jupiter.api.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -26,6 +26,7 @@ class HGBrasilClientIT {
     private HGBrasilClient client;
     private AssetOperations<AssetResponse> assetOperations;
     private ExchangeOperations exchangeOperations;
+    private IbovespaOperations ibovespaOperations;
 
     @BeforeAll
     void setup() {
@@ -42,21 +43,31 @@ class HGBrasilClientIT {
     void beforeEach() {
         assetOperations = client.getAssetOperations();
         exchangeOperations = client.getExchangeOperations();
+        ibovespaOperations = client.getIbovespaOperations();
+    }
+
+    @AfterAll
+    void cleanup() {
+        if (client != null) client.close();
     }
 
     @Test
     @DisplayName("Should throw HGBrasilAPIException with API message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() {
-        var clientWithInvalidKey = HGBrasilClient.builder()
-                .apiKey(INVALID_API_KEY)
-                .build();
-        String symbol = "PETR4";
+        HGBrasilAPIException exception;
+        try (
+                var clientWithInvalidKey = HGBrasilClient.builder()
+                        .apiKey(INVALID_API_KEY)
+                        .build()
+        ) {
+            String symbol = "PETR4";
 
-        HGBrasilAPIException exception = assertThrows(
-                HGBrasilAPIException.class,
-                () -> clientWithInvalidKey.getAssetOperations().getBySymbol(symbol),
-                "Must be throw HGBrasilAPIException"
-        );
+            exception = assertThrows(
+                    HGBrasilAPIException.class,
+                    () -> clientWithInvalidKey.getAssetOperations().getBySymbol(symbol),
+                    "Must throw HGBrasilAPIException"
+            );
+        }
         assertNotNull(exception.getMessage(), "Exception message must not be null");
 
         LOG.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
@@ -66,7 +77,7 @@ class HGBrasilClientIT {
     class HGBrasilExchangeOperationsIT {
 
         @Test
-        @DisplayName("Should fetch currencies rate")
+        @DisplayName("Should successfully fetch currencies rate")
         void shouldFetchCurrencies() {
             CurrenciesResponse response = exchangeOperations.getCurrencies();
 
@@ -79,7 +90,7 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should fetch currencies data")
+        @DisplayName("Should successfully fetch Bitcoin data")
         void shouldFetchBitcoin() {
             BitcoinResponse response = exchangeOperations.getBitcoin();
 
@@ -95,7 +106,7 @@ class HGBrasilClientIT {
     class HGBrasilAssetOperationsIT {
 
         @Test
-        @DisplayName("Should fetch asset data by symbol")
+        @DisplayName("Should successfully fetch asset data by symbol")
         void shouldFetchAssetBySymbol() {
             String symbol = "PETR4";
             AssetResponse response = assetOperations.getBySymbol(symbol);
@@ -110,7 +121,7 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should fetch asset data by symbol list")
+        @DisplayName("Should successfully fetch asset data by symbol list")
         void shouldFetchAssetBySymbolList() {
             List<String> symbols = List.of("PETR4", "BPAC11", "RBRY11");
             AssetResponse response = assetOperations.getBySymbols(symbols);
@@ -132,7 +143,7 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should fetch asset data by symbol varargs")
+        @DisplayName("Should successfully fetch asset data by symbol varargs")
         void shouldFetchAssetBySymbolVarargs() {
             String[] symbols = {"KNCA11", "JURO11", "USDBRL"};
             AssetResponse response = assetOperations.getBySymbols(symbols);
@@ -157,7 +168,7 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should return error fields when fetching a non-existent symbol")
+        @DisplayName("Should return error fields in response when fetching a non-existent symbol")
         void shouldReturnErrorFields_whenFetchingNonExistentSymbol() {
             AssetResponse response = assetOperations.getBySymbol("UNEXISTENTSYMBOL11");
 
@@ -172,8 +183,8 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should return unified response template when fetching different assets")
-        void shouldReturnUnifiedAssets() {
+        @DisplayName("Should successfully return unified response template when fetching different assets")
+        void shouldFetchMixedAssetTypes() {
             String[] symbols = {"ETHUSD", "BVSP", "EURBRL", "BDIV11", "TSMC34"};
             AssetResponse response = assetOperations.getBySymbols(symbols);
 
@@ -192,6 +203,32 @@ class HGBrasilClientIT {
 
             assertTrue(response.results().containsKey("TSMC34"), "Asset response must contain key 'TSMC34'");
             assertEquals("bdr", response.results().get("TSMC34").kind(), "TSMC34 field 'kind' must be bdr");
+        }
+    }
+    
+    @Nested
+    class HGBrasilIbovespaOperationsIT {
+
+        @Test
+        @DisplayName("Should successfully fetch Ibovespa details")
+        void shouldFetchIbovespa() {
+            IbovespaResponse response = ibovespaOperations.getIbovespa();
+
+            assertNotNull(response, "IBOVESPA response must not be null");
+            assertTrue(response.validKey(), "API key must be valid");
+
+            assertNotNull(response.results(), "Field 'results' must not be null");
+            assertFalse(response.results().isEmpty(), "Result list should not be empty");
+
+            IbovespaResult ibovespaResult = response.results().getFirst();
+            assertNotNull(ibovespaResult.data(), "Field 'data' must not be null");
+            assertFalse(ibovespaResult.data().isEmpty(), "Data list should not be empty");
+
+            IbovespaIntradayPoint intradayPoint = ibovespaResult.data().getFirst();
+            assertNotNull(intradayPoint.date(), "Field 'date' must not be null");
+            assertEquals(LocalDateTime.class, intradayPoint.date().getClass(), "The 'date' must be converted to LocalDateTime type");
+
+            LOG.debug("Ibovespa response:\n{}\n", response);
         }
     }
 }
