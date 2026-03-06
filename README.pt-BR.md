@@ -29,6 +29,19 @@ O client entrega dados estruturados através de *Records* dos seguintes recursos
 * **Indicadores Econômicos:** Taxas, índices de inflação, grupamentos, desdobramentos de ativos da B3.
 * **Série Histórica:** Dados históricos e intradiários de ativos da B3, indicadores, moedas e criptomoedas.
 
+### Arquitetura
+
+A classe central que gerencia o ciclo de vida e fornece acesso às operações da API é o `HGBrasilClient.java`.
+Ele foi projetado utilizando o padrão Builder para garantir uma configuração e inicialização fluente e segura.
+
+Para começar, o único parâmetro obrigatório é a `apiKey`. No entanto, pensando na flexibilidade arquitetural de cada aplicação e em uma excelente *Developer Experience* (DX),
+o `Builder` permite a injeção de componentes customizados para adequar o SDK ao seu ecossistema, como instâncias próprias de `HttpClient`, `ObjectMapper` e `ExecutorService`
+
+**Atenção:** O SDK gerencia automaticamente o mapeamento e conversões de datas do JSON da API para os Records modelo. Caso você opte por injetar um `ObjectMapper` customizado,
+é estritamente aconselhável registrar o módulo `JavaTimeModule` no seu *mapper* para garantir que a desserialização ocorra sem falhas.
+
+---
+
 ## Início Rápido
 
 Para utilizar o client em seu projeto Maven, adicione a seguinte dependência ao seu arquivo `pom.xml`:
@@ -45,20 +58,6 @@ Para projetos utilizando Gradle:
 ```groovy
 implementation 'io.github.jvlealc:hgbrasil-finance-client:Em Breve...'
 ```
-
----
-
-### Arquitetura
-
-A classe central que gerencia o ciclo de vida e fornece acesso às operações da API é o `HGBrasilClient.java`.
-Ele foi projetado utilizando o padrão Builder para garantir uma configuração e inicialização fluente e segura.
-
-Para começar, o único parâmetro obrigatório é a `apiKey`. No entanto, pensando na flexibilidade arquitetural de cada aplicação e em uma excelente *Developer Experience* (DX),
-o `Builder` permite a injeção de componentes customizados para adequar o SDK ao seu ecossistema, como instâncias próprias de `HttpClient`, `ObjectMapper` e `ExecutorService`
-
-**Atenção:** O SDK gerencia automaticamente o mapeamento e conversões de datas do JSON da API para os Records modelo. Caso você opte por injetar um `ObjectMapper` customizado,
-é estritamente aconselhável registrar o módulo `JavaTimeModule` no seu *mapper* para garantir que a desserialização ocorra sem falhas.
-
 
 ## Exemplo de Uso
 
