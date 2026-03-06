@@ -1,4 +1,4 @@
-# HGBrasil Finance Client - SDK Java (em desenvolvimento...)
+# HG Brasil Finance Client - SDK Java (em desenvolvimento...)
 
 ![Java 21](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
