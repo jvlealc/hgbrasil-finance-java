@@ -100,7 +100,7 @@ class HGBrasilClientTest {
     @Test
     @DisplayName("Should throw IllegalArgumentException with correct message when API key is null")
     void shouldThrowException_whenApiKeyIsNull() {
-        String expectedMessage = "HGBrasil API Key is required to build the client.";
+        String expectedMessage = "HG Brasil API Key is required to build the client.";
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, HGBrasilClient.builder()
                         .apiKey(null)::build,
