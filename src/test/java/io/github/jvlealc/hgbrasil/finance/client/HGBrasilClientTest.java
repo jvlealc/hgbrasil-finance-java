@@ -2,11 +2,13 @@ package io.github.jvlealc.hgbrasil.finance.client;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import tools.jackson.databind.ObjectMapper;
 
 import java.net.http.HttpClient;
 import java.time.Duration;
 import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -119,5 +121,20 @@ class HGBrasilClientTest {
             assertDoesNotThrow(client::close, "Closing the client must not throw any exception");
             assertDoesNotThrow(client::close, "Closing the client multiple times must not throw any exception");
         }
+    }
+
+    @Test
+    @DisplayName("Should NOT attempt to shutdown a custom ExecutorService injected by the user")
+    void shouldNotShutdownCustomExecutor_whenClientIsClosed() {
+        ExecutorService customExecutorMock = Mockito.mock(ExecutorService.class);
+        HGBrasilClient client = HGBrasilClient.builder()
+                .apiKey(VALID_KEY_MOCK)
+                .executor(customExecutorMock)
+                .build();
+
+        client.close();
+
+        Mockito.verify(customExecutorMock, Mockito.never()).shutdown();
+        Mockito.verify(customExecutorMock, Mockito.never()).shutdownNow();
     }
 }
