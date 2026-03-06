@@ -7,8 +7,8 @@ import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
  * Interface de contrato que realiza operações para obter
  * o câmbio de moedas fiduciárias e cotação do Bitcoin.
  *
- * @see <a href="https://hgbrasil.com/docs/finance/currencies">Documentação Oficial da HGBrasil - Moedas</a>
- * @see <a href="https://hgbrasil.com/docs/finance/crypto">Documentação Oficial da HGBrasil - Criptomoedas</a>
+ * @see <a href="https://hgbrasil.com/docs/finance/currencies">Documentação Oficial da HG Brasil - Moedas</a>
+ * @see <a href="https://hgbrasil.com/docs/finance/crypto">Documentação Oficial da HG Brasil - Criptomoedas</a>
  * */
 public interface ExchangeOperations {
 

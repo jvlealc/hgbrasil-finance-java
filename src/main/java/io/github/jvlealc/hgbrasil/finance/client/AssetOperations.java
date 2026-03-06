@@ -9,7 +9,7 @@ import java.util.List;
  * e detalhes de ativos, como Ações, FIIs, Moedas, Índices e Criptoativo.
  * Também pode recuperar lista de ações de maiores altas e baixas do dia.
  *
- * @see <a href="https://hgbrasil.com/docs/finance/stocks">Documentação Oficial da HGBrasil - Bolsa de Valores</a>
+ * @see <a href="https://hgbrasil.com/docs/finance/stocks">Documentação Oficial da HG Brasil - Bolsa de Valores</a>
  */
 public interface AssetOperations {
 

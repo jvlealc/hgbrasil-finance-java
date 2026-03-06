@@ -11,14 +11,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Http Client para comunicação com a API financeira da HGBrasil.
+ * Http Client para comunicação com a API financeira da HG Brasil.
  * <p>
  *     Esta classe utiliza Virtual Threads e deve ser instanciada via {@link #builder()}.
  *     Atua como um Facade que fornece acesso às classes que implementam as operações
  *     de comunicação com a API.
  * </p>
  *
- * @see <a href="https://hgbrasil.com/docs/finance">Documentação Oficial da HGBrasil</a>
+ * @see <a href="https://hgbrasil.com/docs/finance">Documentação Oficial da HG Brasil</a>
  * */
 public final class HGBrasilClient implements AutoCloseable {
 
@@ -35,7 +35,7 @@ public final class HGBrasilClient implements AutoCloseable {
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
-            throw new IllegalArgumentException("HGBrasil API Key is required to build the client.");
+            throw new IllegalArgumentException("HG Brasil API Key is required to build the client.");
         }
 
         Duration timeout = builder.timeout != null
@@ -70,7 +70,7 @@ public final class HGBrasilClient implements AutoCloseable {
     }
 
     /**
-     * Inicia a construção do client HGBrasil
+     * Inicia a construção do client HG Brasil
      * @return Instância do Builder
      * */
     public static Builder builder() {
@@ -122,7 +122,7 @@ public final class HGBrasilClient implements AutoCloseable {
         private Builder() {}
 
         /**
-         * @param apiKey Chave da API da HGBrasil
+         * @param apiKey Chave da API da HG Brasil
          * */
         public Builder apiKey(String apiKey) {
             this.apiKey = apiKey;
@@ -166,7 +166,7 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
-         * Constrói e retorna o client da HGBrasil configurado.
+         * Constrói e retorna o client da HG Brasil configurado.
          * @return {@link HGBrasilClient}
          * */
         public HGBrasilClient build() {

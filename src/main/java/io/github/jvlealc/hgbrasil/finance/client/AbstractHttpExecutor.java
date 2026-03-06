@@ -9,7 +9,7 @@ import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 
 /**
- * Classe base para execução de requisições HTTP para API da HGBrasil.
+ * Classe base para execução de requisições HTTP para API da HG Brasil.
  * Centraliza a lógica de comunicação HTTP, tratamento de erros e
  * processamento de respostas de JSON.
  */
@@ -44,16 +44,16 @@ abstract class AbstractHttpExecutor {
 
             if (resultNode.path("error").asBoolean(false)) {
                 String errorMessage = resultNode.path("message").asString("Unknown API error.");
-                throw new HGBrasilAPIException("HGBrasil API error: %s".formatted(errorMessage));
+                throw new HGBrasilAPIException("HG Brasil API error: %s".formatted(errorMessage));
             }
 
             return objectMapper.treeToValue(rootNode, responseType);
 
         } catch (IOException e) {
-            throw new HGBrasilAPIException("I/O or parsing error while calling HGBrasil API.", e);
+            throw new HGBrasilAPIException("I/O or parsing error while calling HG Brasil API.", e);
         } catch (InterruptedException e) {
             Thread.currentThread().interrupt();
-            throw new HGBrasilAPIException("Thread interrupted during HGBrasil API call.", e);
+            throw new HGBrasilAPIException("Thread interrupted during HG Brasil API call.", e);
         }
     }
 }
