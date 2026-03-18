@@ -5,10 +5,8 @@ package io.github.jvlealc.hgbrasil.finance.client;
  * */
 public class HGBrasilApiException extends RuntimeException {
 
-
     public HGBrasilApiException(String message) {
         super(message);
-
     }
 
     public HGBrasilApiException(String message, Throwable cause) {
