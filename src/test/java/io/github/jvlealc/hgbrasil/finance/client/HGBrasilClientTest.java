@@ -29,7 +29,8 @@ class HGBrasilClientTest {
                     () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
                     () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
                     () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
-                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
+                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized"),
+                    () -> assertNotNull(hgClient.getDividendOperations(), "Dividend operations must be initialized")
             );
         }
     }
