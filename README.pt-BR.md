@@ -63,40 +63,27 @@ implementation 'io.github.jvlealc:hgbrasil-finance-client:Em Breve...'
 
 ```java
 import io.github.jvlealc.hgbrasil.finance.client.HGBrasilClient;
+import io.github.jvlealc.hgbrasil.finance.client.AssetOperations;
+import io.github.jvlealc.hgbrasil.finance.client.model.AssetResult;
 
 public class Main {
-    public static void main(String[] args) {
-        try (
-                HGBrasilClient client = HGBrasilClient.builder()
-                        .apiKey("YOUR_API_KEY")
-                        .build()
-        ) {
-            // Obtendo as operações de ativos da B3
-            var assetOp = client.getAssetOperations();
+   public static void main(String[] args) {
+      try (HGBrasilClient client = HGBrasilClient.builder()
+              .apiKey("YOUR_API_KEY")
+              .build()) {
 
-            // Exemplo padrão de consulta de ativos navegando no Map 'results'
-            var petr4Result = assetOp.getBySymbol("PETR4")
-                    .results()
-                    .get("PETR4");
+         AssetOperations assetOperations = client.getAssetOperations();
 
-            System.out.printf( "Asset: %s\n", petr4Result.name() );
-            System.out.printf( "Price: %s\n", petr4Result.price() );
-            System.out.printf( "Percent Change: %s%%\n", petr4Result.changePercent() );
+         // Consulta padrão navegando no Map 'results'
+         AssetResult petr4 = assetOperations.getBySymbol("PETR4")
+                 .results()
+                 .get("PETR4");
 
-            // Consulta de criptoativo utilizando o utilitário getFirstAssetResult com Optional
-            var bitcoinResponse = assetOp.getBySymbol("BTCBRL");
-
-            bitcoinResponse.getFirstAssetResult().ifPresent(asset ->
-                    System.out.printf(
-                            "Asset: %s\nPrice: %s\nPercent Change: %s%%\nKind: %s\n",
-                            asset.name(),
-                            asset.price(),
-                            asset.changePercent(),
-                            asset.kind()
-                    )
-            );
-        }
-    }
+         System.out.println("Asset: " + petr4.name());
+         System.out.println("Price: R$ " + petr4.price());
+         System.out.println("Percent Change: " + petr4.changePercent() + "%");
+      }
+   }
 }
 ```
 
