@@ -32,6 +32,7 @@ public final class HGBrasilClient implements AutoCloseable {
     private final AssetOperations assetOperations;
     private final ExchangeOperations exchangeOperations;
     private final IbovespaOperations ibovespaOperations;
+    private final DividendOperations dividendOperations;
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
@@ -67,6 +68,7 @@ public final class HGBrasilClient implements AutoCloseable {
         this.assetOperations = new HGBrasilAssetOperations(builder.apiKey, httpClient, objectMapper);
         this.exchangeOperations = new HGBrasilExchangeOperations(builder.apiKey, httpClient, objectMapper);
         this.ibovespaOperations = new HGBrasilIbovespaOperations(builder.apiKey, httpClient, objectMapper);
+        this.dividendOperations = new HGBrasilDividendOperations(builder.apiKey, httpClient, objectMapper);
     }
 
     /**
@@ -99,6 +101,15 @@ public final class HGBrasilClient implements AutoCloseable {
      * */
     public IbovespaOperations getIbovespaOperations() {
         return ibovespaOperations;
+    }
+
+    /**
+     * Acessar operação de busca de histórico e detalhes de dividendos,
+     * JCP, bonificações e outros proventos de ações, fundos imobiliários e BDRs.
+     * @return instância de {@link HGBrasilDividendOperations}
+     * */
+    public DividendOperations getDividendOperations() {
+        return dividendOperations;
     }
 
     @Override
