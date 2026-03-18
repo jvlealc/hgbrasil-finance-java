@@ -6,6 +6,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -23,6 +24,7 @@ class HGBrasilClientIT {
     private AssetOperations assetOperations;
     private ExchangeOperations exchangeOperations;
     private IbovespaOperations ibovespaOperations;
+    private DividendOperations dividendOperations;
 
     @BeforeAll
     void setup() {
@@ -40,6 +42,7 @@ class HGBrasilClientIT {
         assetOperations = client.getAssetOperations();
         exchangeOperations = client.getExchangeOperations();
         ibovespaOperations = client.getIbovespaOperations();
+        dividendOperations = client.getDividendOperations();
     }
 
     @AfterAll
@@ -48,7 +51,7 @@ class HGBrasilClientIT {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException with API message when API key is invalid")
+    @DisplayName("Should throw HGBrasilApiException with API message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() {
         try (
                 var clientWithInvalidKey = HGBrasilClient.builder()
@@ -57,10 +60,10 @@ class HGBrasilClientIT {
         ) {
             String symbol = "PETR4";
 
-            HGBrasilAPIException exception = assertThrows(
-                    HGBrasilAPIException.class,
+            HGBrasilApiException exception = assertThrows(
+                    HGBrasilApiException.class,
                     () -> clientWithInvalidKey.getAssetOperations().getBySymbol(symbol),
-                    "Must throw HGBrasilAPIException"
+                    "Must throw HGBrasilApiException"
             );
             assertNotNull(exception.getMessage(), "Exception message must not be null");
 
@@ -138,8 +141,8 @@ class HGBrasilClientIT {
         }
 
         @Test
-        @DisplayName("Should successfully fetch asset data by symbol varargs")
-        void shouldFetchAssetBySymbolVarargs() {
+        @DisplayName("Should successfully fetch asset data by symbol array")
+        void shouldFetchAssetBySymbolArray() {
             String[] symbols = {"KNCA11", "JURO11", "USDBRL"};
             AssetResponse response = assetOperations.getBySymbols(symbols);
 
@@ -159,12 +162,12 @@ class HGBrasilClientIT {
 
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Varargs - Asset response:\n{}", response);
+            LOG.debug("Array - Asset response:\n{}", response);
         }
 
         @Test
-        @DisplayName("Should return error fields in response when fetching a non-existent symbol")
-        void shouldReturnErrorFields_whenFetchingNonExistentSymbol() {
+        @DisplayName("Should return error fields in response when fetching an invalid symbol")
+        void shouldReturnErrorFields_whenSymbolIsInvalid() {
             AssetResponse response = assetOperations.getBySymbol("UNEXISTENTSYMBOL11");
 
             assertNotNull(response, "Asset response must not be null");
@@ -174,7 +177,7 @@ class HGBrasilClientIT {
             assertNotNull(response.results().get("UNEXISTENTSYMBOL11").message(), "UNEXISTENTSYMBOL11 field 'message' must not be null");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Non-existent symbol - Asset response:\n{}\n", response);
+            LOG.debug("Invalid symbol - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -224,6 +227,121 @@ class HGBrasilClientIT {
             assertEquals(LocalDateTime.class, intradayPoint.date().getClass(), "The 'date' must be converted to LocalDateTime type");
 
             LOG.debug("Ibovespa response:\n{}\n", response);
+        }
+    }
+
+    @Nested
+    class HGBrasilDividendOperationsIT {
+
+        @Test
+        @DisplayName("Should successfully fetch dividend details and map dates correctly")
+        void shouldFetchDividend() {
+            DividendResponse response = dividendOperations.getByTicker("B3:PETR4");
+
+            assertNotNull(response, "Dividend response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "The response should not contain business errors");
+
+            assertTrue(response.findFirstResult().isPresent(), "Result list should contain at least one asset");
+            DividendResult dividendResult = response.findFirstResult().get();
+
+            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Series list should not be empty");
+
+            assertTrue(dividendResult.findFirstSeries().isPresent(), "Should find the most recent series");
+            DividendSeries series = dividendResult.findFirstSeries().get();
+
+            assertNotNull(series.comDate(), "Field 'comDate' must not be null");
+            assertEquals(LocalDate.class, series.comDate().getClass(), "The 'comDate' must be converted to LocalDate type");
+
+            LOG.debug("Dividend response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should return DividendResponse with error when fetching an invalid ticker")
+        void shouldReturnError_whenTickerIsInvalid() {
+            DividendResponse response = dividendOperations.getByTicker("A3:FALSE88");
+
+            assertNotNull(response, "Dividend response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertTrue(response.hasErrors(), "The response should contain errors");
+
+            assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
+            DividendResponse.DividendError error = response.findFirstError().get();
+
+            assertNotNull(error.message(), "Error message must not be null");
+            assertFalse(error.message().isBlank(), "Error message should contain text");
+
+            assertTrue(response.getSafeResults().isEmpty(), "getSafeResults() should return an empty list");
+            assertTrue(response.findFirstResult().isEmpty(), "findFirstResult() should return empty Optional");
+
+            LOG.debug("Invalid ticker - Dividend response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch dividend historical using 'startDate' and 'endDate' query parameters")
+        void shouldFetchHistoricalDividend_withDateRange() {
+            LocalDate startDate = LocalDate.of(2025, 1, 1);
+            LocalDate endDate = LocalDate.of(2025, 12, 31);
+
+            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", startDate, endDate);
+
+            assertNotNull(response, "Historical dividend response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "The response should not contain business errors");
+
+            assertTrue(response.findFirstResult().isPresent(), "Result list should contain PETR4 data");
+            DividendResult dividendResult = response.findFirstResult().get();
+
+            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Historical series list should not be empty");
+
+            LocalDate firstComDate = dividendResult.getSafeSeries().getFirst().comDate();
+            assertTrue(
+                    !firstComDate.isBefore(startDate) && !firstComDate.isAfter(endDate),
+                    "The dividend com_date must between the requested date range (inclusive)"
+            );
+
+            LOG.debug("Historical dividend response with date range - Dividend response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch dividend historical using 'date' query parameter")
+        void shouldFetchHistoricalDividend_withDate() {
+            LocalDate date = LocalDate.of(2025, 1, 1);
+
+            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", date);
+
+            assertNotNull(response, "Historical dividend response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "The response should not contain business errors");
+
+            assertTrue(response.findFirstResult().isPresent(), "Result list should contain PETR4 data");
+            DividendResult dividendResult = response.findFirstResult().get();
+
+            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Historical series list should not be empty");
+
+            boolean has2025Event = dividendResult.getSafeSeries().stream()
+                            .anyMatch(series -> series.comDate() != null && series.comDate().getYear() == 2025);
+
+            assertTrue(has2025Event, "The response should contain dividend events for the year 2025");
+
+            LOG.debug("Historical dividend response with date - Dividend response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch dividend historical using 'days_ago' query parameter")
+        void shouldFetchHistoricalDividend_withDaysAgo() {
+            int daysAgo = 365;
+
+            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", daysAgo);
+
+            assertNotNull(response, "Historical dividend response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "The response should not contain business errors");
+
+            assertTrue(response.findFirstResult().isPresent(), "Result list should contain PETR4 data");
+            assertFalse(response.findFirstResult().get().getSafeSeries().isEmpty(), "Historical series list should not be empty");
+
+            LOG.debug("Historical dividend response with days ago - Dividend response:\n{}\n", response);
         }
     }
 }
