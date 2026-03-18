@@ -1,9 +1,5 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
-import tools.jackson.databind.JsonNode;
-
-import java.util.List;
-
 /**
  * Exceção lançada quando ocorrer um erro ou recusa da requisição pela API HG Brasil
  * */
