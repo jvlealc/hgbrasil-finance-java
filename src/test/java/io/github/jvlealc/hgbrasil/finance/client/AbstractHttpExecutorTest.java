@@ -36,7 +36,7 @@ class AbstractHttpExecutorTest {
 
     private TestConcreteHGBrasilOperations testOperations;
     private final HttpRequest fakeRequest = HttpRequest.newBuilder()
-            .uri(URI.create("http://dummyhost:0000"))
+            .uri(URI.create("http://dummyhost:0000/test-path?api_key=fakeKey&format=json"))
             .GET()
             .header("Accept", "application/json")
             .build();
@@ -58,17 +58,14 @@ class AbstractHttpExecutorTest {
     @Test
     @DisplayName("Should execute request and map to the generic type when successfully")
     void shouldExecuteRequestAndMapToGenericType_whenSuccess() throws IOException, InterruptedException {
-        String expectedResponse = """
+        String mockedJsonBody = """
                 {
                     "status": "success",
                     "code": 200
                 }
                 """;
 
-        when(httpResponseMock.statusCode()).thenReturn(200);
-        when(httpResponseMock.body()).thenReturn(expectedResponse);
-        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-                .thenReturn(httpResponseMock);
+        mockSuccessfulHttpResponseWithBody(mockedJsonBody);
 
         SomeFakeResponse actualResponse = testOperations.sendRequest(fakeRequest, SomeFakeResponse.class);
 
@@ -80,28 +77,28 @@ class AbstractHttpExecutorTest {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException and correct message when HttpClient throws IOException")
+    @DisplayName("Should throw HGBrasilApiException and correct message when HttpClient throws IOException")
     void shouldThrowException_whenNetworkFailure() throws IOException, InterruptedException {
         when(httpClientMock.send(any(), any())).thenThrow(new IOException("Timeout in Ubuntu"));
 
-        HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () ->
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
                         testOperations.sendRequest(fakeRequest, String.class),
-                "Must have throw the IOException"
+                "Must have thrown HGBrasilApiException wrapping IOException"
         );
 
-        assertTrue(exception.getMessage().contains("I/O or parsing"),
+        assertTrue(exception.getMessage().contains("I/O error"),
                 "Must have correct API error message");
     }
 
 
     @Test
-    @DisplayName("Should re-interrupt thread and throw HGBrasilAPIException when HttpClient throws InterruptedException")
+    @DisplayName("Should re-interrupt thread and throw HGBrasilApiException when HttpClient throws InterruptedException")
     void shouldInterruptThread_whenInterruptedExceptionIsThrow() throws IOException, InterruptedException {
         when(httpClientMock.send(any(), any())).thenThrow(new InterruptedException("Thread killed"));
 
-        HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () ->
+        assertThrows(HGBrasilApiException.class, () ->
                         testOperations.sendRequest(fakeRequest, String.class),
-                "Must have throw the HGBrasilAPIException"
+                "Must have throw the HGBrasilApiException wrapping InterruptedException"
         );
 
         assertTrue(Thread.currentThread().isInterrupted(),
@@ -109,18 +106,140 @@ class AbstractHttpExecutorTest {
     }
 
     @Test
-    @DisplayName("Should throw HGBrasilAPIException and correct error message when HTTP status code greater than or equal 400")
+    @DisplayName("Should throw HGBrasilApiException and correct error message when HTTP status code greater than or equal 400")
     void shouldThrowException_whenStatusCodeGreaterThanOrEqualTo400() throws IOException, InterruptedException {
         when(httpResponseMock.statusCode()).thenReturn(403);
         when(httpResponseMock.body()).thenReturn("Forbidden");
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
-        HGBrasilAPIException exception = assertThrows(HGBrasilAPIException.class, () ->
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
                 testOperations.sendRequest(fakeRequest, String.class),
-                "Must have throw HGBrasilAPIException"
+                "Must have thrown HGBrasilApiException"
         );
 
         assertTrue(exception.getMessage().contains("HTTP Error "), "Must have correct API error message");
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilApiException when Pattern 1 (Asset) auth error occurs with message in results")
+    void shouldThrowException_whenPattern1AuthErrorWithMessage() throws IOException, InterruptedException {
+        String mockedJsonBody = """
+                {
+                  "by": "symbol",
+                  "valid_key": false,
+                  "results": {
+                    "error": true,
+                    "message": "Desculpe. Essa consulta não é permitida sem uma chave válida."
+                  },
+                  "execution_time": 0.0,
+                  "from_cache": true
+                }
+                """;
+
+        mockSuccessfulHttpResponseWithBody(mockedJsonBody);
+
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
+                        testOperations.sendRequest(fakeRequest, String.class),
+                "Must have thrown HGBrasilApiException"
+        );
+
+        String expectedMessage = "Desculpe. Essa consulta não é permitida sem uma chave válida.";
+
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilApiException with default message when Pattern 1 (Asset) auth error occurs without message in results")
+    void shouldThrowException_whenPattern1AuthErrorWithoutMessage() throws IOException, InterruptedException {
+        String mockedJsonBody = """
+                {
+                  "by": "symbol",
+                  "valid_key": false,
+                  "results": {},
+                  "execution_time": 0.0,
+                  "from_cache": true
+                }
+                """;
+
+        mockSuccessfulHttpResponseWithBody(mockedJsonBody);
+
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
+                        testOperations.sendRequest(fakeRequest, String.class),
+                "Must have thrown HGBrasilApiException"
+        );
+
+        assertTrue(exception.getMessage().contains("Invalid API key, unauthorized, or quota exceeded."));
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilApiException concatenating multiple messages when Pattern 2 (Dividend) auth error occurs")
+    void shouldThrowException_whenPattern2AuthErrorWithMessage() throws IOException, InterruptedException {
+        String mockedJsonBody = """
+                {
+                  "metadata": {
+                    "key_status": "invalid",
+                    "cached": false,
+                    "response_time_ms": 0.0,
+                    "language": "pt-br"
+                  },
+                  "results": [],
+                  "errors": [
+                    {
+                      "code": "INVALID_API_KEY",
+                      "message": "Chave de API inválida.",
+                      "help": "https://hgbrasil.com/docs"
+                    },
+                    {
+                      "code": "UNAUTHORIZED_KEY",
+                      "message": "Chave não possui acesso para este recurso.",
+                      "help": "https://hgbrasil.com/docs"
+                    }
+                  ]
+                }
+                """;
+
+        mockSuccessfulHttpResponseWithBody(mockedJsonBody);
+
+        String expectedMessage = "Chave de API inválida. | Chave não possui acesso para este recurso.";
+
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
+                        testOperations.sendRequest(fakeRequest, String.class),
+                "Must have thrown HGBrasilApiException"
+        );
+
+        assertTrue(exception.getMessage().contains(expectedMessage));
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilApiException with default message when Pattern 2 (Dividend) auth error occurs but errors array is missing")
+    void shouldThrowException_whenPattern2AuthErrorWithoutMessage() throws IOException, InterruptedException {
+        String mockedJsonBody = """
+                {
+                  "metadata": {
+                    "key_status": "invalid",
+                    "cached": false,
+                    "response_time_ms": 0.0,
+                    "language": "pt-br"
+                  },
+                  "results": []
+                }
+                """;
+
+        mockSuccessfulHttpResponseWithBody(mockedJsonBody);
+
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
+                        testOperations.sendRequest(fakeRequest, String.class),
+                "Must have thrown HGBrasilApiException"
+        );
+
+        assertTrue(exception.getMessage().contains("Invalid API key, unauthorized, or quota exceeded."));
+    }
+
+    private void mockSuccessfulHttpResponseWithBody(String mockedJsonBody) throws IOException, InterruptedException {
+        when(httpResponseMock.statusCode()).thenReturn(200);
+        when(httpResponseMock.body()).thenReturn(mockedJsonBody);
+        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+                .thenReturn(httpResponseMock);
     }
 }
