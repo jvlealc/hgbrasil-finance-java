@@ -7,6 +7,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
@@ -24,6 +26,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AbstractHttpExecutorTest {
 
+    private static final Logger LOG = LoggerFactory.getLogger(AbstractHttpExecutorTest.class);
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .build();
@@ -234,6 +237,36 @@ class AbstractHttpExecutorTest {
         );
 
         assertTrue(exception.getMessage().contains("Invalid API key, unauthorized, or quota exceeded."));
+    }
+
+    @Test
+    @DisplayName("Should throw HGBrasilApiException and NOT LEAKED sensitive data in the message when HTTP status code is 403")
+    void shouldThrowException_withSafeMessage_whenStatusIs403() throws IOException, InterruptedException {
+        String sensitiveUrl = "https://hgbrasil.com/finance/stock_price?key=SECRET_KEY_111&symbol=VALE3";
+
+        HttpRequest requestWithApiKey = HttpRequest.newBuilder()
+                .uri(URI.create(sensitiveUrl))
+                .GET()
+                .build();
+
+        when(httpResponseMock.statusCode()).thenReturn(403);
+        when(httpResponseMock.body()).thenReturn("Forbidden Access");
+        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+                .thenReturn(httpResponseMock);
+
+        String exceptionMessage = assertThrows(HGBrasilApiException.class, () ->
+                testOperations.sendRequest(requestWithApiKey, String.class)
+        ).getMessage();
+
+        assertAll("API key security checks in the URI",
+                () -> assertTrue(exceptionMessage.contains("GET"), "Message should contain HTTP Method"),
+                () -> assertTrue(exceptionMessage.contains("/finance/stock_price"), "Message should contain the URI path"),
+                () -> assertTrue(exceptionMessage.contains("403"), "Message should contain HTTP status code"),
+                () -> assertFalse(exceptionMessage.contains("SECRET_KEY_111"), "!!!SECURITY BREACH: Exception message MUST NOT contain API key"),
+                () -> assertFalse(exceptionMessage.contains("key="), "!!!SECURITY BREACH: Exception message MUST NOT contain query parameters")
+        );
+
+        LOG.debug(exceptionMessage);
     }
 
     private void mockSuccessfulHttpResponseWithBody(String mockedJsonBody) throws IOException, InterruptedException {
