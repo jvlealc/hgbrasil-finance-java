@@ -20,6 +20,26 @@ public record AssetResponse(
         @JsonProperty("from_cache")
         boolean fromCache
 ) {
+        /**
+         * Verifica se a API retornou algum error de negócio
+         * */
+        public boolean hasErrors() {
+                if (results == null || results.isEmpty()) {
+                        return true;
+                }
+
+                return results.values()
+                        .stream()
+                        .anyMatch(AssetResult::error);
+        }
+
+        /**
+         * Garante que o Map 'results' nunca seja nula, evitando NullPointerException.
+         * @return Map com resultados ou um Map vazio caso a Map 'results' seja nulo.
+         */
+        public Map<String, AssetResult> getSafeResults() {
+                return results != null ? results : Map.of();
+        }
 
         /**
          * Utilitário pragmático para extrair o primeiro (ou único) ativo da resposta.
@@ -27,7 +47,7 @@ public record AssetResponse(
          *
          * @return Optional contendo o detalhe do ativo, ou Optional.empty() se a resposta for vazia ou nula.
          */
-        public Optional<AssetResult> getFirstAssetResult() {
+        public Optional<AssetResult> findFirstResult() {
                 if (results == null || results.isEmpty()) {
                         return Optional.empty();
                 }
