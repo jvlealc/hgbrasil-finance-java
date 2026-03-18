@@ -7,6 +7,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.util.List;
+import java.util.Objects;
 
 /**
  * Implementação interna padrão de {@link AssetOperations}.
@@ -28,24 +29,27 @@ final class HGBrasilAssetOperations extends AbstractHttpExecutor implements Asse
 
     @Override
     public AssetResponse getBySymbol(String symbol) {
-        if (symbol == null || symbol.isBlank()) {
-            throw new IllegalArgumentException("Parameter symbol must not be blank or null.");
+        Objects.requireNonNull(symbol, "Parameter 'symbol' must not be null.");
+        if (symbol.isBlank()) {
+            throw new IllegalArgumentException("Parameter 'symbol' must not be blank.");
         }
         return getBySymbols(List.of(symbol));
     }
 
     @Override
     public AssetResponse getBySymbols(String... symbols) {
-        if (symbols == null || symbols.length == 0) {
-            throw new IllegalArgumentException("Parameter symbols must not be empty or null.");
+        Objects.requireNonNull(symbols, "Parameter 'symbols' must not be null.");
+        if (symbols.length == 0) {
+            throw new IllegalArgumentException("Parameter 'symbols' must not be empty.");
         }
         return getBySymbols(List.of(symbols));
     }
 
     @Override
     public AssetResponse getBySymbols(List<String> symbols) {
-        if (symbols == null || symbols.isEmpty()) {
-            throw new IllegalArgumentException("Parameter symbols must not be empty or null.");
+        Objects.requireNonNull(symbols, "Parameter 'symbols' must not be null.");
+        if (symbols.isEmpty()) {
+            throw new IllegalArgumentException("Parameter 'symbols' must not be empty.");
         }
 
         String joinedSymbols = String.join(",", symbols);
