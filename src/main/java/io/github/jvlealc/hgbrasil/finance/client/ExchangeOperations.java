@@ -15,14 +15,16 @@ public interface ExchangeOperations {
     /**
      * Busca a cotação das principais moedas internacionais em relação ao Real (BRL).
      *
-     * @return Modelo de resposta das moedas
+     * @return {@link CurrenciesResponse} - modelo de resposta das moedas
+     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
      * */
     CurrenciesResponse getCurrencies();
 
     /**
      * Busca a cotação do Bitcoin nas principais corretoras do mercado.
      *
-     * @return Modelo de resposta do Bitcoin nas corretoras.
+     * @return {@link BitcoinResponse} - modelo de resposta do Bitcoin nas corretoras.
+     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
      */
      BitcoinResponse getBitcoin();
 }
