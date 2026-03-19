@@ -266,7 +266,7 @@ class HGBrasilClientIT {
             assertTrue(response.hasErrors(), "The response should contain errors");
 
             assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
-            DividendResponse.DividendError error = response.findFirstError().get();
+            ApiError error = response.findFirstError().get();
 
             assertNotNull(error.message(), "Error message must not be null");
             assertFalse(error.message().isBlank(), "Error message should contain text");
