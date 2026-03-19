@@ -37,25 +37,26 @@ class AbstractHttpExecutorTest {
     @Mock
     private HttpResponse<String> httpResponseMock;
 
-    private TestConcreteHGBrasilOperations testOperations;
     private final HttpRequest fakeRequest = HttpRequest.newBuilder()
             .uri(URI.create("http://dummyhost:0000/test-path?api_key=fakeKey&format=json"))
             .GET()
             .header("Accept", "application/json")
             .build();
 
-    private record SomeFakeResponse(String status, int code) {}
+    private TestableHttpExecutor testOperations;
+
+    private record DummyResponse(String status, int code) {}
 
     // Classe concreta para realização de testes
-    private static final class TestConcreteHGBrasilOperations  extends AbstractHttpExecutor {
-        TestConcreteHGBrasilOperations(HttpClient httpClient, ObjectMapper objectMapper) {
+    private static final class TestableHttpExecutor extends AbstractHttpExecutor {
+        TestableHttpExecutor(HttpClient httpClient, ObjectMapper objectMapper) {
             super(httpClient, objectMapper);
         }
     }
 
     @BeforeEach
     void setUp() {
-        testOperations = new TestConcreteHGBrasilOperations(httpClientMock, OBJECT_MAPPER);
+        testOperations = new TestableHttpExecutor(httpClientMock, OBJECT_MAPPER);
     }
 
     @Test
@@ -70,12 +71,12 @@ class AbstractHttpExecutorTest {
 
         mockSuccessfulHttpResponseWithBody(mockedJsonBody);
 
-        SomeFakeResponse actualResponse = testOperations.sendRequest(fakeRequest, SomeFakeResponse.class);
+        DummyResponse actualResponse = testOperations.sendRequest(fakeRequest, DummyResponse.class);
 
         assertAll("Verify successful generic mapping",
             () -> assertNotNull(actualResponse, "Mapped response must not be null"),
-            () -> assertEquals("success", actualResponse.status, "Must map string field correctly"),
-            () -> assertEquals(200, actualResponse.code, "Must map integer field correctly")
+            () -> assertEquals("success", actualResponse.status(), "Must map string field correctly"),
+            () -> assertEquals(200, actualResponse.code(), "Must map integer field correctly")
         );
     }
 
