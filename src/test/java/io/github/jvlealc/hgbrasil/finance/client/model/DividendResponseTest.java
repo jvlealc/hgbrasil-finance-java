@@ -14,13 +14,13 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class DividendResponseTest {
 
-    private List<DividendResponse.DividendError> errors = new ArrayList<>();
+    private List<ApiError> errors = new ArrayList<>();
     private Metadata metadata;
 
     @BeforeEach
     void setUp() {
         metadata = Mockito.mock(Metadata.class);
-        errors = List.of(new DividendResponse.DividendError(
+        errors = List.of(new ApiError(
                 "INVALID_TICKER",
                 "Ticker inválido",
                 "https://hgbrasil.com/docs",
@@ -53,7 +53,7 @@ class DividendResponseTest {
     @DisplayName("Should return empty list when 'errors' List is null")
     void shouldReturnEmpty_whenErrorsIsNull()  {
         DividendResponse response = new DividendResponse(metadata, List.of(), null);
-        Optional<DividendResponse.DividendError> firstError = response.findFirstError();
+        Optional<ApiError> firstError = response.findFirstError();
 
         assertFalse(response.hasErrors(), "hasErros() should return false");
         assertTrue(firstError.isEmpty(), "The errors should be empty");
