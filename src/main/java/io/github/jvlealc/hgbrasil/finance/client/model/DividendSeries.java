@@ -11,8 +11,8 @@ import java.time.LocalDate;
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DividendSeries(
-        String type,
-        String category,
+        DividendType type,
+        DividendCategory category,
         BigDecimal amount,
         @JsonProperty("approval_date")
         LocalDate approvalDate,
@@ -20,5 +20,5 @@ public record DividendSeries(
         LocalDate comDate,
         @JsonProperty("payment_date")
         LocalDate paymentDate,
-        String status
+        DividendStatus status
 ) {}
