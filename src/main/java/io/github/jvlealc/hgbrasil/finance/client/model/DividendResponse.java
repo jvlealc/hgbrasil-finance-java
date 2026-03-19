@@ -3,7 +3,6 @@ package io.github.jvlealc.hgbrasil.finance.client.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 /**
@@ -14,19 +13,8 @@ import java.util.Optional;
 public record DividendResponse(
         Metadata metadata,
         List<DividendResult> results,
-        List<DividendError> errors
+        List<ApiError> errors
 ) {
-    /**
-     * Modelo de resposta em caso de erros
-     * */
-    @JsonIgnoreProperties(ignoreUnknown = true)
-    public record DividendError(
-            String code,
-            String message,
-            String help,
-            Map<String, String> details
-    ) {}
-
     // Utilitários DX e segurança //
 
     /**
@@ -39,7 +27,7 @@ public record DividendResponse(
     /**
      * @return o primeiro erro da lista para logs ou tratamento de exceções
      * */
-    public Optional<DividendError> findFirstError() {
+    public Optional<ApiError> findFirstError() {
         if (hasErrors()) {
             return errors.stream().findFirst();
         }
