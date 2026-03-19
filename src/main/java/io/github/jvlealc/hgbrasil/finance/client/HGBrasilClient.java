@@ -23,7 +23,7 @@ import java.util.concurrent.Executors;
  * */
 public final class HGBrasilClient implements AutoCloseable {
 
-    private static final long TIMEOUT_DURATION_SECONDS = 20L;
+    private static final long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 20L;
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -35,6 +35,7 @@ public final class HGBrasilClient implements AutoCloseable {
     private final ExchangeOperations exchangeOperations;
     private final IbovespaOperations ibovespaOperations;
     private final DividendOperations dividendOperations;
+    private final SplitOperations splitOperations;
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
@@ -43,7 +44,7 @@ public final class HGBrasilClient implements AutoCloseable {
 
         Duration timeout = builder.timeout != null
                 ? builder.timeout
-                : Duration.ofSeconds(TIMEOUT_DURATION_SECONDS);
+                : Duration.ofSeconds(DEFAULT_CONNECTION_TIMEOUT_SECONDS);
 
         ObjectMapper objectMapper = builder.objectMapper != null
                 ? builder.objectMapper
@@ -71,6 +72,7 @@ public final class HGBrasilClient implements AutoCloseable {
         this.exchangeOperations = new HGBrasilExchangeOperations(builder.apiKey, httpClient, objectMapper);
         this.ibovespaOperations = new HGBrasilIbovespaOperations(builder.apiKey, httpClient, objectMapper);
         this.dividendOperations = new HGBrasilDividendOperations(builder.apiKey, httpClient, objectMapper);
+        this.splitOperations = new HGBrasilSplitOperations(builder.apiKey, httpClient, objectMapper);
     }
 
     /**
@@ -82,7 +84,8 @@ public final class HGBrasilClient implements AutoCloseable {
     }
 
     /**
-     * Acessa as operações de busca de cotações de ativos do mercado financeiro (Ações, FIIs, BDRs, Moedas, Índices e Criptoativos).
+     * Acessa as operações de busca de cotações de ativos
+     * do mercado financeiro (ações, FIIs, BDRs, moedas, índices e criptoativos).
      * @return instância de {@link HGBrasilAssetOperations}
      * */
     public AssetOperations getAssetOperations() {
@@ -114,6 +117,15 @@ public final class HGBrasilClient implements AutoCloseable {
         return dividendOperations;
     }
 
+    /**
+     * Acessar operação de busca de histórico e detalhes de grupamentos e desdobramentos de ativos
+     * do mercado financeiro (ações, FIIs, BDRs).
+     * @return instância de {@link HGBrasilSplitOperations}
+     * */
+    public SplitOperations getSplitOperations() {
+        return splitOperations;
+    }
+
     @Override
     public void close() {
         if (internalExecutor != null && !internalExecutor.isShutdown()) {
@@ -143,7 +155,7 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
-         * Opcional - se omitido utiliza-se o valor padrão de {@value TIMEOUT_DURATION_SECONDS } segundos.
+         * Opcional - se omitido utiliza-se o valor padrão de {@value DEFAULT_CONNECTION_TIMEOUT_SECONDS } segundos.
          * @param timeout tempo máximo de espera para as conexões
          * */
         public Builder timeout(Duration timeout) {
@@ -161,7 +173,8 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
-         * Opcional - se omitido utiliza-se o {@link JsonMapper} padrão com {@link JavaTimeModule} configurado.
+         * Opcional - se omitido utiliza-se o {@link JsonMapper} padrão configurado com {@link JavaTimeModule}
+         * e {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} habilitado.
          * @param objectMapper ObjectMapper customizado
          * */
         public Builder objectMapper(ObjectMapper objectMapper) {
