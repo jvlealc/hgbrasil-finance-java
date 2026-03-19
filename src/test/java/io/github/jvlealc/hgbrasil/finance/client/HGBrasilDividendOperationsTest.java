@@ -36,6 +36,7 @@ class HGBrasilDividendOperationsTest {
     private static final String MOCK_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .build();
 
     @Captor

@@ -8,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
@@ -29,6 +30,7 @@ class HGBrasilAssetOperationsTest {
     private static final String MOCK_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .build();
 
     @Mock
@@ -37,7 +39,7 @@ class HGBrasilAssetOperationsTest {
     @Mock
     private HttpResponse<String> httpResponseMock;
 
-    private HGBrasilAssetOperations assetOperation;
+    private AssetOperations assetOperation;
 
     @BeforeEach
     void setUp() {
