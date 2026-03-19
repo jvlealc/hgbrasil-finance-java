@@ -1,5 +1,6 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
+import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
 import tools.jackson.datatype.jsr310.JavaTimeModule;
@@ -25,6 +26,7 @@ public final class HGBrasilClient implements AutoCloseable {
     private static final long TIMEOUT_DURATION_SECONDS = 20L;
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
+            .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
             .build();
 
     private final ExecutorService internalExecutor;
