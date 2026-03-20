@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Representa um evento corporativo individual de grupamento ou desdobramento
+ * Representa um evento corporativo individual da série histórica de um grupamento ou desdobramento
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SplitEvent(

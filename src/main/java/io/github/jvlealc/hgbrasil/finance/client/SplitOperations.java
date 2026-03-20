@@ -17,7 +17,7 @@ public interface SplitOperations {
      * Busca dados de grupamento ou desdobramentos de um único ativo.
      *
      * @param ticker Ticker do ativo no formato {fonte}:{símbolo}, ex.: B3:PETR4
-     * @return {@link SplitResponse} - modelo de resposta dos grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta dos grupamentos/desdobramentos do ativo
      * @throws NullPointerException se {@code ticker} for nulo
      * @throws IllegalArgumentException se {@code ticker} for uma string vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -28,7 +28,7 @@ public interface SplitOperations {
      * Busca dados de grupamento ou desdobramentos de múltiplos ativos.
      *
      * @param tickers array de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
-     * @return {@link SplitResponse} - modelo de resposta dos grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta dos grupamentos/desdobramentos do ativo
      * @throws NullPointerException se o array {@code tickers} for nulo
      * @throws IllegalArgumentException se o array {@code tickers} estiver vazio
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -39,7 +39,7 @@ public interface SplitOperations {
      * Busca dados de grupamento ou desdobramentos de múltiplos ativos.
      *
      * @param tickers lista de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
-     * @return {@link SplitResponse} - modelo de resposta dos grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta dos grupamentos/desdobramentos do ativo
      * @throws NullPointerException se a lista {@code tickers} for nula
      * @throws IllegalArgumentException se lista {@code tickers} estiver vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -52,7 +52,7 @@ public interface SplitOperations {
      * @param ticker ticker do ativo no formato {fonte}:{símbolo}, ex.: B3:PETR4
      * @param startDate data inicial para filtragem
      * @param endDate data final para filtragem
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se {@code ticker}, {@code startDate} ou {@code endDate} forem nulos
      * @throws IllegalArgumentException se {@code ticker} for uma string vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -64,7 +64,7 @@ public interface SplitOperations {
      *
      * @param ticker ticker do ativo no formato {fonte}:{símbolo}, ex.: B3:PETR4
      * @param date data específica para filtragem
-     * @return representação de resposta com histórico de grupamento ou desdobramentos
+     * @return modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se {@code ticker} ou {@code date} forem nulos
      * @throws IllegalArgumentException se {@code ticker} for uma string vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -76,7 +76,7 @@ public interface SplitOperations {
      *
      * @param ticker ticker do ativo no formato {fonte}:{símbolo}, ex.: B3:PETR4
      * @param daysAgo dias atrás para filtragem (utilize 0 para dados do dia atual)
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se {@code ticker} for nulo
      * @throws IllegalArgumentException se {@code ticker} for uma string vazia ou {@code daysAgo} for menor que zero
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -89,7 +89,7 @@ public interface SplitOperations {
      * @param startDate data inicial para filtragem
      * @param endDate data final para filtragem
      * @param tickers array de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se o array {@code tickers}, {@code startDate} ou {@code endDate} forem nulos
      * @throws IllegalArgumentException se o array {@code tickers} estiver vazio
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -101,7 +101,7 @@ public interface SplitOperations {
      *
      * @param date data específica para filtragem
      * @param tickers array de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se o array {@code tickers} ou {@code date} forem nulos
      * @throws IllegalArgumentException se {@code tickers} for uma string vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -113,7 +113,7 @@ public interface SplitOperations {
      *
      * @param daysAgo dias atrás para filtragem
      * @param tickers array de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se o array {@code tickers} for nulo
      * @throws IllegalArgumentException se o array {@code ticker} estiver vazio ou {@code daysAgo} for menor que zero
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -126,7 +126,7 @@ public interface SplitOperations {
      * @param tickers lista de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
      * @param startDate data inicial para filtragem
      * @param endDate data final para filtragem
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se a lista {@code tickers}, {@code startDate} ou {@code endDate} forem nulos
      * @throws IllegalArgumentException se a lista {@code tickers} estiver vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -138,7 +138,7 @@ public interface SplitOperations {
      *
      * @param tickers lista de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
      * @param date data específica para filtragem
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se a lista {@code tickers} ou {@code date} forem nulos
      * @throws IllegalArgumentException se a lista {@code tickers} estiver vazia
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
@@ -150,7 +150,7 @@ public interface SplitOperations {
      *
      * @param tickers lista de tickers dos ativos no formato {fonte}:{símbolo}, ex.: B3:PETR4, B3:VALE3
      * @param daysAgo dias atrás para filtragem
-     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamento ou desdobramentos
+     * @return {@link SplitResponse} - modelo de resposta com histórico de grupamentos/desdobramentos do ativo
      * @throws NullPointerException se a lista {@code tickers} for nula
      * @throws IllegalArgumentException se lista {@code tickers} estiver vazia ou {@code daysAgo} for menor que zero
      * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API

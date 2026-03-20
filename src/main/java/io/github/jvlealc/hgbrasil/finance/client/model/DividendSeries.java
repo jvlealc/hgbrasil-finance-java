@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Representa um evento individual de provento (Dividendo, JCP, Bonificação, etc)
+ * Representa um evento individual da série histórica de um provento
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DividendSeries(
