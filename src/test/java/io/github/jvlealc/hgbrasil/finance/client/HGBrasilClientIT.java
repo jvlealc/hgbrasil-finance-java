@@ -81,8 +81,8 @@ class HGBrasilClientIT {
             CurrenciesResponse response = exchangeOperations.getCurrencies();
 
             assertNotNull(response, "Currencies response must not be null");
-            assertEquals("BRL", response.results().currencies().getSource(), "Currencies response must contain BRL in 'source' field");
-            assertTrue(response.results().currencies().getRates().containsKey("EUR"), "Currencies rates must contain key EUR");
+            assertEquals("BRL", response.results().currencies().source(), "Currencies response must contain BRL in 'source' field");
+            assertTrue(response.results().currencies().rates().containsKey("EUR"), "Currencies rates must contain key EUR");
             assertTrue(response.validKey(), "API Key must be valid");
 
             LOG.debug("Currencies response:\n{}\n", response);
