@@ -22,7 +22,6 @@ public record IbovespaResult(
         BigDecimal volume,
         @JsonProperty("change_percent")
         BigDecimal changePercent,
-        @JsonFormat(pattern = "yyyy-MM-dd")
         @JsonProperty("previous_date")
         LocalDate previousDate,
         @JsonProperty("previous_close")
