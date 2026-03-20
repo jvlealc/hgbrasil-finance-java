@@ -3,7 +3,6 @@ package io.github.jvlealc.hgbrasil.finance.client.model;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
-import java.math.BigDecimal;
 import java.util.List;
 import java.util.Optional;
 
@@ -23,17 +22,6 @@ public record DividendResult(
         List<DividendSeries> series,
         Source source
 ) {
-        /**
-         * Métricas consolidadas dos últimos 12 meses
-         * */
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        public record DividendSummary(
-                @JsonProperty("yield_12m_percent")
-                BigDecimal yield12mPercent,
-                @JsonProperty("yield_12m_cash")
-                BigDecimal yield12mCash
-        ) {}
-
         /**
          * Garante que a lista 'series' (eventos) nunca seja nula, evitando NullPointerException.
          * Retornando uma lista vazia caso a lista 'series' seja nula.
