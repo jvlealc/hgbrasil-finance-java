@@ -44,6 +44,7 @@ class HGBrasilClientIT {
         exchangeOperations = client.getExchangeOperations();
         ibovespaOperations = client.getIbovespaOperations();
         dividendOperations = client.getDividendOperations();
+        splitOperations = client.getSplitOperations();
     }
 
     @AfterAll
@@ -352,22 +353,22 @@ class HGBrasilClientIT {
         @Test
         @DisplayName("Should successfully fetch split details and map dates correctly")
         void shouldFetchSplit() {
-            DividendResponse response = dividendOperations.getByTicker("B3:PETR4");
+            SplitResponse response = splitOperations.getByTicker("B3:TIMS3");
 
             assertNotNull(response, "Split response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertFalse(response.hasErrors(), "Split response should not contain business errors");
 
             assertTrue(response.findFirstResult().isPresent(), "Split result list should contain at least one asset");
-            DividendResult dividendResult = response.findFirstResult().get();
+            SplitResult splitResult = response.findFirstResult().get();
 
-            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Split event list should not be empty");
+            assertFalse(splitResult.getSafeEvents().isEmpty(), "Split event list should not be empty");
 
-            assertTrue(dividendResult.findFirstSeries().isPresent(), "Should find the most recent series");
-            DividendSeries series = dividendResult.findFirstSeries().get();
+            assertTrue(splitResult.findFirstEvent().isPresent(), "Should find the most recent events");
+            SplitEvent events = splitResult.findFirstEvent().get();
 
-            assertNotNull(series.comDate(), "Field 'comDate' must not be null");
-            assertEquals(LocalDate.class, series.comDate().getClass(), "The 'comDate' must be converted to LocalDate type");
+            assertNotNull(events.comDate(), "Field 'comDate' must not be null");
+            assertEquals(LocalDate.class, events.comDate().getClass(), "The 'comDate' must be converted to LocalDate type");
 
             LOG.debug("Split response:\n{}\n", response);
         }
@@ -375,7 +376,7 @@ class HGBrasilClientIT {
         @Test
         @DisplayName("Should return SplitResponse with error when fetching an invalid ticker")
         void shouldReturnError_whenTickerIsInvalid() {
-            DividendResponse response = dividendOperations.getByTicker("A3:FALSE88");
+            SplitResponse response = splitOperations.getByTicker("A3:FALSE88");
 
             assertNotNull(response, "Split response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
@@ -399,18 +400,18 @@ class HGBrasilClientIT {
             LocalDate startDate = LocalDate.of(2025, 1, 1);
             LocalDate endDate = LocalDate.of(2025, 12, 31);
 
-            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", startDate, endDate);
+            SplitResponse response = splitOperations.getHistorical("B3:TIMS3", startDate, endDate);
 
             assertNotNull(response, "Historical split response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertFalse(response.hasErrors(), "Split response should not contain business errors");
 
-            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain PETR4 data");
-            DividendResult dividendResult = response.findFirstResult().get();
+            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain TIMS3 data");
+            SplitResult splitResult = response.findFirstResult().get();
 
-            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Split event list should not be empty");
+            assertFalse(splitResult.getSafeEvents().isEmpty(), "Split event list should not be empty");
 
-            LocalDate firstComDate = dividendResult.getSafeSeries().getFirst().comDate();
+            LocalDate firstComDate = splitResult.getSafeEvents().getFirst().comDate();
             assertTrue(
                     !firstComDate.isBefore(startDate) && !firstComDate.isAfter(endDate),
                     "The split com_date must between the requested date range (inclusive)"
@@ -424,19 +425,19 @@ class HGBrasilClientIT {
         void shouldFetchHistoricalSplit_withDate() {
             LocalDate date = LocalDate.of(2025, 1, 1);
 
-            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", date);
+            SplitResponse response = splitOperations.getHistorical("B3:TIMS3", date);
 
             assertNotNull(response, "Historical split response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertFalse(response.hasErrors(), "Split response should not contain business errors");
 
-            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain PETR4 data");
-            DividendResult dividendResult = response.findFirstResult().get();
+            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain B3:TIMS3 data");
+            SplitResult splitResult = response.findFirstResult().get();
 
-            assertFalse(dividendResult.getSafeSeries().isEmpty(), "Split event list should not be empty");
+            assertFalse(splitResult.getSafeEvents().isEmpty(), "Split event list should not be empty");
 
-            boolean has2025Event = dividendResult.getSafeSeries().stream()
-                    .anyMatch(series -> series.comDate() != null && series.comDate().getYear() == 2025);
+            boolean has2025Event = splitResult.getSafeEvents().stream()
+                    .anyMatch(event -> event.comDate() != null && event.comDate().getYear() == 2025);
 
             assertTrue(has2025Event, "The split response should contain dividend events for the year 2025");
 
@@ -448,14 +449,14 @@ class HGBrasilClientIT {
         void shouldFetchHistoricalSplit_withDaysAgo() {
             int daysAgo = 365;
 
-            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", daysAgo);
+            SplitResponse response = splitOperations.getHistorical("B3:TIMS3", daysAgo);
 
             assertNotNull(response, "Historical split response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertFalse(response.hasErrors(), "The split response should not contain business errors");
 
-            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain PETR4 data");
-            assertFalse(response.findFirstResult().get().getSafeSeries().isEmpty(), "Split event list should not be empty");
+            assertTrue(response.findFirstResult().isPresent(), "Split result list should contain B3:TIMS3 data");
+            assertFalse(response.findFirstResult().get().getSafeEvents().isEmpty(), "Split event list should not be empty");
 
             LOG.debug("Historical split response with days ago - Split response:\n{}\n", response);
         }
