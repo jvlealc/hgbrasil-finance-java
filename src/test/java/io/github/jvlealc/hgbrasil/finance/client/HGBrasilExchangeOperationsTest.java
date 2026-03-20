@@ -86,17 +86,17 @@ class HGBrasilExchangeOperationsTest {
                 () -> assertEquals("BRL",
                         actualResponse.results()
                                 .currencies()
-                                .getSource(),
+                                .source(),
                         "Source must be correctly mapped to BRL"
                 ),
                 () -> assertTrue(actualResponse.results()
                                 .currencies()
-                                .getRates()
+                                .rates()
                                 .containsKey("USD"),
                         "Exchanges rate map must contain key 'USD'"
                 ),
                 () -> assertEquals(new BigDecimal("5.1429"),
-                        actualResponse.results().currencies().getRates().get("USD").buy(),
+                        actualResponse.results().currencies().rates().get("USD").buy(),
                         "Currency buy price must be mapped correctly"
                 )
         );
