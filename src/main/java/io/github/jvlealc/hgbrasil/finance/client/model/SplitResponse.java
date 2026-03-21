@@ -6,8 +6,8 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Modelo de resposta de Grupamentos e Desdobramentos de ações,
- * fundos imobiliários e BDRs negociados na B3 (Ibovespa).
+ * Stock splits and reverse splits response model,
+ * including REITs and BDRs traded on the B3 (Ibovespa)
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SplitResponse(
@@ -15,18 +15,19 @@ public record SplitResponse(
         List<SplitResult> results,
         List<ApiError> errors
 ) {
-    // Utilitários DX e segurança //
-
     /**
-     * Verifica se a API retornou algum error de negócio
+     * Checks if the API returned any business error.
      * */
     public boolean hasErrors() {
         return errors != null && !errors.isEmpty();
     }
 
     /**
-     * @return o primeiro erro da lista para logs ou tratamento de exceções
-     * */
+     * Retrieves the first error in the list.
+     *
+     * @return an Optional containing the first error for logging or exception handling,
+     *         or Optional.empty() if no errors are present.
+     */
     public Optional<ApiError> findFirstError() {
         if (hasErrors()) {
             return errors.stream().findFirst();
@@ -35,19 +36,19 @@ public record SplitResponse(
     }
 
     /**
-     * Garante que a lista de resultados nunca seja nula, evitando NullPointerException.
+     * Ensures that the 'results' list is never null, preventing {@link NullPointerException}.
      *
-     * @return A lista de resultados originais, ou uma lista vazia caso o campo 'results' seja nulo.
+     * @return a list containing the results or an empty List if 'results' is null.
      */
     public List<SplitResult> getSafeResults() {
         return results != null ? results : List.of();
     }
 
     /**
-     * Utilitário pragmático para extrair o primeiro (ou único) ativo da resposta.
-     * Ideal para facilitar a leitura de chamadas de ativo único (getByTicker)
+     * Utility to extract the first (or only) split from the response.
+     * Ideal for improving readability in single-split calls.
      *
-     * @return Optional contendo detalhes do grupamento ou desdobramento, ou Optional.empty() se a resposta for vazia ou nula.
+     * @return an Optional containing the split details or Optional.empty() if the response is empty or null.
      */
     public Optional<SplitResult> findFirstResult() {
         if (results == null || results.isEmpty()) {

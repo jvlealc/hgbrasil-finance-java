@@ -12,9 +12,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Classe base para execução de requisições HTTP para API da HG Brasil.
- * Centraliza a lógica de comunicação HTTP, tratamento de erros e
- * processamento de respostas de JSON.
+ * Base class for executing HTTP requests to HG Brasil API.
+ * Centralizes the HTTP communication logic, error handling
+ * and JSON response processing.
  */
 abstract class AbstractHttpExecutor {
 
@@ -27,13 +27,13 @@ abstract class AbstractHttpExecutor {
     }
 
     /**
-     * Executa uma requisição HTTP de forma síncrona e processa a resposta.
+     * Executes a synchronous HTTP request and processes the response.
      *
-     * @param request Objeto HttpRequest configurado
-     * @param responseType Classe de destino para o mapeamento do JSON
-     * @param <T> Tipo do objeto de retorno
-     * @return Objeto do tipo T mapeado a partir da resposta da API
-     * @throws HGBrasilApiException Caso a API retorne um erro HTTP, de negócio, parsing de JSON ou falha de rede
+     * @param request Configured {@link HttpRequest} object
+     * @param responseType Target class for JSON mapping
+     * @param <T> Type of the returned object
+     * @return An object of type {@code T} mapped from the API response
+     * @throws HGBrasilApiException If the API returns an HTTP error, business error, JSON parsing error or network failure
      */
     <T> T sendRequest(HttpRequest request, Class<T> responseType) {
         HttpResponse<String> response;
@@ -56,7 +56,7 @@ abstract class AbstractHttpExecutor {
             throw new HGBrasilApiException("Failed to parse JSON response from HG Brasil API.", e);
         }
 
-        checkGlobalAuthErrors(rootNode);
+        verifyGlobalAuthErrors(rootNode);
 
         try {
             return objectMapper.treeToValue(rootNode, responseType);
@@ -66,17 +66,17 @@ abstract class AbstractHttpExecutor {
     }
 
     /**
-     * Trata erros de nível HTTP (status 400 ou superior) formatando uma mensagem detalhada
-     * para facilitar debugging e observabilidade.
+     * Handles HTTP-level errors (e.g. status code is 400 or higher) generating a
+     * detailed message to facilitate debugging and observability.
      * <p>
-     * A mensagem gerada inclui o verbo HTTP, o caminho da URI, o código de status HTTP
-     * e o payload recebido da API.
+     *     The generated message includes the HTTP method, HTTP status code, URI path
+     *     and the payload returned by the API.
      *</p>
      *
-     * @param request requisição corrente enviada para o servidor
-     * @param response resposta da API contendo o payload e status
-     * @param jsonBody payload da resposta no formato original
-     * @throws HGBrasilApiException sempre que o código de status for maior ou igual a 400
+     * @param request  Current {@link HttpRequest} sent to server
+     * @param response API {@link HttpResponse} containing the payload and status code
+     * @param jsonBody Original response payload
+     * @throws HGBrasilApiException Whenever the status code is 400 or higher
      */
     private void handleHttpError(HttpRequest request, HttpResponse<String> response, String jsonBody) {
         if (response.statusCode() >= 400) {
@@ -88,13 +88,13 @@ abstract class AbstractHttpExecutor {
     }
 
     /**
-     * Inspeciona o nó raiz do JSON em busca de erros de autenticação global
-     * com base em diferentes padrões de resposta da API da HG Brasil.
+     * Inspects the root JSON node for global authentication errors
+     * based on different response patterns of the HG Brasil API.
      *
-     * @param rootNode nó raiz do JSON da resposta da API
-     * @throws HGBrasilApiException se erros de autenticação forem detectados
+     * @param rootNode Root JSON node of the API response
+     * @throws HGBrasilApiException If authentication errors are detected
      * */
-    private void checkGlobalAuthErrors(JsonNode rootNode) {
+    private void verifyGlobalAuthErrors(JsonNode rootNode) {
         // Pattern 1: asset module
         String messagePropertyName = "message";
         String errorDetails = "Invalid API key, unauthorized, or quota exceeded.";
@@ -111,7 +111,7 @@ abstract class AbstractHttpExecutor {
             throw new HGBrasilApiException("HG Brasil API auth error: %s".formatted(errorDetails));
         }
 
-        // Pattern 2: dividend module
+        // Pattern 2: dividend, split and indicator modules
         JsonNode metadataNode = rootNode.path("metadata");
         if (!metadataNode.isMissingNode() && "invalid".equalsIgnoreCase(metadataNode.path("key_status").asString(""))) {
             JsonNode errorsNode = rootNode.path("errors");

@@ -7,7 +7,7 @@ import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 /**
- * Representa um ponto de cotação do IBOVESPA numa série intradiária
+ * Represents a single Ibovespa intraday data point
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record IbovespaIntradayPoint(

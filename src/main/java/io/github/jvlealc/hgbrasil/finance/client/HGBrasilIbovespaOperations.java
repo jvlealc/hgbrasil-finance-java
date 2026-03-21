@@ -8,13 +8,13 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 
 /**
- * Implementação interna padrão de {@link IbovespaOperations}.
+ * Standard internal implementation of {@link IbovespaOperations}.
  * <p>
- * Possui visibilidade restrita (package-private) e a sua instanciação e o ciclo de vida desta classe
- * são gerenciados exclusivamente pelo facade {@link HGBrasilClient}
+ *     This class has package-private visibility, and its instantiation
+ *     and lifecycle are exclusively managed by the {@link HGBrasilClient} facade.
  * </p>
  * */
-class HGBrasilIbovespaOperations extends AbstractHttpExecutor implements IbovespaOperations {
+final class HGBrasilIbovespaOperations extends AbstractHttpExecutor implements IbovespaOperations {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance/ibovespa?format=json";
 

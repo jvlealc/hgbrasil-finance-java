@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 /**
- * Informações de valor patrimonial
+ * Represents the equity-related financial information within the asset context.
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Financials(

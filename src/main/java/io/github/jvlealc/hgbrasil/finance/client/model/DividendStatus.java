@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Representa o status de distribuição de pagamentos dos proventos.
- * */
+ * Represents the payment distribution status of a corporate action event.
+ */
 public enum DividendStatus {
     @JsonProperty("not_approved")
     NOT_APPROVED,
@@ -16,6 +16,9 @@ public enum DividendStatus {
     @JsonProperty("paid")
     PAID,
 
+    /**
+     * Safe fallback for unmapped types.
+     * */
     @JsonEnumDefaultValue
     UNKNOWN
 }

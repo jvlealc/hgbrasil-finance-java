@@ -4,9 +4,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Representa a categoria do provento distribuído.
- * Indica se o acionista receberá o benefício em formato de dinheiro
- * ou em formato de novas ações/ativos.
+ * Represents how a corporate action is distributed.
+ * Indicates whether the payment is made in cash or in assets (shares).
  */
 public enum DividendCategory {
     @JsonProperty("cash")
@@ -15,6 +14,9 @@ public enum DividendCategory {
     @JsonProperty("stock")
     STOCK,
 
+    /**
+     * Safe fallback for unmapped types.
+     * */
     @JsonEnumDefaultValue
     UNKNOWN
 }

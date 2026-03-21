@@ -7,8 +7,8 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 /**
- * Representa um evento individual da série histórica de um provento
- * */
+ * Represents a single corporate action event in the historical series.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DividendSeries(
         DividendType type,

@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 /**
- * Informações sobre dividendos
+ * Dividend information within the asset context.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Dividends(

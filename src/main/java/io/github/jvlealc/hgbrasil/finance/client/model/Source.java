@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Informações sobre a fonte dos dados financeiros (ex: B3 - Brasil, Bolsa, Balcão).
- * Este objeto é compartilhado por diversos endpoints da API HGBrasil.
+ * Information about the source of financial data.
+ * This object is shared across multiple HG Brasil API endpoints.
+ * <p>
+ *     NOTE: Not all endpoints use this model.
+ * </p>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Source(

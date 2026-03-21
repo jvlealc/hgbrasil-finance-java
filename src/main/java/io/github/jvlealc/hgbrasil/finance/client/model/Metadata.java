@@ -4,8 +4,11 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Informações de controle e depuração da requisição enviada à API.
- * Este objeto é compartilhado por diversos endpoints da API HGBrasil.
+ * Request metadata for debugging and control purposes.
+ * This object is shared across multiple HG Brasil API endpoints.
+ * <p>
+ *     NOTE: Not all endpoints use this model.
+ * </p>
  */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record Metadata(

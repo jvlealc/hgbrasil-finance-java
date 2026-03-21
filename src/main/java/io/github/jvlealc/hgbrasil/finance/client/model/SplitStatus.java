@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Representa o status de eventos corporativos de grupamentos ou desdobramentos.
+ * Represents the status of corporate action event related to splits or reverse splits.
  */
 public enum SplitStatus {
     @JsonProperty("pending")
@@ -13,6 +13,9 @@ public enum SplitStatus {
     @JsonProperty("confirmed")
     CONFIRMED,
 
+    /**
+     * Safe fallback for unmapped types.
+     * */
     @JsonEnumDefaultValue
     UNKNOWN
 }

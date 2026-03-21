@@ -49,7 +49,7 @@ class AbstractHttpExecutorTest {
 
     private record DummyResponse(String status, int code) {}
 
-    // Classe concreta para realização de testes
+    // Concrete class for testing
     private static final class TestableHttpExecutor extends AbstractHttpExecutor {
         TestableHttpExecutor(HttpClient httpClient, ObjectMapper objectMapper) {
             super(httpClient, objectMapper);

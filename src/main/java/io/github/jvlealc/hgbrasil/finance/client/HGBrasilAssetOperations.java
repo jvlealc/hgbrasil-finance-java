@@ -10,12 +10,12 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Implementação interna padrão de {@link AssetOperations}.
+ * Standard internal implementation of {@link AssetOperations}.
  * <p>
- * Possui visibilidade restrita (package-private) e a sua instanciação e o ciclo de vida desta classe
- * são gerenciados exclusivamente pelo facade {@link HGBrasilClient}.
+ *     This class has package-private visibility, and its instantiation
+ *     and lifecycle are exclusively managed by the {@link HGBrasilClient} facade.
  * </p>
- * */
+ */
 final class HGBrasilAssetOperations extends AbstractHttpExecutor implements AssetOperations {
 
     private static final String BASE_URL = "https://api.hgbrasil.com/finance/stock_price?format=json";

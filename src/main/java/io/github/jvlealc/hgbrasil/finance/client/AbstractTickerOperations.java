@@ -10,14 +10,15 @@ import java.util.List;
 import java.util.Objects;
 
 /**
- * Classe base genérica para execução de operações baseadas em tickers.
+ * Generic base class for executing ticker-based operations.
  * <p>
- * Centraliza a lógica de construção de query params de tickers e filtro histórico,
- * execução delegada de requisições HTTP (via {@link AbstractHttpExecutor}) e validações compartilhadas.
- * Promove a reutilização de código para endpoints que consomem os mesmos parâmetros,
- * como {@link HGBrasilDividendOperations} e {@link HGBrasilSplitOperations}.
+ *     Centralize the logic of building ticker query parameters and historical filters,
+ *     delegated executions of HTTP requests (via {@link AbstractHttpExecutor}) and shared validations.
+ *     Promotes code reuse for endpoints that consumer the same parameters,
+ *     such as {@link HGBrasilDividendOperations} and {@link HGBrasilSplitOperations}.
  * </p>
- * @param <T> O tipo de resposta mapeado a partir da requisição à API.
+ *
+ * @param <T> Response type mapped from the API request.
  */
 abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
 
@@ -77,8 +78,8 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
         return getHistorical(List.of(tickers), daysAgo);
     }
 
-    /// Implementações que montam as query params e delegam as requisições ao executor HTTP
-    
+    // --- Implementations that build query parameters and delegate requests to the HTTP executor ---
+
     public T getHistorical(List<String> tickers, LocalDate startDate, LocalDate endDate) {
         validateDate(startDate, "startDate");
         validateDate(endDate, "endDate");
@@ -101,16 +102,18 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
     }
 
     /**
-     * Motor central de execução de requisição HTTP
+     * Core engine for executing delegated HTTP requests.
      *
-     * @param tickers tickers dos ativos
-     * @param historicalQueryParams query params para busca de dados históricos - Opcional
-     * @return {@code T} Modelo de resposta do tipo mapeado com dados da API
+     * @param tickers Asset tickers
+     * @param historicalQueryParams Query parameters for historical data retrieval (Optional)
+     * @return {@code T} The response model mapped from the API data
+     * @throws NullPointerException if {@code tickers} is null
+     * @throws IllegalArgumentException if {@code tickers} is empty
      */
     private T executeRequest(List<String> tickers, String historicalQueryParams) {
         Objects.requireNonNull(tickers, "Parameter 'tickers' must not be null.");
         if (tickers.isEmpty()) {
-            throw new IllegalArgumentException("Parameter 'tickers' must not be empty or null.");
+            throw new IllegalArgumentException("Parameter 'tickers' must not be empty.");
         }
 
         String joinedTickers = String.join(",", tickers);

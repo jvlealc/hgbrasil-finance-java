@@ -5,7 +5,7 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
 
 /**
- * Mapeia cotações do Bitcoin do objeto 'results' do JSON.
+ * Maps Bitcoin quotes from the 'results' object.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record BitcoinResults(

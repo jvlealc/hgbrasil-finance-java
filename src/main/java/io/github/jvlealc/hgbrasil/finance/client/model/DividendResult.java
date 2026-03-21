@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Mapeia dados consolidados de proventos de um ativo na lista 'results' do JSON
+ * Maps consolidated dividend data from the 'results' list.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DividendResult(
@@ -23,17 +23,18 @@ public record DividendResult(
         Source source
 ) {
         /**
-         * Garante que a lista 'series' (eventos) nunca seja nula, evitando NullPointerException.
-         * Retornando uma lista vazia caso a lista 'series' seja nula.
+         * Ensures that the 'series' list (events) is never null, preventing {@link NullPointerException}.
+         *
+         * @return a list containing the series or an empty list if 'series' is null.
          */
         public List<DividendSeries> getSafeSeries() {
                 return series != null ? series : List.of();
         }
 
         /**
-         * Utilitário pragmático para extrair o primeiro valor (ou único) da 'serie'/evento.
+         * Utility to extract the first (or only) value from the 'series' (event).
          *
-         * @return Optional contendo detalhes da 'serie' do dividendo ou Optional.empty() se a resposta for vazia ou nula.
+         * @return an Optional containing dividend series detailed or Optional.empty() if the series is empty or null;
          */
         public Optional<DividendSeries> findFirstSeries() {
                 if (series == null || series.isEmpty()) {

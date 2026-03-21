@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Representa os tipos de eventos corporativos de distribuição de proventos suportados
- * */
+ * Represents the supported types of corporate action distribution events.
+ */
 public enum DividendType {
     @JsonProperty("amortization")
     AMORTIZATION,
@@ -32,7 +32,7 @@ public enum DividendType {
     RETURN_OF_CAPITAL_IN_SHARES,
 
     /**
-     * Fallback de segurança para tipos não mapeados
+     * Safe fallback for unmapped types.
      * */
     @JsonEnumDefaultValue
     UNKNOWN

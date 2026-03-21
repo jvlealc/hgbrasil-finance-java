@@ -156,22 +156,22 @@ class HGBrasilSplitOperationsTest {
 
         assertNotNull(actualResponse, "Response must not be null");
 
-        // Validação de erro parcial (A2:FALSE88) //
+        // Partial error validation (A2:FALSE88)
         assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
         assertTrue(actualResponse.findFirstError().isPresent(), "The error list must not be empty");
         assertEquals("A2:FALSE88", actualResponse.findFirstError().get().details().get("symbol"));
 
-        // Validação de sucesso parcial (B3:TIMS3) //
+        // Partial success validation (B3:MGLU3)
         assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");
         SplitResult validResult = actualResponse.findFirstResult()
                 .orElseThrow();
         assertEquals("B3:TIMS3", validResult.ticker(), "The ticker valid result must match");
 
-        // Validação de mapeamento de outros objetos via Jackson
+        // Validation of mapping other objects via Jackson
         assertEquals("Tim S.A.", validResult.fullName(), "Enterprise full name must match");
         assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName(), "Source full name must match");
 
-        // Validação de integridade da lista de series
+        // Integrity validation of the event list
         List<SplitEvent> safeEvents = validResult.getSafeEvents();
         assertNotNull(safeEvents, "The events must not be null");
         assertEquals(1, safeEvents.size(), "The TIMS3 must have 1 event");

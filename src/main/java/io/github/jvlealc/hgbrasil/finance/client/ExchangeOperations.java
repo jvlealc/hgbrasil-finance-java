@@ -4,27 +4,27 @@ import io.github.jvlealc.hgbrasil.finance.client.model.BitcoinResponse;
 import io.github.jvlealc.hgbrasil.finance.client.model.CurrenciesResponse;
 
 /**
- * Interface de contrato que realiza operações para obter
- * o câmbio de moedas fiduciárias e cotação do Bitcoin.
+ * Contract interface that perform operations to retrieve fiat currency exchange rates
+ * and Bitcoin quotes.
  *
- * @see <a href="https://hgbrasil.com/docs/finance/currencies">Documentação Oficial da HG Brasil - Moedas</a>
- * @see <a href="https://hgbrasil.com/docs/finance/crypto">Documentação Oficial da HG Brasil - Criptomoedas</a>
- * */
+ * @see <a href="https://hgbrasil.com/docs/finance/currencies">HG Brasil Official Documentation - Currencies</a>
+ * @see <a href="https://hgbrasil.com/docs/finance/crypto">HG Brasil Official Documentation - Cryptoassets</a>
+ */
 public interface ExchangeOperations {
 
     /**
-     * Busca a cotação das principais moedas internacionais em relação ao Real (BRL).
+     * Retrieves exchange rates of major international currencies against the Brazilian Real (BRL)
      *
-     * @return {@link CurrenciesResponse} - modelo de resposta das moedas
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
-     * */
+     * @return {@link CurrenciesResponse} containing the currencies data
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
+     */
     CurrenciesResponse getCurrencies();
 
     /**
-     * Busca a cotação do Bitcoin nas principais corretoras do mercado.
+     * Retrieve Bitcoin quotes from major market exchanges
      *
-     * @return {@link BitcoinResponse} - modelo de resposta do Bitcoin nas corretoras.
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
+     * @return {@link BitcoinResponse} containing the Bitcoin data from exchanges
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
      */
      BitcoinResponse getBitcoin();
 }

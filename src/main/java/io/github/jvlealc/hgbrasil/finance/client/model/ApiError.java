@@ -5,10 +5,10 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
 
 /**
- * Modelo de resposta de erros quando ocorre input de dados inválidos.
- * Este objeto é compartilhado por diversos endpoints da API HGBrasil.
+ * Error response model used when invalid input data is provided.
+ * This object is shared across multiple HG Brasil API endpoints.
  * <p>
- * NOTE: Nem todos os endpoints utilizam este modelo em casos de erro.
+ *     NOTE: Not all endpoints use this model in error scenarios.
  * </p>
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)

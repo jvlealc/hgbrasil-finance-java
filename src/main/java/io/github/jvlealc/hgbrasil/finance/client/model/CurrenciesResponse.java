@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Modelo de resposta que agrupa cotações de diversas moedas internacionais
- * em relação ao Real (BRL).
+ * Currencies response model that aggregating exchange rates of various international
+ * currencies against the Brazilian Real (BRL).
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record CurrenciesResponse(

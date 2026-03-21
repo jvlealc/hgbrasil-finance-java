@@ -6,10 +6,10 @@ import tools.jackson.databind.ObjectMapper;
 import java.net.http.HttpClient;
 
 /**
- * Implementação interna padrão de {@link SplitOperations}.
+ * Standard internal implementation of {@link SplitOperations}.
  * <p>
- * Possui visibilidade restrita (package-private) e a sua instanciação e o ciclo de vida desta classe
- * são gerenciados exclusivamente pelo facade {@link HGBrasilClient}.
+ *     This class has package-private visibility, and its instantiation
+ *     and lifecycle are exclusively managed by the {@link HGBrasilClient} facade.
  * </p>
  * */
 final class HGBrasilSplitOperations extends AbstractTickerOperations<SplitResponse> implements SplitOperations {

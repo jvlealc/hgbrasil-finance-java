@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * Mapeia dados consolidados de Grupamentos e Desdobramentos de um ativo na lista 'results' do JSON
+ * Maps consolidated stock splits or reverse splits data for an asset from the 'results' list.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record SplitResult(
@@ -20,17 +20,18 @@ public record SplitResult(
         Source source
 ) {
         /**
-         * Garante que a lista 'events' (eventos) nunca seja nula, evitando NullPointerException.
-         * Retornando uma lista vazia caso a lista 'events' seja nula.
+         * Ensures that the 'events' list is never null, preventing {@link NullPointerException}.
+         *
+         * @return a list containing the events or an empty list if 'events' is null.
          */
         public List<SplitEvent> getSafeEvents() {
                 return events != null ? events : List.of();
         }
 
         /**
-         * Utilitário pragmático para extrair o primeiro valor (ou único) do evento.
+         * Utility to extract the first (or only) split event from the list.
          *
-         * @return Optional contendo detalhes do 'event' de grupamento ou desdobramento, ou Optional.empty() se a resposta for vazia ou nula.
+         * @return an Optional containing the split event detailed, or Optional.empty() if the events is empty or null.
          */
         public Optional<SplitEvent> findFirstEvent() {
                 if (events == null || events.isEmpty()) {

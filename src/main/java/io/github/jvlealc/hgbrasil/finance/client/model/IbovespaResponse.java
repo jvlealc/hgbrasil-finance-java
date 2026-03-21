@@ -6,7 +6,7 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.util.List;
 
 /**
- * Modelo de resposta raiz de dados diários do IBOVESPA
+ * Ibovespa response model for daily data
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record IbovespaResponse(
@@ -18,4 +18,13 @@ public record IbovespaResponse(
         double executionTime,
         @JsonProperty("from_cache")
         boolean fromCache
-) {}
+) {
+        /**
+         * Ensures that the 'results' list is never null, preventing {@link NullPointerException}.
+         *
+         * @return a list containing the results or an empty List if 'results' is null.
+         */
+        public List<IbovespaResult> getSafeResults() {
+                return results != null ? results : List.of();
+        }
+}

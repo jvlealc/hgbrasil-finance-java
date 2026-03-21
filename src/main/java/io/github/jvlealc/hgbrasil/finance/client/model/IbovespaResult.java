@@ -9,7 +9,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 /**
- * Mapeia dados consolidados do IBOVESPA com fator diário na lista 'results' do JSON
+ * Maps consolidated daily Ibovespa data from the 'results' list.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record IbovespaResult(
@@ -27,4 +27,13 @@ public record IbovespaResult(
         @JsonProperty("previous_close")
         BigDecimal previousClose,
         List<IbovespaIntradayPoint> data
-) {}
+) {
+        /**
+         * Ensures that the 'data' list is never null, preventing {@link NullPointerException}.
+         *
+         * @return a list containing the Ibovespa results or an empty List if 'results' is null.
+         */
+        public List<IbovespaIntradayPoint> getSafeResults() {
+                return data != null ? data : List.of();
+        }
+}

@@ -6,8 +6,8 @@ import java.math.BigDecimal;
 import java.util.List;
 
 /**
- * Mapeia informações do Bitcoin nas corretoras
- * */
+ * Maps Bitcoin data across different exchanges.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record BitcoinExchange(
         String name,

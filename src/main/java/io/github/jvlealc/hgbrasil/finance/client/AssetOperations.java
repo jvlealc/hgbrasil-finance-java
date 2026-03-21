@@ -5,44 +5,51 @@ import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
 import java.util.List;
 
 /**
- * Interface de contrato que realiza operações para obter cotação
- * e detalhes de ativos, como Ações, FIIs, Moedas, Índices e Criptoativo.
- * Também pode recuperar lista de ações de maiores altas e baixas do dia.
+ * Contract interface for performing operations to retrieve quotes
+ * and asset details, including stocks, REITs, currencies, indices, and cryptoassets.
+ * It can also fetch the list of top gainers or losers of the day.
  *
- * @see <a href="https://hgbrasil.com/docs/finance/stocks">Documentação Oficial da HG Brasil - Bolsa de Valores</a>
+ * @see <a href="https://hgbrasil.com/docs/finance/stocks">HG Brasil Official Documentation - Stock Market</a>
  */
 public interface AssetOperations {
 
     /**
-     * Busca dados de um único ativo.
+     * Retrieves data for a single asset.
+     * <p>
+     *     NOTE: Although you can technically pass multiple symbols separated by commas
+     *     (e.g. {@code "PETR4,BPAC11,AAPL34"}), it is highly recommended to use
+     *     the array ({@link #getBySymbols(String...)}) or list ({@link #getBySymbols(List)}) overloads
+     *     when fetching multiple assets. This approach avoids manual string formatting,
+     *     reduces the risk of errors and improves code readability.
+     * </p>
      *
-     * @param symbol símbolo do ativo
-     * @return {@link AssetResponse} - modelo de resposta do ativo
-     * @throws NullPointerException se {@code symbol} for nulo
-     * @throws IllegalArgumentException se {@code symbol} for uma string vazia
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
+     * @param symbol Asset symbol, or multiple separated by commas
+     * @return {@link AssetResponse} containing the asset data
+     * @throws NullPointerException If {@code symbol} is null
+     * @throws IllegalArgumentException If {@code symbol} is empty or blank
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
      * */
     AssetResponse getBySymbol(String symbol);
 
     /**
-     * Busca dados de múltiplos ativos.
+     * Retrieves data for one or more assets.
      *
-     * @param symbols array de símbolos dos ativos
-     * @return {@link AssetResponse} - modelo de resposta dos ativos
-     * @throws NullPointerException se o array {@code symbols} for nulo
-     * @throws IllegalArgumentException se o array {@code symbols} estiver vazio
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
-     * */
+     * @param symbols Varargs array of asset symbols
+     * @return {@link AssetResponse} containing the assets data
+     * @throws NullPointerException If the {@code symbols} array is null
+     * @throws IllegalArgumentException If the {@code symbols} array is empty
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
+     */
     AssetResponse getBySymbols(String... symbols);
 
     /**
-     * Busca dados de múltiplos ativos.
+     * Retrieves data for one or more assets.
      *
-     * @param symbols lista de símbolos dos ativos
-     * @return {@link AssetResponse} - modelo de resposta dos ativos
-     * @throws NullPointerException se a lista {@code symbols} for nula
-     * @throws IllegalArgumentException se a lista {@code symbols} estiver vazia
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
-     * */
+     * @param symbols List of asset symbols
+     * @return {@link AssetResponse} containing the assets data
+     * @throws NullPointerException If the {@code symbols} list is null
+     * @throws IllegalArgumentException If the {@code symbols} list is empty
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
+     */
     AssetResponse getBySymbols(List<String> symbols);
 }

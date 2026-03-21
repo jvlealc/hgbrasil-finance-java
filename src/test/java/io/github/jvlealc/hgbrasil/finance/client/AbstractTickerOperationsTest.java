@@ -49,7 +49,7 @@ class AbstractTickerOperationsTest {
 
     private record DummyResponse(String status, int code) {}
 
-    // Classe concreta para realização de testes
+    // Concrete class for testing
     private static final class TestableTickerOperations extends AbstractTickerOperations<DummyResponse> {
         TestableTickerOperations(HttpClient httpClient, ObjectMapper objectMapper, String apiKey, String baseUrl, Class<DummyResponse> responseType) {
             super(httpClient, objectMapper, apiKey, baseUrl, responseType);

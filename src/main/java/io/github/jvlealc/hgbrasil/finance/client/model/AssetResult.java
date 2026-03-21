@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * Mapeia dados detalhados dos ativos do objeto 'results' do JSON.
+ * Maps detailed asset data from the 'results' object.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AssetResult(
@@ -47,6 +47,9 @@ public record AssetResult(
         Boolean error,
         String message
 ) {
+        /**
+         * Ensures the {@code error} field is never null, even if the API does not return this value.
+         * */
         public AssetResult {
                 if (error == null) {
                         error = false;

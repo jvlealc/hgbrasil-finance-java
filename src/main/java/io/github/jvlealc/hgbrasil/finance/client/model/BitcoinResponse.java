@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Modelo de resposta que agrupa cotações do Bitcoin nas pricipais corretoras
- * */
+ * Bitcoin response model aggregating quotes from major exchanges.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record BitcoinResponse(
         String by,

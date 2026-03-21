@@ -3,17 +3,18 @@ package io.github.jvlealc.hgbrasil.finance.client;
 import io.github.jvlealc.hgbrasil.finance.client.model.IbovespaResponse;
 
 /**
- * Interface de contrato que realiza operações para obter histórico OHLC, média e detalhes da Ibovespa.
+ * Contract interface for performing operations to retrieve OHLC history,
+ * points, and details of the Ibovespa index.
  *
- * @see <a href="https://hgbrasil.com/docs/finance/stocks">Documentação Oficial da HG Brasil - Bolsa de Valores</a>
- * */
+ * @see <a href="https://hgbrasil.com/docs/finance/stocks">HG Brasil Official Documentation - Stock Market</a>
+ */
 public interface IbovespaOperations {
 
     /**
-     * Busca dados detalhados da Ibovespa, incluindo histórico OHLC.
+     * Retrieve detailed Ibovespa data including OHLC history.
      *
-     * @return  {@link IbovespaResponse} - modelo de resposta do Ibovespa
-     * @throws HGBrasilApiException caso ocorra um erro de rede, falha de autenticação ou erro reportado pela API
-     * */
+     * @return  {@link IbovespaResponse} containing the Ibovespa data
+     * @throws HGBrasilApiException In case of network failure, authentication error or API-reported error
+     */
     IbovespaResponse getIbovespa();
 }

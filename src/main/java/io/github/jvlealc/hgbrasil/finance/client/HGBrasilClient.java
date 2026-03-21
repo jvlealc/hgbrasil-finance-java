@@ -12,15 +12,14 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * Http Client para comunicação com a API financeira da HG Brasil.
+ * HTTP client for communication with the HG Brasil financial API.
  * <p>
- *     Esta classe utiliza Virtual Threads e deve ser instanciada via {@link #builder()}.
- *     Atua como um Facade que fornece acesso às classes que implementam as operações
- *     de comunicação com a API.
+ * This class utilizes Virtual Threads and must be instantiated via {@link #builder()}.
+ * It acts as a Facade providing access to the classes that implement API communication operations.
  * </p>
  *
- * @see <a href="https://hgbrasil.com/docs/finance">Documentação Oficial da HG Brasil</a>
- * */
+ * @see <a href="https://hgbrasil.com/docs/finance">HG Brasil Official Documentation</a>
+ */
 public final class HGBrasilClient implements AutoCloseable {
 
     private static final long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 20L;
@@ -76,52 +75,59 @@ public final class HGBrasilClient implements AutoCloseable {
     }
 
     /**
-     * Inicia a construção do client HG Brasil
-     * @return Instância do Builder
-     * */
+     * Initiates the construction of the HG Brasil client.
+     *
+     * @return Builder instance
+     */
     public static Builder builder() {
         return new Builder();
     }
 
     /**
-     * Acessa as operações de busca de cotações de ativos
-     * do mercado financeiro (ações, FIIs, BDRs, moedas, índices e criptoativos).
-     * @return instância de {@link HGBrasilAssetOperations}
-     * */
+     * Accesses operations to retrieve quotes for financial market assets
+     * (stocks, REITs, BDRs, currencies, indices and cryptoassets).
+     *
+     * @return Instance of {@link HGBrasilAssetOperations}
+     */
     public AssetOperations getAssetOperations() {
         return assetOperations;
     }
 
     /**
-     * Acessa as operações de busca de câmbio de moedas em relação ao Real (BRL) e cotação de Bitcoin.
-     * @return instância de {@link HGBrasilExchangeOperations}
-     * */
+     * Accesses operations to retrieve currency exchange rates against the Brazilian Real (BRL)
+     * and Bitcoin quotes.
+     *
+     * @return Instance of {@link HGBrasilExchangeOperations}
+     */
     public ExchangeOperations getExchangeOperations() {
         return exchangeOperations;
     }
 
     /**
-     * Acessar operação de busca de histórico e detalhes da Ibovespa.
-     * @return instância de {@link HGBrasilIbovespaOperations}
-     * */
+     * Accesses operations to retrieve the history and details of the Ibovespa index.
+     *
+     * @return Instance of {@link HGBrasilIbovespaOperations}
+     */
     public IbovespaOperations getIbovespaOperations() {
         return ibovespaOperations;
     }
 
     /**
-     * Acessar operação de busca de histórico e detalhes de dividendos,
-     * JCP, bonificações e outros proventos de ações, fundos imobiliários e BDRs.
-     * @return instância de {@link HGBrasilDividendOperations}
-     * */
+     * Accesses operations to retrieve the history and details of dividends,
+     * interest on equity (JCP), stock bonuses, and other earnings for stocks, REITs and BDRs.
+     *
+     * @return Instance of {@link HGBrasilDividendOperations}
+     */
     public DividendOperations getDividendOperations() {
         return dividendOperations;
     }
 
     /**
-     * Acessar operação de busca de histórico e detalhes de grupamentos e desdobramentos de ativos
-     * do mercado financeiro (ações, FIIs, BDRs).
-     * @return instância de {@link HGBrasilSplitOperations}
-     * */
+     * Accesses operations to retrieve the history and details of stock splits
+     * and reverse splits for financial market assets (stocks, REITs and BDRs).
+     *
+     * @return Instance of {@link HGBrasilSplitOperations}
+     */
     public SplitOperations getSplitOperations() {
         return splitOperations;
     }
@@ -134,8 +140,8 @@ public final class HGBrasilClient implements AutoCloseable {
     }
 
     /**
-     * Builder para configuração da {@link HGBrasilClient}.
-     * */
+     * Builder for configuring the {@link HGBrasilClient}.
+     */
     public static final class Builder {
 
         private String apiKey;
@@ -147,54 +153,73 @@ public final class HGBrasilClient implements AutoCloseable {
         private Builder() {}
 
         /**
-         * @param apiKey Chave da API da HG Brasil
-         * */
+         * Sets the API key.
+         *
+         * @param apiKey HG Brasil API key
+         * @return This builder instance
+         */
         public Builder apiKey(String apiKey) {
             this.apiKey = apiKey;
             return this;
         }
 
         /**
-         * Opcional - se omitido utiliza-se o valor padrão de {@value DEFAULT_CONNECTION_TIMEOUT_SECONDS } segundos.
-         * @param timeout tempo máximo de espera para as conexões
-         * */
+         * Optional - if omitted, the default value of {@value DEFAULT_CONNECTION_TIMEOUT_SECONDS} seconds is used.
+         *
+         * @param timeout Maximum waiting time for connections
+         * @return This builder instance
+         */
         public Builder timeout(Duration timeout) {
             this.timeout = timeout;
             return this;
         }
 
         /**
-         * Opcional
-         * @param httpClient HttpClient customizado
-         * */
+         * Optional - if omitted, the default {@link HttpClient} is created configured with HTTP/2,
+         * normal redirects, the specified timeout and executor.
+         *
+         * @param httpClient Custom HttpClient
+         * @return This builder instance
+         */
         public Builder httpClient(HttpClient httpClient) {
             this.httpClient = httpClient;
             return this;
         }
 
         /**
-         * Opcional - se omitido utiliza-se o {@link JsonMapper} padrão configurado com {@link JavaTimeModule}
-         * e {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} habilitado.
-         * @param objectMapper ObjectMapper customizado
-         * */
+         * Optional - if omitted, the default {@link JsonMapper} configured with {@link JavaTimeModule}
+         * and {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} enabled is used.
+         * <p>
+         *     NOTE: If you wish to inject a custom {@link ObjectMapper}, it is highly recommended
+         *     to register the {@link JavaTimeModule} for proper date conversion and enable
+         *     {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} to safely handle
+         *     unknown enum values.
+         * </p>
+         *
+         * @param objectMapper Custom ObjectMapper
+         * @return This builder instance
+         */
         public Builder objectMapper(ObjectMapper objectMapper) {
             this.objectMapper = objectMapper;
             return this;
         }
 
         /**
-         * Opcional - se omitido utiliza-se um {@link Executor} baseado em Virtual Threads por task.
-         * @param executor Executor customizado para gerenciar threads HTTP
-         * */
+         * Optional - if omitted, an {@link Executor} based on Virtual Threads per task is used.
+         *
+         * @param executor Custom executor to manage HTTP threads
+         * @return This builder instance
+         */
         public Builder executor(Executor executor) {
             this.executor = executor;
             return this;
         }
 
         /**
-         * Constrói e retorna o client da HG Brasil configurado.
+         * Builds and returns the configured HG Brasil client.
+         *
          * @return {@link HGBrasilClient}
-         * */
+         */
         public HGBrasilClient build() {
             return new HGBrasilClient(this);
         }

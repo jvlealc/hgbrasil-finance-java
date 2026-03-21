@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import java.util.Map;
 
 /**
- * Modelo que encapsula múltiplas taxas de câmbio
- * */
+ * Model that encapsulates multiple exchange rates.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record ExchangeRates(
         String source,
@@ -16,8 +16,9 @@ public record ExchangeRates(
         Map<String, Currency> rates
 ){
     /**
-     * Retorna o Map 'rates', garantindo que nunca seja nulo para evitar {@link NullPointerException}.
-     * @return Map com os resultados do câmbio ou um Map vazio se não houver dados.
+     * Ensures that the 'rates' Map is never null, preventing {@link NullPointerException}.
+     *
+     * @return a Map containing exchange results or an empty Map if 'results' is null.
      */
     public Map<String, Currency> getSafeRates() {
         return rates != null ? rates : Map.of();

@@ -6,8 +6,8 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 import java.math.BigDecimal;
 
 /**
- * Métricas consolidadas de dividendos dos últimos 12 meses
- * */
+ * Consolidated dividend metrics for the last 12 months.
+ */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record DividendSummary(
         @JsonProperty("yield_12m_percent")

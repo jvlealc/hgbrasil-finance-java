@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 
 /**
- * Modelo de resposta de um ativo (Ações, FIIs, Moedas, Índices e Criptoativos).
+ * Asset response model for stocks, REITs, BDRs, currencies, market indexes and cryptoassets.
  * */
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record AssetResponse(
@@ -21,7 +21,7 @@ public record AssetResponse(
         boolean fromCache
 ) {
         /**
-         * Verifica se a API retornou algum error de negócio
+         * Checks if the API returned any business error.
          * */
         public boolean hasErrors() {
                 if (results == null || results.isEmpty()) {
@@ -34,18 +34,19 @@ public record AssetResponse(
         }
 
         /**
-         * Garante que o Map 'results' nunca seja nula, evitando NullPointerException.
-         * @return Map com resultados ou um Map vazio caso a Map 'results' seja nulo.
+         * Ensures that the 'results' Map is never null, preventing {@link NullPointerException}.
+         *
+         * @return a Map containing the results or an empty Map if 'results' is null.
          */
         public Map<String, AssetResult> getSafeResults() {
                 return results != null ? results : Map.of();
         }
 
         /**
-         * Utilitário pragmático para extrair o primeiro (ou único) ativo da resposta.
-         * Ideal para facilitar a leitura de chamadas de ativo único (getBySymbol).
+         * Utility to extract the first (or only) asset from the response.
+         * Ideal for improving readability in single-asset calls.
          *
-         * @return Optional contendo o detalhe do ativo, ou Optional.empty() se a resposta for vazia ou nula.
+         * @return an Optional containing the asset details or Optional.empty() if the response is empty or null.
          */
         public Optional<AssetResult> findFirstResult() {
                 if (results == null || results.isEmpty()) {

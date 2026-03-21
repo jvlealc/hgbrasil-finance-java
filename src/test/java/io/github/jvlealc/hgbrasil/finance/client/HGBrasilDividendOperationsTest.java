@@ -171,27 +171,27 @@ class HGBrasilDividendOperationsTest {
 
         assertNotNull(actualResponse, "Response must not be null");
 
-        // Validação de erro parcial (A2:FALSE88) //
+        // Partial error validation (A2:FALSE88)
         assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
         assertTrue(actualResponse.findFirstError().isPresent(), "The error list must not be empty");
         assertEquals("A2:FALSE88", actualResponse.findFirstError().get().details().get("symbol"));
 
-        // Validação de sucesso parcial (B3:MGLU3) //
+        // Partial success validation (B3:MGLU3)
         assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");
         DividendResult validResult = actualResponse.findFirstResult()
                 .orElseThrow();
         assertEquals("B3:MGLU3", validResult.ticker(), "The ticker valid result must match");
 
-        // Validação de mapeamento de outros objetos via Jackson
+        // Validation of mapping other objects via Jackson
         assertEquals(new BigDecimal("3.008"), validResult.summary().yield12mPercent(), "Summary yield must match");
         assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName(), "Source full name must match");
 
-        // Validação de integridade da lista de series
+        // Integrity validation of the series list
         List<DividendSeries> safeSeries = validResult.getSafeSeries();
         assertNotNull(safeSeries, "The safe series must not be null");
-        assertEquals(2, safeSeries.size(), "The MGLU3 must have 2 series events");
-        assertEquals(DividendType.BONUS_ISSUE,  safeSeries.getFirst().type(), "First event must be bonus issue");
-        assertEquals(DividendType.DIVIDEND,  safeSeries.get(1).type(), "Second event must be dividend");
+        assertEquals(2, safeSeries.size(), "MGLU3 must have 2 series events");
+        assertEquals(DividendType.BONUS_ISSUE, safeSeries.get(0).type(), "First event must be bonus issue");
+        assertEquals(DividendType.DIVIDEND, safeSeries.get(1).type(), "Second event must be dividend");
     }
 
     @Test

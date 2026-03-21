@@ -4,8 +4,8 @@ import com.fasterxml.jackson.annotation.JsonEnumDefaultValue;
 import com.fasterxml.jackson.annotation.JsonProperty;
 
 /**
- * Representa o tipo do evento corporativos sobre a quantidade de ações.
- * Indica se houve grupamentos ou desdobramentos.
+ * Represents the type of corporate action event that affects share quantity.
+ * Indicates whether a stock split or reverse split occurred.
  * */
 public enum SplitType {
     @JsonProperty("split")
@@ -14,6 +14,9 @@ public enum SplitType {
     @JsonProperty("reverse_split")
     REVERSE_SPLIT,
 
+    /**
+     * Safe fallback for unmapped types.
+     * */
     @JsonEnumDefaultValue
     UNKNOWN
 }
