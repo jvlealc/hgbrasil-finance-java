@@ -18,11 +18,4 @@ public record Source(
         String fullName,
         String url,
         Location location
-
-) {
-        /**
-         * Detalhes do fuso horário da fonte de dados.
-         */
-        @JsonIgnoreProperties(ignoreUnknown = true)
-        public record Location(String timezone) {}
-}
+) {}
