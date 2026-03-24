@@ -37,6 +37,8 @@ jobs:
           cache: maven
 
       - name: Build and Test with Maven
+        env:
+          HGBRASIL_API_KEY: ${{ secrets.HGBRASIL_API_KEY }}
         run: mvn -B clean verify
 
       # Uploads the full dependency graph to GitHub to improve the quality of Dependabot alerts this repository can receive
