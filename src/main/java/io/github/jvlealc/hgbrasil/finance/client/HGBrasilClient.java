@@ -173,8 +173,12 @@ public final class HGBrasilClient implements AutoCloseable {
          *
          * @param timeout Maximum waiting time for connections
          * @return This builder instance
+         * @throws IllegalArgumentException If timeout is zero or negative
          */
         public Builder timeout(Duration timeout) {
+            if (timeout != null && (timeout.isZero() || timeout.isNegative())) {
+                throw new IllegalArgumentException("timeout must be positive.");
+            }
             this.timeout = timeout;
             return this;
         }
