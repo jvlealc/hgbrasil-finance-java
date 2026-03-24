@@ -38,7 +38,7 @@ public final class HGBrasilClient implements AutoCloseable {
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
-            throw new IllegalArgumentException("HG Brasil API Key is required to build the client.");
+            throw new IllegalStateException("API key is required to build the client. Use builder().apiKey(...) before calling build().");
         }
 
         Duration timeout = builder.timeout != null
