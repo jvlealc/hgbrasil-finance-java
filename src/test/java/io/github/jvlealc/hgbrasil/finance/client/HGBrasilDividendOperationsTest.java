@@ -228,44 +228,46 @@ class HGBrasilDividendOperationsTest {
                           "status": "approved"
                         }
                         ],
-                              "source": {
-                                "symbol": "B3",
-                                "name": "B3",
-                                "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
-                                "url": "https://www.b3.com.br",
-                                "location": {
-                                  "timezone": "America/Sao_Paulo"
-                                }
-                              }
-                            }
-                          ]
+                      "source": {
+                        "symbol": "B3",
+                        "name": "B3",
+                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
+                        "url": "https://www.b3.com.br",
+                        "location": {
+                          "timezone": "America/Sao_Paulo"
                         }
+                      }
+                    }
+                  ]
+                }
                 """;
 
         mockHttpResponse(mockedJsonBody);
 
         DividendResponse actualResponse = dividendOperations.getByTicker("B3:PETR4");
+        DividendResult result = actualResponse.findFirstResult().orElseThrow();
+        DividendSeries series = result.findFirstSeries().orElseThrow();
 
         assertAll("Verify successfully Dividend response integrity",
                 () -> assertNotNull(actualResponse, "Response must not be null"),
                 () -> assertEquals(
                         new BigDecimal("7.77"),
-                        actualResponse.results().getFirst().summary().yield12mPercent(),
+                        result.summary().yield12mPercent(),
                         "yield_12m_percent value must be equal to 7.77"
                 ),
                 () -> assertEquals(
                         new BigDecimal("0.175182"),
-                        actualResponse.results().getFirst().series().getFirst().amount(),
+                        series.amount(),
                         "Amount value must be equal to 0.175182"
                 ),
                 () -> assertEquals(
                         LocalDate.of(2025, 12, 22),
-                        actualResponse.results().getFirst().series().getFirst().comDate(),
+                        series.comDate(),
                         "com_date must be equal to '2025-12-22'"
                 ),
                 () -> assertEquals(
                         DividendStatus.APPROVED,
-                        actualResponse.results().getFirst().series().getFirst().status(),
+                        series.status(),
                         "status must be equal to 'approved'"
                 )
         );
