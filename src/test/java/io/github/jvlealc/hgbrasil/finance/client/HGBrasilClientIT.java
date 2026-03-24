@@ -16,7 +16,8 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 class HGBrasilClientIT {
 
-    private static final Logger LOG =  LoggerFactory.getLogger(HGBrasilClientIT.class);
+    private static final Logger LOGGER =  LoggerFactory.getLogger(HGBrasilClientIT.class);
+
     private static final String HGBRASIL_API_KEY = System.getenv("HGBRASIL_API_KEY");
     private static final String INVALID_API_KEY = "invalid-api-key";
 
@@ -26,6 +27,7 @@ class HGBrasilClientIT {
     private IbovespaOperations ibovespaOperations;
     private DividendOperations dividendOperations;
     private SplitOperations splitOperations;
+    private IndicatorOperations indicatorOperations;
 
     @BeforeAll
     void setup() {
@@ -45,11 +47,15 @@ class HGBrasilClientIT {
         ibovespaOperations = client.getIbovespaOperations();
         dividendOperations = client.getDividendOperations();
         splitOperations = client.getSplitOperations();
+        indicatorOperations = client.getIndicatorOperations();
     }
 
     @AfterAll
     void cleanup() {
-        if (client != null) client.close();
+        if (client != null) {
+            client.close();
+            LOGGER.info("Client was closed.");
+        }
     }
 
     @Test
@@ -69,7 +75,7 @@ class HGBrasilClientIT {
             );
             assertNotNull(exception.getMessage(), "Exception message must not be null");
 
-            LOG.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
+            LOGGER.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
         }
     }
 
@@ -86,7 +92,7 @@ class HGBrasilClientIT {
             assertTrue(response.results().currencies().rates().containsKey("EUR"), "Currencies rates must contain key EUR");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Currencies response:\n{}\n", response);
+            LOGGER.debug("Currencies response:\n{}\n", response);
         }
 
         @Test
@@ -98,7 +104,7 @@ class HGBrasilClientIT {
             assertTrue(response.results().bitcoin().containsKey("blockchain_info"), "Response must be contain key blockchain_info");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Bitcoin response:\n{}\n", response);
+            LOGGER.debug("Bitcoin response:\n{}\n", response);
         }
     }
 
@@ -117,7 +123,7 @@ class HGBrasilClientIT {
             assertNotNull(response.results().get("PETR4").price(), "Asset price must not be null");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Single symbol - Asset response:\n{}\n", response);
+            LOGGER.debug("Single symbol - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -139,7 +145,7 @@ class HGBrasilClientIT {
 
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("List - Asset response:\n{}\n", response);
+            LOGGER.debug("List - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -164,7 +170,7 @@ class HGBrasilClientIT {
 
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Array - Asset response:\n{}", response);
+            LOGGER.debug("Array - Asset response:\n{}", response);
         }
 
         @Test
@@ -179,7 +185,7 @@ class HGBrasilClientIT {
             assertNotNull(response.results().get("UNEXISTENTSYMBOL11").message(), "UNEXISTENTSYMBOL11 field 'message' must not be null");
             assertTrue(response.validKey(), "API Key must be valid");
 
-            LOG.debug("Invalid symbol - Asset response:\n{}\n", response);
+            LOGGER.debug("Invalid symbol - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -205,7 +211,7 @@ class HGBrasilClientIT {
             assertEquals("bdr", response.results().get("TSMC34").kind(), "TSMC34 field 'kind' must be bdr");
         }
     }
-    
+
     @Nested
     class HGBrasilIbovespaOperationsIT {
 
@@ -228,7 +234,7 @@ class HGBrasilClientIT {
             assertNotNull(intradayPoint.date(), "Field 'date' must not be null");
             assertEquals(LocalDateTime.class, intradayPoint.date().getClass(), "The 'date' must be converted to LocalDateTime type");
 
-            LOG.debug("Ibovespa response:\n{}\n", response);
+            LOGGER.debug("Ibovespa response:\n{}\n", response);
         }
     }
 
@@ -236,7 +242,7 @@ class HGBrasilClientIT {
     class HGBrasilDividendOperationsIT {
 
         @Test
-        @DisplayName("Should successfully fetch dividend details and map dates correctly")
+        @DisplayName("Should successfully fetch dividend details and map correctly")
         void shouldFetchDividend() {
             DividendResponse response = dividendOperations.getByTicker("B3:PETR4");
 
@@ -255,7 +261,7 @@ class HGBrasilClientIT {
             assertNotNull(series.comDate(), "Field 'comDate' must not be null");
             assertEquals(LocalDate.class, series.comDate().getClass(), "The 'comDate' must be converted to LocalDate type");
 
-            LOG.debug("Dividend response:\n{}\n", response);
+            LOGGER.debug("Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -276,7 +282,7 @@ class HGBrasilClientIT {
             assertTrue(response.getSafeResults().isEmpty(), "getSafeResults() should return an empty list");
             assertTrue(response.findFirstResult().isEmpty(), "findFirstResult() should return empty Optional");
 
-            LOG.debug("Invalid ticker - Dividend response:\n{}\n", response);
+            LOGGER.debug("Invalid ticker - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -302,7 +308,7 @@ class HGBrasilClientIT {
                     "The dividend com_date must between the requested date range (inclusive)"
             );
 
-            LOG.debug("Historical dividend response with date range - Dividend response:\n{}\n", response);
+            LOGGER.debug("Historical with date range - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -326,7 +332,7 @@ class HGBrasilClientIT {
 
             assertTrue(has2025Event, "The response should contain dividend events for the year 2025");
 
-            LOG.debug("Historical dividend response with date - Dividend response:\n{}\n", response);
+            LOGGER.debug("Historical with date - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -343,7 +349,7 @@ class HGBrasilClientIT {
             assertTrue(response.findFirstResult().isPresent(), "Dividend result list should contain PETR4 data");
             assertFalse(response.findFirstResult().get().getSafeSeries().isEmpty(), "Dividend series list should not be empty");
 
-            LOG.debug("Historical dividend response with days ago - Dividend response:\n{}\n", response);
+            LOGGER.debug("Historical with days ago - Dividend response:\n{}\n", response);
         }
     }
 
@@ -351,7 +357,7 @@ class HGBrasilClientIT {
     class HGBrasilSplitOperationsIT {
 
         @Test
-        @DisplayName("Should successfully fetch split details and map dates correctly")
+        @DisplayName("Should successfully fetch split details and map correctly")
         void shouldFetchSplit() {
             SplitResponse response = splitOperations.getByTicker("B3:TIMS3");
 
@@ -370,7 +376,7 @@ class HGBrasilClientIT {
             assertNotNull(events.comDate(), "Field 'comDate' must not be null");
             assertEquals(LocalDate.class, events.comDate().getClass(), "The 'comDate' must be converted to LocalDate type");
 
-            LOG.debug("Split response:\n{}\n", response);
+            LOGGER.debug("Split response:\n{}\n", response);
         }
 
         @Test
@@ -391,7 +397,7 @@ class HGBrasilClientIT {
             assertTrue(response.getSafeResults().isEmpty(), "getSafeResults() should return an empty list");
             assertTrue(response.findFirstResult().isEmpty(), "findFirstResult() should return empty Optional");
 
-            LOG.debug("Invalid ticker - Split response:\n{}\n", response);
+            LOGGER.debug("Invalid ticker - Split response:\n{}\n", response);
         }
 
         @Test
@@ -417,7 +423,7 @@ class HGBrasilClientIT {
                     "The split com_date must between the requested date range (inclusive)"
             );
 
-            LOG.debug("Historical split response with date range - Split response:\n{}\n", response);
+            LOGGER.debug("Historical with date range - Split response:\n{}\n", response);
         }
 
         @Test
@@ -439,9 +445,9 @@ class HGBrasilClientIT {
             boolean has2025Event = splitResult.getSafeEvents().stream()
                     .anyMatch(event -> event.comDate() != null && event.comDate().getYear() == 2025);
 
-            assertTrue(has2025Event, "The split response should contain dividend events for the year 2025");
+            assertTrue(has2025Event, "The split response should contain split events for the year 2025");
 
-            LOG.debug("Historical split response with date - Split response:\n{}\n", response);
+            LOGGER.debug("Historical with date - Split response:\n{}\n", response);
         }
 
         @Test
@@ -458,7 +464,115 @@ class HGBrasilClientIT {
             assertTrue(response.findFirstResult().isPresent(), "Split result list should contain B3:TIMS3 data");
             assertFalse(response.findFirstResult().get().getSafeEvents().isEmpty(), "Split event list should not be empty");
 
-            LOG.debug("Historical split response with days ago - Split response:\n{}\n", response);
+            LOGGER.debug("Historical with days ago - Split response:\n{}\n", response);
+        }
+    }
+
+    @Nested
+    class HGBrasilIndicatorOperationsIT {
+
+        @Test
+        @DisplayName("Should successfully fetch indicator details and map correctly")
+        void shouldFetchIndicator() {
+            IndicatorResponse response = indicatorOperations.getByTicker("IBGE:IPCA");
+
+            assertNotNull(response, "Indicator response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "Indicator response should not contain business errors");
+            assertTrue(response.findFirstResult().isPresent(), "Indicator result list should contain at least one indicator");
+
+            IndicatorResult indicatorResult = response.findFirstResult().get();
+
+            assertEquals("IBGE:IPCA", indicatorResult.ticker(), "The tickers must match");
+            assertFalse(indicatorResult.getSafeSeries().isEmpty(), "Indicator event list should not be empty");
+            assertTrue(indicatorResult.findFirstSeries().isPresent(), "Should find the most recent series");
+
+            IndicatorSeries series = indicatorResult.findFirstSeries().get();
+
+            assertNotNull(series.period(), "Field 'period' must not be null");
+
+            LOGGER.debug("Indicator response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should return IndicatorResponse with error when fetching an invalid ticker")
+        void shouldReturnError_whenTickerIsInvalid() {
+            IndicatorResponse response = indicatorOperations.getByTicker("A3:FALSE88");
+
+            assertNotNull(response, "Indicator response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertTrue(response.hasErrors(), "Indicator response should contain errors");
+            assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
+            assertTrue(response.getSafeResults().isEmpty(), "getSafeResults() should return an empty list");
+            assertTrue(response.findFirstResult().isEmpty(), "findFirstResult() should return empty Optional");
+
+            ApiError error = response.findFirstError().get();
+
+            assertNotNull(error.message(), "Error message must not be null");
+            assertFalse(error.message().isBlank(), "Error message should contain text");
+
+            LOGGER.debug("Invalid ticker - Indicator response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch indicator historical using 'startDate' and 'endDate' query parameters")
+        void shouldFetchHistoricalIndicator_withDateRange() {
+            LocalDate startDate = LocalDate.of(2025, 1, 1);
+            LocalDate endDate = LocalDate.of(2025, 12, 31);
+
+            IndicatorResponse response = indicatorOperations.getHistorical("IBGE:IPCA", startDate, endDate);
+
+            assertNotNull(response, "Historical indicator response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "Indicator response should not contain business errors");
+            assertTrue(response.findFirstResult().isPresent(), "Indicator result list should contain TIMS3 data");
+
+            IndicatorResult indicatorResult = response.findFirstResult().get();
+
+            assertEquals(IndicatorPeriodicity.MONTHLY, indicatorResult.periodicity(), "Periodicity type must match");
+            assertFalse(indicatorResult.getSafeSeries().isEmpty(), "Indicator series list should not be empty");
+
+            LOGGER.debug("Historical with date range - Indicator response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch indicator historical using 'date' query parameter")
+        void shouldFetchHistoricalIndicator_withDate() {
+            LocalDate date = LocalDate.of(2025, 1, 1);
+
+            IndicatorResponse response = indicatorOperations.getHistorical("BCB:CDI", date);
+
+            assertNotNull(response, "Historical indicator response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "Indicator response should not contain business errors");
+            assertTrue(response.findFirstResult().isPresent(), "Indicator result list should contain BCB:CDI data");
+
+            IndicatorResult indicatorResult = response.findFirstResult().get();
+
+            assertEquals(IndicatorPeriodicity.DAILY, indicatorResult.periodicity(), "Periodicity type must match");
+            assertFalse(indicatorResult.getSafeSeries().isEmpty(), "Indicator series list should not be empty");
+
+            LOGGER.debug("Historical with date - Indicator response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch indicator historical using 'days_ago' query parameter")
+        void shouldFetchHistoricalIndicator_withDaysAgo() {
+            int daysAgo = 365;
+
+            IndicatorResponse response = indicatorOperations.getHistorical("BCB:SELIC", daysAgo);
+
+            assertNotNull(response, "Historical indicator response must not be null");
+            assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
+            assertFalse(response.hasErrors(), "Indicator response should not contain business errors");
+            assertTrue(response.findFirstResult().isPresent(), "Indicator result list should contain BCB:SELIC data");
+
+            IndicatorResult indicatorResult = response.findFirstResult().get();
+
+            assertEquals(IndicatorPeriodicity.DAILY, indicatorResult.periodicity(), "Periodicity type must match");
+            assertFalse(indicatorResult.getSafeSeries().isEmpty(), "Indicator series list should not be empty");
+
+            LOGGER.debug("Historical with days ago - Indicator response:\n{}\n", response);
         }
     }
 }
