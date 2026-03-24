@@ -150,15 +150,20 @@ public final class HGBrasilClient implements AutoCloseable {
         private ObjectMapper objectMapper;
         private Executor executor;
 
-        private Builder() {}
+        private Builder() {
+        }
 
         /**
          * Sets the API key.
          *
          * @param apiKey HG Brasil API key
          * @return This builder instance
+         * @throws IllegalArgumentException If API key is null or blank
          */
         public Builder apiKey(String apiKey) {
+            if (apiKey == null || apiKey.isBlank()) {
+                throw new IllegalArgumentException("API key cannot be null or blank.");
+            }
             this.apiKey = apiKey;
             return this;
         }
@@ -175,10 +180,14 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
-         * Optional - if omitted, the default {@link HttpClient} is created configured with HTTP/2,
-         * normal redirects, the specified timeout and executor.
+         * Optional - if omitted, a default {@link HttpClient} is created, configured with HTTP/2,
+         * normal redirects, and the specified (or default) timeout and executor.
+         * <p>
+         * NOTE: If a custom HttpClient is provided, the SDK will ignore any executor or timeout
+         * settings defined in this builder, as the HttpClient's internal configuration is immutable.
+         * </p>
          *
-         * @param httpClient Custom HttpClient
+         * @param httpClient Custom HttpClient instance
          * @return This builder instance
          */
         public Builder httpClient(HttpClient httpClient) {
@@ -190,10 +199,10 @@ public final class HGBrasilClient implements AutoCloseable {
          * Optional - if omitted, the default {@link JsonMapper} configured with {@link JavaTimeModule}
          * and {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} enabled is used.
          * <p>
-         *     NOTE: If you wish to inject a custom {@link ObjectMapper}, it is highly recommended
-         *     to register the {@link JavaTimeModule} for proper date conversion and enable
-         *     {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} to safely handle
-         *     unknown enum values.
+         * NOTE: If you wish to inject a custom {@link ObjectMapper}, it is highly recommended
+         * to register the {@link JavaTimeModule} for proper date conversion and enable
+         * {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} to safely handle
+         * unknown enum values.
          * </p>
          *
          * @param objectMapper Custom ObjectMapper
