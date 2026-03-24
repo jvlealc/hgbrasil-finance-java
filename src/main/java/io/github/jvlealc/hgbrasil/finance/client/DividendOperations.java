@@ -16,11 +16,11 @@ public interface DividendOperations {
     /**
      * Retrieves dividend data for a single asset.
      * <p>
-     * <b>Note:</b> Although you can technically pass multiple tickers separated by commas
-     * (e.g. {@code "B3:PETR4,B3:VALE3"}), it is highly recommended to use
-     * the array ({@link #getByTickers(String...)}) or list ({@link #getByTickers(List)}) overloads
-     * when fetching multiple assets. This approach avoids manual string formatting,
-     * reduces the risk of errors, and improves code readability.
+     *     NOTE: Although you can technically pass multiple tickers separated by commas
+     *     (e.g. {@code "B3:PETR4,B3:VALE3"}), it is highly recommended to use
+     *     the array ({@link #getByTickers(String...)}) or list ({@link #getByTickers(List)}) overloads
+     *     when fetching multiple assets. This approach avoids manual string formatting,
+     *     reduces the risk of errors, and improves code readability.
      * </p>
      *
      * @param ticker Asset ticker in {@code {source}:{symbol}} format (e.g. B3:PETR4), or multiple separated by commas

@@ -126,7 +126,6 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
                 .build();
 
         return sendRequest(request, responseType);
-
     }
 
     private void validateTicker(String ticker) {
@@ -146,5 +145,4 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
     private void validateDate(LocalDate date, String paramName) {
         Objects.requireNonNull(date, "Date parameter'" + paramName + "' must not be null.");
     }
-
 }
