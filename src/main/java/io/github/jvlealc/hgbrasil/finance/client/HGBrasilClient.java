@@ -50,13 +50,13 @@ public final class HGBrasilClient implements AutoCloseable {
                 : DEFAULT_OBJECT_MAPPER;
 
         Executor executor = builder.executor;
+        ExecutorService virtualExecutor = null;
 
-        if (executor == null) {
-            this.internalExecutor = Executors.newVirtualThreadPerTaskExecutor();
-            executor = this.internalExecutor;
-        } else {
-            this.internalExecutor = null;
+        if (executor == null && builder.httpClient == null) {
+            virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
+            executor = virtualExecutor;
         }
+        this.internalExecutor = virtualExecutor;
 
         HttpClient httpClient = builder.httpClient != null
                 ? builder.httpClient
