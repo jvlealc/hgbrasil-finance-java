@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HGBrasilAssetOperationsTest {
 
-    private static final String MOCK_API_KEY = "fakeKey";
+    private static final String FAKE_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -43,13 +43,13 @@ class HGBrasilAssetOperationsTest {
 
     @BeforeEach
     void setUp() {
-        assetOperation = new HGBrasilAssetOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
+        assetOperation = new HGBrasilAssetOperations(FAKE_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test
     @DisplayName("Should return correct mapped AssetResponse when the API responds successfully")
     void shouldReturnAssetResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
-        String expectedResponse = """
+        String mockedJsonBody = """
             {
                 "by": "symbol",
                 "valid_key": true,
@@ -66,10 +66,7 @@ class HGBrasilAssetOperationsTest {
             """;
         String symbol = "ITSA4";
 
-        when(httpResponseMock.statusCode()).thenReturn(200);
-        when(httpResponseMock.body()).thenReturn(expectedResponse);
-        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-                .thenReturn(httpResponseMock);
+        mockHttpResponse(mockedJsonBody);
 
         AssetResponse actualResponse = assetOperation.getBySymbol(symbol);
 
@@ -82,7 +79,7 @@ class HGBrasilAssetOperationsTest {
     @Test
     @DisplayName("Should throw HGBrasilApiException with correct message when API key is invalid")
     void shouldThrowException_whenInvalidApiKey() throws IOException, InterruptedException {
-        String invalidKeyResponse = """
+        String mockedJsonBody = """
             {
                 "by": "symbol",
                 "valid_key": false,
@@ -96,10 +93,7 @@ class HGBrasilAssetOperationsTest {
             """;
         String expectedErrorMessage = "Desculpe. Essa consulta não é permitida sem uma chave válida.";
 
-        when(httpResponseMock.statusCode()).thenReturn(200);
-        when(httpResponseMock.body()).thenReturn(invalidKeyResponse);
-        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-                .thenReturn(httpResponseMock);
+        mockHttpResponse(mockedJsonBody);
 
         HGBrasilApiException hgException = assertThrows(HGBrasilApiException.class, () -> {
             assetOperation.getBySymbol("PETR4");
@@ -125,10 +119,7 @@ class HGBrasilAssetOperationsTest {
                 }""";
         String invalidSymbol = "FALSE_ASSET_88";
 
-        when(httpResponseMock.statusCode()).thenReturn(200);
-        when(httpResponseMock.body()).thenReturn(invalidSymbolResponse);
-        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
-                .thenReturn(httpResponseMock);
+        mockHttpResponse(invalidSymbolResponse);
 
         AssetResponse actualResponse = assetOperation.getBySymbol(invalidSymbol);
 
@@ -212,5 +203,12 @@ class HGBrasilAssetOperationsTest {
         }, "Must have thrown NullPointerException for null list");
 
         assertEquals(expectedMessage, exception.getMessage());
+    }
+
+    private void mockHttpResponse(String mockedJsonBody) throws IOException, InterruptedException {
+        when(httpResponseMock.statusCode()).thenReturn(200);
+        when(httpResponseMock.body()).thenReturn(mockedJsonBody);
+        when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
+                .thenReturn(httpResponseMock);
     }
 }
