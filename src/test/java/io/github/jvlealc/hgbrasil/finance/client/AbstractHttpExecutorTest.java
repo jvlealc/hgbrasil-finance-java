@@ -27,7 +27,8 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AbstractHttpExecutorTest {
 
-    private static final Logger LOG = LoggerFactory.getLogger(AbstractHttpExecutorTest.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpExecutorTest.class);
+
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -269,7 +270,7 @@ class AbstractHttpExecutorTest {
                 () -> assertFalse(exceptionMessage.contains("key="), "!!!SECURITY BREACH: Exception message MUST NOT contain query parameters")
         );
 
-        LOG.debug(exceptionMessage);
+        LOGGER.debug(exceptionMessage);
     }
 
     private void mockSuccessfulHttpResponseWithBody(String mockedJsonBody) throws IOException, InterruptedException {

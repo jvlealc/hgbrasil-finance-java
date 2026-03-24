@@ -30,7 +30,6 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class AbstractTickerOperationsTest {
 
-    private static final String DUMMY_BASE_URL = "http://dummyhost:0000/test-path?format=json";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -62,7 +61,7 @@ class AbstractTickerOperationsTest {
                 httpClientMock,
                 OBJECT_MAPPER,
                 "fakeKey",
-                DUMMY_BASE_URL,
+                "http://dummyhost:0000/test-path?format=json",
                 DummyResponse.class
         );
     }
