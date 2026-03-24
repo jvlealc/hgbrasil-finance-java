@@ -18,7 +18,7 @@ O SDK foi construído com foco em performance e modernidade, utilizando as segui
 * **HTTP Client Nativo:** Uso do `java.net.http.HttpClient` para requisições
 * **Jackson 3 (Core e JSR310):** Motor de desempenho para processamento e bind de JSON
 * **SLF4J 2:** Abstração para logs da biblioteca
-* **Testes e Qualidade:** Cobertura de testes unitários e de integração utilizando **JUnit 6** e **Mockito** 
+* **Testes e Qualidade:** Cobertura de testes unitários e de integração utilizando **JUnit 5** e **Mockito** 
 
 ## Features
 

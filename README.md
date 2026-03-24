@@ -18,7 +18,7 @@ The SDK was built with a strong focus on performance and modernity, utilizing th
 * **Native HTTP Client:** Uses `java.net.http.HttpClient` for network requests.
 * **Jackson 3 (Core and JSR310):** High-performance engine for JSON processing and data binding.
 * **SLF4J 2:** Logging abstraction layer for the library.
-* **Testing and Quality:** Comprehensive unit and integration test coverage using **JUnit 6** and **Mockito**.
+* **Testing and Quality:** Comprehensive unit and integration test coverage using **JUnit 5** and **Mockito**.
 
 ## Features
 
