@@ -25,14 +25,7 @@ class HGBrasilClientTest {
                         .apiKey(VALID_KEY_MOCK)
                         .build()
         ) {
-            assertAll("Verify client instantiation and operations initializations",
-                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
-                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized"),
-                    () -> assertNotNull(hgClient.getDividendOperations(), "Dividend operations must be initialized"),
-                    () -> assertNotNull(hgClient.getSplitOperations(), "Split operations must be initialized")
-            );
+            assertAllOperationsInitialized(hgClient);
         }
     }
 
@@ -54,12 +47,7 @@ class HGBrasilClientTest {
                         .build(),
                 "Must not throws exception"
         )) {
-            assertAll("Verify client build and operations initializations",
-                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
-                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
-            );
+            assertAllOperationsInitialized(hgClient);
         }
     }
 
@@ -77,12 +65,7 @@ class HGBrasilClientTest {
                         .build(),
                 "Must not throws exception"
         )) {
-            assertAll("Verify client build and operations initializations",
-                    () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
-                    () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
-                    () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
-                    () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized")
-            );
+            assertAllOperationsInitialized(hgClient);
         }
     }
 
@@ -138,5 +121,17 @@ class HGBrasilClientTest {
 
         Mockito.verify(customExecutorMock, Mockito.never()).shutdown();
         Mockito.verify(customExecutorMock, Mockito.never()).shutdownNow();
+    }
+
+    private static void assertAllOperationsInitialized(HGBrasilClient hgClient) {
+        assertAll("Verify operations initialization",
+                () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
+                () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
+                () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
+                () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized"),
+                () -> assertNotNull(hgClient.getDividendOperations(), "Dividend operations must be initialized"),
+                () -> assertNotNull(hgClient.getSplitOperations(), "Split operations must be initialized"),
+                () -> assertNotNull(hgClient.getIndicatorOperations(), "Indicator operations must be initialized")
+        );
     }
 }
