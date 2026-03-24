@@ -28,7 +28,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HGBrasilIbovespaOperationsTest {
 
-    private static final String MOCK_API_KEY = "fakeKey";
+    private static final String FAKE_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -44,7 +44,7 @@ class HGBrasilIbovespaOperationsTest {
 
     @BeforeEach
     void setUp() {
-        ibovespaOperations = new HGBrasilIbovespaOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
+        ibovespaOperations = new HGBrasilIbovespaOperations(FAKE_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test

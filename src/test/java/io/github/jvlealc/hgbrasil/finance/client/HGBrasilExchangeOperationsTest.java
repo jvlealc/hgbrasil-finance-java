@@ -31,7 +31,7 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 class HGBrasilExchangeOperationsTest {
 
-    private static final String MOCK_API_KEY = "fakeKey";
+    private static final String FAKE_API_KEY = "fakeKey";
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -47,7 +47,7 @@ class HGBrasilExchangeOperationsTest {
 
     @BeforeEach
     void setUp() {
-        exchangeOperations = new HGBrasilExchangeOperations(MOCK_API_KEY, httpClientMock, OBJECT_MAPPER);
+        exchangeOperations = new HGBrasilExchangeOperations(FAKE_API_KEY, httpClientMock, OBJECT_MAPPER);
     }
 
     @Test
@@ -109,7 +109,7 @@ class HGBrasilExchangeOperationsTest {
                 () -> assertEquals("GET", capturedRequest.method(), "HTTP method must be GET"),
                 () -> assertTrue(capturedRequest.uri()
                                 .toString()
-                                .contains("key=" + MOCK_API_KEY),
+                                .contains("key=" + FAKE_API_KEY),
                         "URI must contain the provided API key"
                 ),
                 () -> assertTrue(capturedRequest.uri()
