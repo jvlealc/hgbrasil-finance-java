@@ -15,14 +15,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HGBrasilClientTest {
 
-    private static final String VALID_KEY_MOCK = "valid-key-mock";
+    private static final String FAKE_API_KEY = "fakeKey";
 
     @Test
     @DisplayName("Should build HGBrasilClient successfully and initialize its operations when valid API key is provided")
     void shouldBuildClient_whenApiKeyOnlyProvided() {
         try (
                 HGBrasilClient hgClient = HGBrasilClient.builder()
-                        .apiKey(VALID_KEY_MOCK)
+                        .apiKey(FAKE_API_KEY)
                         .build()
         ) {
             assertAllOperationsInitialized(hgClient);
@@ -30,7 +30,7 @@ class HGBrasilClientTest {
     }
 
     @Test
-    @DisplayName("Should build HGBrasilClient successfully and initialize its operations with all custom configurations ")
+    @DisplayName("Should build HGBrasilClient successfully and initialize its operations with all custom configurations")
     void shouldBuildClient_withAllCustomConfigs() {
         HttpClient customHttpClient = HttpClient.newHttpClient();
         ObjectMapper customObjectMapper = new ObjectMapper();
@@ -39,13 +39,13 @@ class HGBrasilClientTest {
 
         try (
                 HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
-                        .apiKey(VALID_KEY_MOCK)
+                        .apiKey(FAKE_API_KEY)
                         .timeout(customTimeout)
                         .httpClient(customHttpClient)
                         .objectMapper(customObjectMapper)
                         .executor(customExecutor)
                         .build(),
-                "Must not throws exception"
+                "Must not throw exception"
         )) {
             assertAllOperationsInitialized(hgClient);
         }
@@ -59,7 +59,7 @@ class HGBrasilClientTest {
 
         try (
                 HGBrasilClient hgClient = assertDoesNotThrow(() -> HGBrasilClient.builder()
-                        .apiKey(VALID_KEY_MOCK)
+                        .apiKey(FAKE_API_KEY)
                         .timeout(customTimeout)
                         .httpClient(customHttpClient)
                         .build(),
@@ -72,10 +72,26 @@ class HGBrasilClientTest {
     @Test
     @DisplayName("Should throw IllegalArgumentException with correct message when API key is blank")
     void shouldThrowException_whenApiKeyIsBlank() {
-        String expectedMessage = "HG Brasil API Key is required to build the client.";
+        String expectedMessage = "API key cannot be null or blank.";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, HGBrasilClient.builder()
-                        .apiKey("   ")::build,
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> HGBrasilClient.builder()
+                        .apiKey("   "),
+                "Must throw IllegalArgumentException when missing API key"
+        );
+
+        String actual = exception.getMessage();
+        assertEquals(expectedMessage, actual, "Must return correct error message");
+    }
+
+    @Test
+    @DisplayName("Should throw IllegalArgumentException with correct message when API key is null")
+    void shouldThrowException_whenApiKeyIsNull() {
+        String expectedMessage = "API key cannot be null or blank.";
+
+        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
+                () -> HGBrasilClient.builder()
+                        .apiKey(null),
                 "Must throw IllegalArgumentException when missing API key"
         );
 
@@ -83,13 +99,14 @@ class HGBrasilClientTest {
     }
 
     @Test
-    @DisplayName("Should throw IllegalArgumentException with correct message when API key is null")
-    void shouldThrowException_whenApiKeyIsNull() {
-        String expectedMessage = "HG Brasil API Key is required to build the client.";
+    @DisplayName("Should throw IllegalStateException with correct message when build() is called without API key")
+    void shouldThrowException_whenApiIsNotProvided() {
+        String expectedMessage = "API key is required to build the client. Use builder().apiKey(...) before calling build().";
 
-        IllegalArgumentException exception = assertThrows(IllegalArgumentException.class, HGBrasilClient.builder()
-                        .apiKey(null)::build,
-                "Must throw IllegalArgumentException when missing API key"
+        IllegalStateException exception = assertThrows(IllegalStateException.class,
+                HGBrasilClient.builder()
+                        .timeout(Duration.ofSeconds(20L))::build,
+                "Must throw IllegalStateException when missing API key"
         );
 
         assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
@@ -100,7 +117,7 @@ class HGBrasilClientTest {
     void shouldCloseClientGracefully() {
         try (
                 HGBrasilClient client = HGBrasilClient.builder()
-                        .apiKey(VALID_KEY_MOCK)
+                        .apiKey(FAKE_API_KEY)
                         .build()
         ) {
             assertDoesNotThrow(client::close, "Closing the client must not throw any exception");
@@ -113,7 +130,7 @@ class HGBrasilClientTest {
     void shouldNotShutdownCustomExecutor_whenClientIsClosed() {
         ExecutorService customExecutorMock = Mockito.mock(ExecutorService.class);
         HGBrasilClient client = HGBrasilClient.builder()
-                .apiKey(VALID_KEY_MOCK)
+                .apiKey(FAKE_API_KEY)
                 .executor(customExecutorMock)
                 .build();
 
