@@ -56,7 +56,7 @@
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
         <jackson.core.version>3.1.0</jackson.core.version>
         <jackson.datatype.version>3.0.0-rc2</jackson.datatype.version>
-        <junit.version>6.0.3</junit.version>
+        <junit.version>5.14.3</junit.version>
         <mockito.version>5.21.0</mockito.version>
         <sl4j.version>2.0.17</sl4j.version>
         <logback.version>1.5.32</logback.version>
