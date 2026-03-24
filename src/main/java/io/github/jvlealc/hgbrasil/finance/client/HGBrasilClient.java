@@ -35,6 +35,7 @@ public final class HGBrasilClient implements AutoCloseable {
     private final IbovespaOperations ibovespaOperations;
     private final DividendOperations dividendOperations;
     private final SplitOperations splitOperations;
+    private final IndicatorOperations indicatorOperations;
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
@@ -72,6 +73,7 @@ public final class HGBrasilClient implements AutoCloseable {
         this.ibovespaOperations = new HGBrasilIbovespaOperations(builder.apiKey, httpClient, objectMapper);
         this.dividendOperations = new HGBrasilDividendOperations(builder.apiKey, httpClient, objectMapper);
         this.splitOperations = new HGBrasilSplitOperations(builder.apiKey, httpClient, objectMapper);
+        this.indicatorOperations = new HGBrasilIndicatorOperations(builder.apiKey, httpClient, objectMapper);
     }
 
     /**
@@ -130,6 +132,15 @@ public final class HGBrasilClient implements AutoCloseable {
      */
     public SplitOperations getSplitOperations() {
         return splitOperations;
+    }
+
+    /**
+     * Accesses operations to retrieve the history and details of Brazilian economic indicators.
+     *
+     * @return Instance of {@link HGBrasilIndicatorOperations}
+     */
+    public IndicatorOperations getIndicatorOperations() {
+        return indicatorOperations;
     }
 
     @Override
