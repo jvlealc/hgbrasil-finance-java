@@ -78,7 +78,7 @@ class HGBrasilSplitOperationsTest {
 
         SplitResponse actualResponse = splitOperations.getByTicker(invalidTicker);
 
-        assertAll("Verify Dividend response with error integrity",
+        assertAll("Verify Split response with error integrity",
                 () ->assertNotNull(actualResponse, "Response must not be null"),
                 () -> assertNotNull(actualResponse.errors(), "Split erros must not be null"),
                 () -> assertFalse(actualResponse.errors().isEmpty(), "Errors must not be empty"),
@@ -180,7 +180,7 @@ class HGBrasilSplitOperationsTest {
 
     @Test
     @DisplayName("Should return mapped SplitResponse when success")
-    void shouldReturnDividendResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
+    void shouldReturnSplitResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
         String mockedJsonBody = """
                 {
                    "metadata": {
