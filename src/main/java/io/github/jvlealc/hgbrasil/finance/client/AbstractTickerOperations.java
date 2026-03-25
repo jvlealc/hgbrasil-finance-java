@@ -109,7 +109,7 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
      * @throws NullPointerException if {@code tickers} is null
      * @throws IllegalArgumentException if {@code tickers} is empty
      */
-    private T executeRequest(List<String> tickers, String historicalQueryParams) {
+    protected T executeRequest(List<String> tickers, String historicalQueryParams) {
         Objects.requireNonNull(tickers, "Parameter 'tickers' must not be null.");
         if (tickers.isEmpty()) {
             throw new IllegalArgumentException("Parameter 'tickers' must not be empty.");
