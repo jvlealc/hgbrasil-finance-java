@@ -127,21 +127,21 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
         return sendRequest(request, responseType);
     }
 
-    private void validateTicker(String ticker) {
+    protected static void validateTicker(String ticker) {
         Objects.requireNonNull(ticker, "Parameter 'ticker' must not be null.");
         if (ticker.isBlank()) {
             throw new IllegalArgumentException("Parameter ticker must not be blank");
         }
     }
 
-    private void validateTickersArray(String... tickers) {
+    protected static void validateTickersArray(String... tickers) {
         Objects.requireNonNull(tickers, "Parameter 'tickers' must not be null.");
         if (tickers.length == 0) {
             throw new IllegalArgumentException("Parameter 'tickers' must contain at least one element.");
         }
     }
 
-    private void validateDate(LocalDate date, String paramName) {
+    protected static void validateDate(LocalDate date, String paramName) {
         Objects.requireNonNull(date, "Date parameter'" + paramName + "' must not be null.");
     }
 
