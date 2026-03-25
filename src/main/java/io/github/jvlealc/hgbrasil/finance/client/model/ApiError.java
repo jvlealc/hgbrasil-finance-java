@@ -16,5 +16,5 @@ public record ApiError(
         String code,
         String message,
         String help,
-        Map<String, String> details
+        Map<String, Object> details
 ) {}
