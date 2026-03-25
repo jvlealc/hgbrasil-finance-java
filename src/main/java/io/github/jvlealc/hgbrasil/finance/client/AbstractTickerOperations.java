@@ -15,7 +15,8 @@ import java.util.Objects;
  *     Centralize the logic of building ticker query parameters and historical filters,
  *     delegated executions of HTTP requests (via {@link AbstractHttpExecutor}) and shared validations.
  *     Promotes code reuse for endpoints that consumer the same parameters,
- *     such as {@link HGBrasilDividendOperations} and {@link HGBrasilSplitOperations}.
+ *     such as {@link HGBrasilDividendOperations}, {@link HGBrasilSplitOperations},
+ *     {@link HGBrasilIndicatorOperations} and {@link HGBrasilAssetHistoryOperations}.
  * </p>
  *
  * @param <T> Response type mapped from the API request.
