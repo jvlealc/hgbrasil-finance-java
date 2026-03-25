@@ -95,9 +95,7 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
     }
     
     public T getHistorical(List<String> tickers, int daysAgo) {
-        if (daysAgo < 0) {
-            throw new IllegalArgumentException("Parameter 'daysAgo' must be equal or greater than 0.");
-        }
+        validateDaysAgo(daysAgo);
         String queryParams = "&days_ago=" + daysAgo;
         return executeRequest(tickers, queryParams);
     }
@@ -145,5 +143,11 @@ abstract class AbstractTickerOperations<T> extends AbstractHttpExecutor {
 
     private void validateDate(LocalDate date, String paramName) {
         Objects.requireNonNull(date, "Date parameter'" + paramName + "' must not be null.");
+    }
+
+    protected static void validateDaysAgo(int daysAgo) {
+        if (daysAgo < 0) {
+            throw new IllegalArgumentException("Parameter 'daysAgo' must be equal or greater than 0.");
+        }
     }
 }
