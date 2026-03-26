@@ -19,37 +19,37 @@ class DividendResultTest {
                 null, null
         );
 
-        assertTrue(result.getSafeSeries().isEmpty(), "getSafeSeries() should return an empty list");
-        assertTrue(result.findFirstSeries().isEmpty(), "findFirstSeries() should return empty Optional");
+        assertTrue(result.getSafeSeries().isEmpty());
+        assertTrue(result.findFirstSeries().isEmpty());
     }
 
     @Test
-    @DisplayName("Should return empty list and Optional.empty() when 'series' list is empty")
+    @DisplayName("Should return empty list and Optional.empty() when series list is empty")
     void shouldReturnEmpty_whenSeriesListIsEmpty() {
         DividendResult result = new DividendResult(
                 null, null, null, null, null, null, null,
                 List.of(), null
         );
 
-        assertTrue(result.getSafeSeries().isEmpty(), "getSafeSeries() should return an empty list");
-        assertTrue(result.findFirstSeries().isEmpty(), "findFirstSeries() should return empty Optional");
+        assertTrue(result.getSafeSeries().isEmpty());
+        assertTrue(result.findFirstSeries().isEmpty());
     }
 
     @Test
     @DisplayName("Should return mapped series list when API responds success")
     void shouldReturnSeries_whenApiRespondsSuccessfully() {
-        DividendSeries firstSeriesMock = Mockito.mock(DividendSeries.class);
-        DividendSeries secondSeriesMock = Mockito.mock(DividendSeries.class);
+        DividendSeries firstSeries = new DividendSeries(null, null, null, null, null, null, null);
+        DividendSeries secondSeries = new DividendSeries(null, null, null, null, null, null, null);
         DividendResult result = new DividendResult(
                 null, null, null, null, null, null, null,
-                List.of(firstSeriesMock, secondSeriesMock), null
+                List.of(firstSeries, secondSeries), null
         );
 
         List<DividendSeries> safeSeries = result.getSafeSeries();
-        Optional<DividendSeries> firstSeries = result.findFirstSeries();
+        Optional<DividendSeries> firstSeriesResult = result.findFirstSeries();
 
-        assertEquals(2, safeSeries.size(), "getSafeSeries() should return two series");
-        assertTrue(firstSeries.isPresent(), "findFirstSeries() should be present");
-        assertEquals(firstSeriesMock, firstSeries.get(), "findFirstSeries() should return the first item of the list");
+        assertEquals(2, safeSeries.size());
+        assertTrue(firstSeriesResult.isPresent());
+        assertEquals(firstSeries, firstSeriesResult.get());
     }
 }

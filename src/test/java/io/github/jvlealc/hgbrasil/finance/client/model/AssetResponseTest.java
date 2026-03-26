@@ -13,8 +13,8 @@ import static org.mockito.Mockito.when;
 class AssetResponseTest {
 
     @Test
-    @DisplayName("Should return Optional with AssetResult when 'results' Map has items")
-    void shouldReturnAssetResult_whenResultsMapHasItems()  {
+    @DisplayName("Should return Optional with AssetResult when results Map has items")
+    void shouldReturnAssetResult_whenResultsHasItems()  {
         // Arrange
         AssetResult assetResultMock = Mockito.mock(AssetResult.class);
         Map<String, AssetResult> assetResultMap = Map.of("PETR4", assetResultMock);
@@ -29,8 +29,8 @@ class AssetResponseTest {
     }
 
     @Test
-    @DisplayName("Should return results Map when 'results' contains items")
-    void shouldReturnResultsMap_whenResultsMapHasItems()  {
+    @DisplayName("Should return results Map when results contains items")
+    void shouldReturnResultsMap_whenResultsHasItems()  {
         AssetResult assetResultMock = Mockito.mock(AssetResult.class);
         Map<String, AssetResult> assetResultMap = Map.of("PETR4", assetResultMock);
         AssetResponse response = new AssetResponse("symbol", true, assetResultMap, 0.0d, false);
@@ -42,8 +42,8 @@ class AssetResponseTest {
     }
 
     @Test
-    @DisplayName("Should return empty Map when 'results' is null")
-    void shouldReturnEmptyMap_whenResultsMapIsNull()  {
+    @DisplayName("Should return empty Map when results is null")
+    void shouldReturnEmptyMap_whenResultsIsNull()  {
         AssetResponse response = new AssetResponse("symbol", true, null, 0.0d, false);
 
         Map<String, AssetResult> safeResults = response.getSafeResults();
@@ -54,7 +54,7 @@ class AssetResponseTest {
 
     @Test
     @DisplayName("Should return empty Map when 'results' is empty")
-    void shouldReturnEmptyMap_whenResultsMapIsEmpty()  {
+    void shouldReturnEmptyMap_whenResultsIsEmpty()  {
         AssetResponse response = new AssetResponse("symbol", true, Map.of(), 0.0d, false);
 
         Map<String, AssetResult> safeResults = response.getSafeResults();
@@ -63,24 +63,24 @@ class AssetResponseTest {
     }
 
     @Test
-    @DisplayName("Should return Optional.empty() when 'results' is null")
-    void shouldReturnEmptyOptional_whenResultsMapIsNull()  {
+    @DisplayName("Should return Optional.empty() when results is null")
+    void shouldReturnEmptyOptional_whenResultsIsNull()  {
         AssetResponse response = new AssetResponse("symbol", true, null, 0.0d, false);
 
         Optional<AssetResult> result = response.findFirstResult();
 
         assertNotNull(result, "Result must not be null");
-        assertTrue(result.isEmpty(), "findFirstResult() should return empty when map is null");
+        assertTrue(result.isEmpty(), "Should return empty when map is null");
     }
 
     @Test
-    @DisplayName("Should return Optional.empty() when 'results' Map is empty")
-    void shouldReturnEmptyOptional_whenResultsMapIsEmpty()  {
+    @DisplayName("Should return Optional.empty() when results Map is empty")
+    void shouldReturnEmptyOptional_whenResultsIsEmpty()  {
         AssetResponse response = new AssetResponse("symbol", true, Map.of(), 0.0d, false);
 
         Optional<AssetResult> result = response.findFirstResult();
 
-        assertTrue(result.isEmpty(), "findFirstResult() should return empty when map is empty");
+        assertTrue(result.isEmpty(), "Should return empty when map is empty");
     }
 
     @Test
@@ -98,7 +98,7 @@ class AssetResponseTest {
         );
         AssetResponse response = new AssetResponse("symbol", true, results, 0.0d, false);
 
-        assertTrue(response.hasErrors(), "hasErrors() should return true");
+        assertTrue(response.hasErrors(), "should return true");
     }
 
     @Test
@@ -116,6 +116,6 @@ class AssetResponseTest {
         );
         AssetResponse response = new AssetResponse("symbol", true, results, 0.0d, false);
 
-        assertFalse(response.hasErrors(), "hasErrors() should return false");
+        assertFalse(response.hasErrors(), "Should return false");
     }
 }

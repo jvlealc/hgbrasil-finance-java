@@ -48,7 +48,8 @@ class AbstractHttpExecutorTest {
 
     private TestableHttpExecutor testOperations;
 
-    private record DummyResponse(String status, int code) {}
+    private record DummyResponse(String status, int code) {
+    }
 
     // Concrete class for testing
     private static final class TestableHttpExecutor extends AbstractHttpExecutor {
@@ -76,10 +77,10 @@ class AbstractHttpExecutorTest {
 
         DummyResponse actualResponse = testOperations.sendRequest(fakeRequest, DummyResponse.class);
 
-        assertAll("Verify successful generic mapping",
-            () -> assertNotNull(actualResponse, "Mapped response must not be null"),
-            () -> assertEquals("success", actualResponse.status(), "Must map string field correctly"),
-            () -> assertEquals(200, actualResponse.code(), "Must map integer field correctly")
+        assertNotNull(actualResponse);
+        assertAll(
+                () -> assertEquals("success", actualResponse.status()),
+                () -> assertEquals(200, actualResponse.code())
         );
     }
 
@@ -121,11 +122,10 @@ class AbstractHttpExecutorTest {
                 .thenReturn(httpResponseMock);
 
         HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
-                testOperations.sendRequest(fakeRequest, String.class),
-                "Must have thrown HGBrasilApiException"
+                testOperations.sendRequest(fakeRequest, String.class)
         );
 
-        assertTrue(exception.getMessage().contains("HTTP Error "), "Must have correct API error message");
+        assertTrue(exception.getMessage().contains("HTTP Error "));
     }
 
     @Test
@@ -147,8 +147,7 @@ class AbstractHttpExecutorTest {
         mockSuccessfulHttpResponseWithBody(mockedJsonBody);
 
         HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
-                        testOperations.sendRequest(fakeRequest, String.class),
-                "Must have thrown HGBrasilApiException"
+                testOperations.sendRequest(fakeRequest, String.class)
         );
 
         String expectedMessage = "Desculpe. Essa consulta não é permitida sem uma chave válida.";
@@ -172,8 +171,7 @@ class AbstractHttpExecutorTest {
         mockSuccessfulHttpResponseWithBody(mockedJsonBody);
 
         HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
-                        testOperations.sendRequest(fakeRequest, String.class),
-                "Must have thrown HGBrasilApiException"
+                testOperations.sendRequest(fakeRequest, String.class)
         );
 
         assertTrue(exception.getMessage().contains("Invalid API key, unauthorized, or quota exceeded."));
@@ -211,8 +209,7 @@ class AbstractHttpExecutorTest {
         String expectedMessage = "Chave de API inválida. | Chave não possui acesso para este recurso.";
 
         HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
-                        testOperations.sendRequest(fakeRequest, String.class),
-                "Must have thrown HGBrasilApiException"
+                testOperations.sendRequest(fakeRequest, String.class)
         );
 
         assertTrue(exception.getMessage().contains(expectedMessage));
@@ -236,8 +233,7 @@ class AbstractHttpExecutorTest {
         mockSuccessfulHttpResponseWithBody(mockedJsonBody);
 
         HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
-                        testOperations.sendRequest(fakeRequest, String.class),
-                "Must have thrown HGBrasilApiException"
+                testOperations.sendRequest(fakeRequest, String.class)
         );
 
         assertTrue(exception.getMessage().contains("Invalid API key, unauthorized, or quota exceeded."));
@@ -263,11 +259,11 @@ class AbstractHttpExecutorTest {
         ).getMessage();
 
         assertAll("API key security checks in the URI",
-                () -> assertTrue(exceptionMessage.contains("GET"), "Message should contain HTTP Method"),
-                () -> assertTrue(exceptionMessage.contains("/finance/stock_price"), "Message should contain the URI path"),
-                () -> assertTrue(exceptionMessage.contains("403"), "Message should contain HTTP status code"),
+                () -> assertTrue(exceptionMessage.contains("GET")),
+                () -> assertTrue(exceptionMessage.contains("/finance/stock_price")),
+                () -> assertTrue(exceptionMessage.contains("403")),
                 () -> assertFalse(exceptionMessage.contains("SECRET_KEY_111"), "!!!SECURITY BREACH: Exception message MUST NOT contain API key"),
-                () -> assertFalse(exceptionMessage.contains("key="), "!!!SECURITY BREACH: Exception message MUST NOT contain query parameters")
+                () -> assertFalse(exceptionMessage.contains("key="), "!!!SECURITY BREACH: Exception message MUST NOT contain key query parameters")
         );
 
         LOGGER.debug(exceptionMessage);

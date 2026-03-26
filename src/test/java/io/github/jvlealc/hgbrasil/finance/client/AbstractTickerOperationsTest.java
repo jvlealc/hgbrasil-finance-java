@@ -70,8 +70,7 @@ class AbstractTickerOperationsTest {
     @DisplayName("Should throw NullPointerException when ticker is null")
     void shouldThrowException_whenTickerIsNull () {
         assertThrows(NullPointerException.class, () ->
-                        testOperations.getByTicker(null),
-                "Must have thrown NullPointerException"
+                        testOperations.getByTicker(null)
         );
     }
 
@@ -79,8 +78,7 @@ class AbstractTickerOperationsTest {
     @DisplayName("Should throw IllegalArgumentException when ticker is blank")
     void shouldThrowException_whenTickerIsBlank () {
         assertThrows(IllegalArgumentException.class, () ->
-                        testOperations.getByTicker("  "),
-                "Must have thrown IllegalArgumentException"
+                        testOperations.getByTicker("  ")
         );
     }
 
@@ -88,8 +86,7 @@ class AbstractTickerOperationsTest {
     @DisplayName("Should throw IllegalArgumentException when tickers list is empty")
     void shouldThrowException_whenTickersIsEmpty() {
         assertThrows(IllegalArgumentException.class, () ->
-                        testOperations.getByTickers(List.of()),
-                "Must have thrown IllegalArgumentException"
+                        testOperations.getByTickers(List.of())
         );
     }
 
@@ -99,8 +96,7 @@ class AbstractTickerOperationsTest {
         String[] tickers = {};
 
         assertThrows(IllegalArgumentException.class, () ->
-                        testOperations.getByTickers(tickers),
-                "Must have thrown IllegalArgumentException"
+                        testOperations.getByTickers(tickers)
         );
     }
 
@@ -108,18 +104,15 @@ class AbstractTickerOperationsTest {
     @DisplayName("Should throw NullPointerException when historical query params (date, startDate or endDate) is null")
     void shouldThrowException_whenHistoricalQueryParamIsNull() {
         assertThrows(NullPointerException.class, () ->
-                        testOperations.getHistorical("B3:PETR4", LocalDate.now(), null),
-                "Must have thrown NullPointerException"
+                        testOperations.getHistorical("B3:PETR4", LocalDate.now(), null)
         );
 
         assertThrows(NullPointerException.class, () ->
-                        testOperations.getHistorical("B3:PETR4", null, LocalDate.now()),
-                "Must have thrown NullPointerException"
+                        testOperations.getHistorical("B3:PETR4", null, LocalDate.now())
         );
 
         assertThrows(NullPointerException.class, () ->
-                        testOperations.getHistorical("B3:PETR4", null),
-                "Must have thrown NullPointerException"
+                        testOperations.getHistorical("B3:PETR4", null)
         );
     }
 
@@ -127,8 +120,7 @@ class AbstractTickerOperationsTest {
     @DisplayName("Should throw IllegalArgumentException when historical query params daysAgo is invalid")
     void shouldThrowException_whenHistoricalDaysAgoIsInvalid() {
         assertThrows(IllegalArgumentException.class, () ->
-                        testOperations.getHistorical("B3:PETR4",-1),
-                "Must have thrown IllegalArgumentException"
+                        testOperations.getHistorical("B3:PETR4",-1)
         );
     }
 
