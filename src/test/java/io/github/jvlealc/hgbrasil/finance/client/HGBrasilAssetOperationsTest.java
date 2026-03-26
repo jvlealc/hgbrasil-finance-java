@@ -1,6 +1,7 @@
 package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.model.AssetResponse;
+import io.github.jvlealc.hgbrasil.finance.client.model.AssetResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,6 +19,7 @@ import java.math.BigDecimal;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -47,33 +49,114 @@ class HGBrasilAssetOperationsTest {
     }
 
     @Test
-    @DisplayName("Should return correct mapped AssetResponse when the API responds successfully")
+    @DisplayName("Should return mapped AssetResponse when success")
     void shouldReturnAssetResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
         String mockedJsonBody = """
-            {
-                "by": "symbol",
-                "valid_key": true,
-                "results": {
-                    "ITSA4": {
-                        "symbol": "ITSA4",
-                        "name": "Itaúsa",
-                        "price": 14.63
+                  {
+                  "by": "symbol",
+                  "valid_key": true,
+                  "results": {
+                    "PETR4": {
+                      "kind": "stock",
+                      "symbol": "PETR4",
+                      "name": "Petrobras",
+                      "company_name": "Petroleo Brasileiro S.A. Petrobras",
+                      "document": "33.000.167/0001-01",
+                      "related": [
+                        "VBBR3",
+                        "PRIO3",
+                        "RECV3",
+                        "UGPA3",
+                        "SBSP3"
+                      ],
+                      "bookkeeper": "BRADESCO",
+                      "logo": {
+                        "small": "https://assets.hgbrasil.com/finance/companies/small/petrobras.png",
+                        "big": "https://assets.hgbrasil.com/finance/companies/big/petrobras.png"
+                      },
+                      "financials": {
+                        "equity": 422934000000,
+                        "quota_count": 12888732761,
+                        "equity_per_share": 32.814,
+                        "price_to_book_ratio": 1.447,
+                        "dividends": {
+                          "yield_12m": 6.893,
+                          "yield_12m_sum": 3.272,
+                          "last_payment": 0.4716
+                        }
+                      },
+                      "region": "Brazil/Sao Paulo",
+                      "currency": "BRL",
+                      "market_time": {
+                        "open": "10:00",
+                        "close": "17:30",
+                        "timezone": -3
+                      },
+                      "market_cap": 647214.0,
+                      "price": 47.5,
+                      "change_percent": 0.49,
+                      "change_price": 0.23,
+                      "volume": 40532900,
+                      "updated_at": "2026-03-25 17:07:36"
                     }
-                },
-                "execution_time": 0.11,
-                "from_cache": false
-            }
-            """;
-        String symbol = "ITSA4";
-
+                  },
+                  "execution_time": 0.0,
+                  "from_cache": true
+                }
+                """;
         mockHttpResponse(mockedJsonBody);
 
-        AssetResponse actualResponse = assetOperation.getBySymbol(symbol);
+        AssetResponse actualResponse = assetOperation.getBySymbol("PETR4");
 
-        assertNotNull(actualResponse, "AssetResponse must not be null");
-        assertTrue(actualResponse.results().containsKey(symbol), "AssetResponse must contain key %s".formatted(symbol));
-        assertEquals("Itaúsa", actualResponse.results().get(symbol).name(), "AssetResponse must have correct name");
-        assertEquals(new BigDecimal("14.63"), actualResponse.results().get(symbol).price(), "AssetResponse must have correct price");
+        assertNotNull(actualResponse, "Asset response must not be null");
+        assertTrue(actualResponse.results().containsKey("PETR4"), "Result must contain provided key");
+
+        AssetResult actualResult = actualResponse.findFirstResult().orElseThrow();
+
+        assertAll("Verify successfully asset results integrity",
+                () -> assertNotNull(actualResult, "Result must not be null"),
+                () -> assertTrue(actualResult.related().contains("RECV3"), "Asset related must contain provided key"),
+                () -> assertEquals(
+                        "stock",
+                        actualResult.kind(),
+                        "Asset kind must match"
+                ),
+                () -> assertEquals(
+                        new BigDecimal("47.5"),
+                        actualResult.price(),
+                        "Asset price must match"
+                ),
+                () -> assertEquals(
+                        new BigDecimal("0.49"),
+                        actualResult.changePercent(),
+                        "Asset change percent must match"
+                ),
+                () -> assertEquals(
+                        LocalDateTime.of(2026, 3, 25, 17, 7, 36),
+                        actualResult.updatedAt(),
+                        "Asset updated at must match"
+                ),
+                () -> assertEquals(
+                        422934000000L,
+                        actualResult.financials().equity(),
+                        "Asset financial equity must match"
+                ),
+                () -> assertEquals(
+                        new BigDecimal("6.893"),
+                        actualResult.financials().dividends().yield12m(),
+                        "Asset financial dividend 'yield12m' must match"
+                ),
+                () -> assertEquals(
+                        -3L,
+                        actualResult.marketTime().timezone(),
+                        "Asset market timezone must match"
+                ),
+                () -> assertEquals(
+                        "Brazil/Sao Paulo",
+                        actualResult.region(),
+                        "Asset region must match"
+                )
+        );
     }
 
     @Test
@@ -95,10 +178,10 @@ class HGBrasilAssetOperationsTest {
 
         mockHttpResponse(mockedJsonBody);
 
-        HGBrasilApiException hgException = assertThrows(HGBrasilApiException.class, () -> {
-            assetOperation.getBySymbol("PETR4");
-        });
-        assertTrue(hgException.getMessage().contains(expectedErrorMessage), "Must have correct API error message");
+        HGBrasilApiException exception = assertThrows(HGBrasilApiException.class, () ->
+            assetOperation.getBySymbol("PETR4")
+        );
+        assertTrue(exception.getMessage().contains(expectedErrorMessage), "Must have correct API error message");
     }
 
     @Test
@@ -123,11 +206,11 @@ class HGBrasilAssetOperationsTest {
 
         AssetResponse actualResponse = assetOperation.getBySymbol(invalidSymbol);
 
-        assertAll("Verify mapping AssetResponse integrity",
-                () -> assertNotNull(actualResponse, "AssetResponse must not be null"),
-                () -> assertNotNull(actualResponse.results().get(invalidSymbol), "AssetResponse must have invalid symbol research into 'results' obj"),
-                () -> assertTrue(actualResponse.results().containsKey(invalidSymbol), "AssetResponse must contain key %s".formatted(invalidSymbol)),
-                () -> assertTrue(actualResponse.results().get(invalidSymbol).message().contains("Símbolo não encontrado,"), "Must have correct API error message"),
+        assertAll("Verify mapping asset response integrity",
+                () -> assertNotNull(actualResponse, "Asset response must not be null"),
+                () -> assertNotNull(actualResponse.results().get(invalidSymbol), "Asset response must have invalid symbol research into 'results' obj"),
+                () -> assertTrue(actualResponse.results().containsKey(invalidSymbol), "Asset response must contain key %s".formatted(invalidSymbol)),
+                () -> assertTrue(actualResponse.results().get(invalidSymbol).message().contains("Símbolo não encontrado,"), "Asset response must have correct API error message"),
                 () -> assertTrue(actualResponse.results().get(invalidSymbol).error(), "Field 'error' must be true")
         );
     }
