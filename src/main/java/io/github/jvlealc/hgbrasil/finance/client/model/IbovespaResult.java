@@ -31,9 +31,9 @@ public record IbovespaResult(
         /**
          * Ensures that the 'data' list is never null, preventing {@link NullPointerException}.
          *
-         * @return a list containing the Ibovespa results or an empty List if 'results' is null.
+         * @return a list containing the Ibovespa intraday points or an empty List if 'data' is null.
          */
-        public List<IbovespaIntradayPoint> getSafeResults() {
+        public List<IbovespaIntradayPoint> getSafeData() {
                 return data != null ? data : List.of();
         }
 }
