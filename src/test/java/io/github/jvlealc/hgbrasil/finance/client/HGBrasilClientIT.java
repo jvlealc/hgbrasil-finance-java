@@ -273,8 +273,8 @@ class HGBrasilClientIT {
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertTrue(response.hasErrors(), "Dividend response should contain errors");
 
-            assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
-            ApiError error = response.findFirstError().get();
+            assertFalse(response.getSafeErrors().isEmpty(), "Should found the mapped error in response");
+            ApiError error = response.getSafeErrors().getFirst();
 
             assertNotNull(error.message(), "Error message must not be null");
             assertFalse(error.message().isBlank(), "Error message should contain text");
@@ -388,8 +388,8 @@ class HGBrasilClientIT {
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertTrue(response.hasErrors(), "Split response should contain errors");
 
-            assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
-            ApiError error = response.findFirstError().get();
+            assertFalse(response.getSafeErrors().isEmpty(), "Should found the mapped error in response");
+            ApiError error = response.getSafeErrors().getFirst();
 
             assertNotNull(error.message(), "Error message must not be null");
             assertFalse(error.message().isBlank(), "Error message should contain text");
@@ -502,11 +502,11 @@ class HGBrasilClientIT {
             assertNotNull(response, "Indicator response must not be null");
             assertEquals("valid", response.metadata().keyStatus(), "API key must be valid");
             assertTrue(response.hasErrors(), "Indicator response should contain errors");
-            assertTrue(response.findFirstError().isPresent(), "Should found the mapped error in response");
+            assertFalse(response.getSafeErrors().isEmpty(), "Should found the mapped error in response");
             assertTrue(response.getSafeResults().isEmpty(), "getSafeResults() should return an empty list");
             assertTrue(response.findFirstResult().isEmpty(), "findFirstResult() should return empty Optional");
 
-            ApiError error = response.findFirstError().get();
+            ApiError error = response.getSafeErrors().getFirst();
 
             assertNotNull(error.message(), "Error message must not be null");
             assertFalse(error.message().isBlank(), "Error message should contain text");
