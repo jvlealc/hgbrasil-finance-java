@@ -78,12 +78,12 @@ class HGBrasilSplitOperationsTest {
 
         SplitResponse actualResponse = splitOperations.getByTicker(invalidTicker);
 
-        assertAll("Verify Split response with error integrity",
+        assertAll("Verify split response with error integrity",
                 () ->assertNotNull(actualResponse, "Response must not be null"),
                 () -> assertNotNull(actualResponse.errors(), "Split erros must not be null"),
                 () -> assertFalse(actualResponse.errors().isEmpty(), "Errors must not be empty"),
-                () -> assertFalse(actualResponse.errors().getFirst().details().isEmpty(), "Errors must not be empty"),
-                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol"), "Errors must not be empty"),
+                () -> assertFalse(actualResponse.errors().getFirst().details().isEmpty(), "Error details must not be empty"),
+                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol"), "Errors details must contains provided key"),
                 () -> assertEquals(
                         invalidTicker,
                         actualResponse.errors().getFirst().details().get("symbol"),
@@ -158,8 +158,8 @@ class HGBrasilSplitOperationsTest {
 
         // Partial error validation (A2:FALSE88)
         assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
-        assertTrue(actualResponse.findFirstError().isPresent(), "The error list must not be empty");
-        assertEquals("A2:FALSE88", actualResponse.findFirstError().get().details().get("symbol"));
+        assertFalse(actualResponse.getSafeErrors().isEmpty(), "The error list must not be empty");
+        assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol"));
 
         // Partial success validation (B3:MGLU3)
         assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");
@@ -232,32 +232,32 @@ class HGBrasilSplitOperationsTest {
 
         SplitResponse actualResponse = splitOperations.getByTicker("B3:TIMS3");
 
-        assertAll("Verify successfully Split response integrity",
+        assertAll("Verify successfully split response integrity",
                 () -> assertNotNull(actualResponse, "Response must not be null"),
                 () -> assertEquals(
                         new BigDecimal("4"),
                         actualResponse.results().getFirst().events().get(1).ratio(),
-                        "Ratio value must be equal to '4'"
+                        "Split ratio value must be equal to '4'"
                 ),
                 () -> assertEquals(
                         new BigDecimal("0.01"),
                         actualResponse.results().getFirst().events().getFirst().factorFrom(),
-                        "Factor from value must be equal to '0.01'"
+                        "Split factor from value must be equal to '0.01'"
                 ),
                 () -> assertEquals(
                         LocalDate.of(2021, 4, 11),
                         actualResponse.results().getFirst().events().get(1).effectiveDate(),
-                        "Effective date must be equal to '2021-04-11'"
+                        "Split effective date must be equal to '2021-04-11'"
                 ),
                 () -> assertEquals(
                         SplitStatus.CONFIRMED,
                         actualResponse.results().getFirst().events().getFirst().status(),
-                        "Status must be equal to CONFIRMED"
+                        "Split status must be equal to CONFIRMED"
                 ),
                 () -> assertEquals(
                         SplitType.REVERSE_SPLIT,
                         actualResponse.results().getFirst().events().getFirst().type(),
-                        "Status must be equal to REVERSE_SPLIT"
+                        "Split status must be equal to REVERSE_SPLIT"
                 )
         );
     }

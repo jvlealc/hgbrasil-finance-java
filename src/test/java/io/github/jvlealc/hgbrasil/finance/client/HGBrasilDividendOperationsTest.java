@@ -173,8 +173,8 @@ class HGBrasilDividendOperationsTest {
 
         // Partial error validation (A2:FALSE88)
         assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
-        assertTrue(actualResponse.findFirstError().isPresent(), "The error list must not be empty");
-        assertEquals("A2:FALSE88", actualResponse.findFirstError().get().details().get("symbol"));
+        assertFalse(actualResponse.getSafeErrors().isEmpty(), "The error list must not be empty");
+        assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol"));
 
         // Partial success validation (B3:MGLU3)
         assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");

@@ -14,11 +14,10 @@ class DividendResultTest {
     @Test
     @DisplayName("Should return empty list when series is null")
     void shouldReturnEmpty_whenSeriesIsNull() {
-        DividendResult result = new DividendResult(
-                null, null, null, null, null, null, null,
-                null, null
-        );
+        DividendResult result = createDividendResult(null);
 
+        assertNotNull(result.getSafeSeries());
+        assertNotNull(result.findFirstSeries());
         assertTrue(result.getSafeSeries().isEmpty());
         assertTrue(result.findFirstSeries().isEmpty());
     }
@@ -26,10 +25,7 @@ class DividendResultTest {
     @Test
     @DisplayName("Should return empty list and Optional.empty() when series list is empty")
     void shouldReturnEmpty_whenSeriesListIsEmpty() {
-        DividendResult result = new DividendResult(
-                null, null, null, null, null, null, null,
-                List.of(), null
-        );
+        DividendResult result = createDividendResult(List.of());
 
         assertTrue(result.getSafeSeries().isEmpty());
         assertTrue(result.findFirstSeries().isEmpty());
@@ -40,10 +36,7 @@ class DividendResultTest {
     void shouldReturnSeries_whenApiRespondsSuccessfully() {
         DividendSeries firstSeries = new DividendSeries(null, null, null, null, null, null, null);
         DividendSeries secondSeries = new DividendSeries(null, null, null, null, null, null, null);
-        DividendResult result = new DividendResult(
-                null, null, null, null, null, null, null,
-                List.of(firstSeries, secondSeries), null
-        );
+        DividendResult result = createDividendResult(List.of(firstSeries, secondSeries));
 
         List<DividendSeries> safeSeries = result.getSafeSeries();
         Optional<DividendSeries> firstSeriesResult = result.findFirstSeries();
@@ -52,4 +45,12 @@ class DividendResultTest {
         assertTrue(firstSeriesResult.isPresent());
         assertEquals(firstSeries, firstSeriesResult.get());
     }
+
+    private static DividendResult createDividendResult(List<DividendSeries> series) {
+        return new DividendResult(
+                null, null, null, null, null, null, null,
+                null, null
+        );
+    }
+
 }
