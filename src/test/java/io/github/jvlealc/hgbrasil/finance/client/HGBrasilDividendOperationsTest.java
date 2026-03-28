@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class HGBrasilDividendOperationsTest {
 
     private static final String FAKE_API_KEY = "fakeKey";
