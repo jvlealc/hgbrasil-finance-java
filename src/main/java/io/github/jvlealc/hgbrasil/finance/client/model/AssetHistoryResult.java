@@ -30,7 +30,7 @@ public record AssetHistoryResult(
      *
      * @return an Optional containing indicator samples detailed or Optional.empty() if the samples is empty or null;
      */
-    public Optional<AssetHistorySample> findFirstSamples() {
+    public Optional<AssetHistorySample> findFirstSample() {
         if (samples == null || samples.isEmpty()) {
             return Optional.empty();
         }
