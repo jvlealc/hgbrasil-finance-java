@@ -51,21 +51,12 @@ class HGBrasilDividendOperationsTest {
     @DisplayName("Should return DividendResponse with erro and details when ticker is invalid")
     void shouldResponseWithError_whenTickerIsInvalid() throws IOException, InterruptedException {
         String invalidTicker = "A3:FALSE88";
-
         String mockedJsonBody = """
                 {
-                  "metadata": {
-                    "key_status": "valid",
-                    "cached": true,
-                    "response_time_ms": 0.0,
-                    "language": "pt-br"
-                  },
                   "results": [],
                   "errors": [
                     {
                       "code": "INVALID_TICKER",
-                      "message": "Ticker inválido.",
-                      "help": "https://hgbrasil.com/docs",
                       "details": {
                         "symbol": "A3:FALSE88"
                       }
@@ -78,24 +69,14 @@ class HGBrasilDividendOperationsTest {
 
         DividendResponse actualResponse = dividendOperations.getByTicker(invalidTicker);
 
-        assertAll("Verify Dividend response with error integrity",
-                () ->assertNotNull(actualResponse, "Response must not be null"),
-                () -> assertNotNull(actualResponse.errors(), "Dividend erros must not be null"),
-                () -> assertFalse(actualResponse.errors().isEmpty(), "Errors must not be empty"),
-                () -> assertFalse(actualResponse.errors().getFirst().details().isEmpty(), "Errors must not be empty"),
-                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol"), "Errors must not be empty"),
-                () -> assertEquals(
-                        invalidTicker,
-                        actualResponse.errors().getFirst().details().get("symbol"),
-                        "Invalid Ticker must match with: " + invalidTicker
-                ),
-                () -> assertEquals(
-                        "INVALID_TICKER",
-                        actualResponse.errors().getFirst().code(),
-                        "Error code should be 'INVALID_TICKER'"
-                )
-        );
+        assertNotNull(actualResponse);
 
+        assertAll(
+                () -> assertFalse(actualResponse.errors().isEmpty()),
+                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol")),
+                () -> assertEquals(invalidTicker, actualResponse.errors().getFirst().details().get("symbol")),
+                () -> assertEquals("INVALID_TICKER", actualResponse.errors().getFirst().code())
+        );
     }
 
     @Test
@@ -103,60 +84,23 @@ class HGBrasilDividendOperationsTest {
     void shouldReturnResponseWithPartialSuccess_whenInvalidTickersInMixingTickers() throws IOException, InterruptedException {
         String mockedJsonBody = """
                 {
-                  "metadata": {
-                    "key_status": "valid",
-                    "cached": true,
-                    "response_time_ms": 0.0,
-                    "language": "pt-br"
-                  },
                   "results": [
                     {
                       "ticker": "B3:MGLU3",
-                      "unit": "currency",
-                      "currency": "BRL",
-                      "symbol": "MGLU3",
-                      "name": "Magazine Luiza S.A.",
-                      "full_name": "Magazine Luiza S.A.",
                       "summary": {
-                        "yield_12m_percent": 3.008,
-                        "yield_12m_cash": 0.305
+                        "yield_12m_percent": 3.008
                       },
                       "series": [
-                        {
-                          "type": "bonus_issue",
-                          "category": "stock",
-                          "amount": 5.0,
-                          "approval_date": "2025-12-22",
-                          "com_date": "2025-12-29",
-                          "payment_date": "2025-12-29",
-                          "status": "paid"
-                        },
-                        {
-                          "type": "dividend",
-                          "category": "cash",
-                          "amount": 0.305175,
-                          "approval_date": "2025-04-24",
-                          "com_date": "2025-04-25",
-                          "payment_date": "2025-05-05",
-                          "status": "paid"
-                        }
+                        { "type": "bonus_issue" },
+                        { "type": "dividend" }
                       ],
                       "source": {
-                        "symbol": "B3",
-                        "name": "B3",
-                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
-                        "url": "https://www.b3.com.br",
-                        "location": {
-                          "timezone": "America/Sao_Paulo"
-                        }
+                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão"
                       }
                     }
                   ],
                   "errors": [
                     {
-                      "code": "INVALID_TICKER",
-                      "message": "Ticker inválido.",
-                      "help": "https://hgbrasil.com/docs",
                       "details": {
                         "symbol": "A2:FALSE88"
                       }
@@ -169,29 +113,30 @@ class HGBrasilDividendOperationsTest {
 
         DividendResponse actualResponse = dividendOperations.getByTickers("B3:MGLU3", "A2:FALSE88");
 
-        assertNotNull(actualResponse, "Response must not be null");
+        assertNotNull(actualResponse);
 
-        // Partial error validation (A2:FALSE88)
-        assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
-        assertFalse(actualResponse.getSafeErrors().isEmpty(), "The error list must not be empty");
-        assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol"));
-
-        // Partial success validation (B3:MGLU3)
-        assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");
-        DividendResult validResult = actualResponse.findFirstResult()
-                .orElseThrow();
-        assertEquals("B3:MGLU3", validResult.ticker(), "The ticker valid result must match");
-
-        // Validation of mapping other objects via Jackson
-        assertEquals(new BigDecimal("3.008"), validResult.summary().yield12mPercent(), "Summary yield must match");
-        assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName(), "Source full name must match");
-
-        // Integrity validation of the series list
+        DividendResult validResult = actualResponse.findFirstResult().orElseThrow();
         List<DividendSeries> safeSeries = validResult.getSafeSeries();
-        assertNotNull(safeSeries, "The safe series must not be null");
-        assertEquals(2, safeSeries.size(), "MGLU3 must have 2 series events");
-        assertEquals(DividendType.BONUS_ISSUE, safeSeries.get(0).type(), "First event must be bonus issue");
-        assertEquals(DividendType.DIVIDEND, safeSeries.get(1).type(), "Second event must be dividend");
+
+        assertNotNull(safeSeries);
+
+        assertAll(
+                // Partial error validation
+                () -> assertTrue(actualResponse.hasErrors()),
+                () -> assertFalse(actualResponse.getSafeErrors().isEmpty()),
+                () -> assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol")),
+
+                // Partial success validation
+                () -> assertFalse(actualResponse.getSafeResults().isEmpty()),
+                () -> assertEquals("B3:MGLU3", validResult.ticker()),
+                () -> assertEquals(new BigDecimal("3.008"), validResult.summary().yield12mPercent()),
+                () -> assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName()),
+
+                // Series validation
+                () -> assertEquals(2, safeSeries.size()),
+                () -> assertEquals(DividendType.BONUS_ISSUE, safeSeries.get(0).type()),
+                () -> assertEquals(DividendType.DIVIDEND, safeSeries.get(1).type())
+        );
     }
 
     @Test
@@ -199,44 +144,18 @@ class HGBrasilDividendOperationsTest {
     void shouldReturnDividendResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
         String mockedJsonBody = """
                 {
-                  "metadata": {
-                    "key_status": "valid",
-                    "cached": false,
-                    "response_time_ms": 53.3,
-                    "language": "pt-br"
-                  },
                   "results": [
                     {
-                      "ticker": "B3:PETR4",
-                      "unit": "currency",
-                      "currency": "BRL",
-                      "symbol": "PETR4",
-                      "name": "Petrobrás",
-                      "full_name": "Petroleo Brasileiro S.A. Petrobras",
                       "summary": {
-                        "yield_12m_percent": 7.77,
-                        "yield_12m_cash": 3.272
+                        "yield_12m_percent": 7.77
                       },
                       "series": [
                         {
-                          "type": "interest_on_equity",
-                          "category": "cash",
                           "amount": 0.175182,
-                          "approval_date": "2025-12-11",
                           "com_date": "2025-12-22",
-                          "payment_date": "2026-03-20",
                           "status": "approved"
                         }
-                        ],
-                      "source": {
-                        "symbol": "B3",
-                        "name": "B3",
-                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
-                        "url": "https://www.b3.com.br",
-                        "location": {
-                          "timezone": "America/Sao_Paulo"
-                        }
-                      }
+                      ]
                     }
                   ]
                 }
@@ -245,31 +164,17 @@ class HGBrasilDividendOperationsTest {
         mockHttpResponse(mockedJsonBody);
 
         DividendResponse actualResponse = dividendOperations.getByTicker("B3:PETR4");
+
+        assertNotNull(actualResponse);
+
         DividendResult result = actualResponse.findFirstResult().orElseThrow();
         DividendSeries series = result.findFirstSeries().orElseThrow();
 
-        assertAll("Verify successfully Dividend response integrity",
-                () -> assertNotNull(actualResponse, "Response must not be null"),
-                () -> assertEquals(
-                        new BigDecimal("7.77"),
-                        result.summary().yield12mPercent(),
-                        "yield_12m_percent value must be equal to 7.77"
-                ),
-                () -> assertEquals(
-                        new BigDecimal("0.175182"),
-                        series.amount(),
-                        "Amount value must be equal to 0.175182"
-                ),
-                () -> assertEquals(
-                        LocalDate.of(2025, 12, 22),
-                        series.comDate(),
-                        "com_date must be equal to '2025-12-22'"
-                ),
-                () -> assertEquals(
-                        DividendStatus.APPROVED,
-                        series.status(),
-                        "status must be equal to 'approved'"
-                )
+        assertAll(
+                () -> assertEquals(new BigDecimal("7.77"), result.summary().yield12mPercent()),
+                () -> assertEquals(new BigDecimal("0.175182"), series.amount()),
+                () -> assertEquals(LocalDate.of(2025, 12, 22), series.comDate()),
+                () -> assertEquals(DividendStatus.APPROVED, series.status())
         );
     }
 
