@@ -12,11 +12,57 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
 /**
- * HTTP client for communication with the HG Brasil financial API.
+ * <h1>Main HTTP client for communication with the HG Brasil financial API.</h1>
+ *
  * <p>
- * This class utilizes Virtual Threads and must be instantiated via {@link #builder()}.
- * It acts as a Facade providing access to the classes that implement API communication operations.
+ *     This class acts as a central Facade, providing streamlined access to the underlying
+ *     operations that handle API communication. Through this client, developers can query
+ *     data for assets, currency exchange rates, cryptoassets, Ibovespa history, dividends,
+ *     stock splits, stock market indices and economic indicators.
  * </p>
+ *
+ * <p>
+ *     <b>Instantiation:</b> Instances of this client are thread-safe, immutable, and
+ *     must be constructed using the provided {@link #builder()}.
+ * </p>
+ *
+ * <h2>Technical Details &amp; Defaults</h2>
+ *
+ * <ul>
+ *     <li>
+ *         <b>Protocol:</b> The underlying native {@link java.net.http.HttpClient} is configured to use
+ *         <b>HTTP/2</b> for optimized connection multiplexing and normal redirect following.
+ *     </li>
+ *     <li>
+ *         <b>Concurrency:</b>  By default, it utilizes <b>Virtual Threads</b> when available (Java 21+),
+ *         falling back to the JDK's default HttpClient executor otherwise.
+ *     </li>
+ *     <li>
+ *         <b>Timeouts:</b> The default connection timeout is set to <b>15 seconds</b>,
+ *         which can be overridden via the builder.
+ *     </li>
+ *     <li>
+ *         <b>Serialization:</b> Employs a resilient Jackson {@link tools.jackson.databind.ObjectMapper} pre-configured
+ *         with the {@code JavaTimeModule} for modern date parsing and explicitly enables safe fallback for unknown enum values
+ *         to prevent runtime deserialization failures if the API introduces new fields.
+ *     </li>
+ * </ul>
+ *
+ * <h3>Usage Example:</h3>
+ *
+ * <pre>
+ * {@code
+ * // The client is AutoCloseable, ensuring internal thread pools are gracefully shut down
+ * try (HGBrasilClient client = HGBrasilClient.builder().apiKey("YOUR_API_KEY").build()) {
+ *
+ *     // Accessing operations through the Facade
+ *     AssetOperations assetOps = client.getAssetOperations();
+ *
+ *     // Execute your queries
+ *     assetOps.getBySymbol("PETR4");
+ * }
+ * }
+ * </pre>
  *
  * @see <a href="https://hgbrasil.com/docs/finance">HG Brasil Official Documentation</a>
  */
@@ -89,7 +135,7 @@ public final class HGBrasilClient implements AutoCloseable {
      * Accesses operations to retrieve quotes for financial market assets
      * (stocks, REITs, BDRs, currencies, indices and cryptoassets).
      *
-     * @return Instance of {@link HGBrasilAssetOperations}
+     * @return {@link AssetOperations} interface for asset queries
      */
     public AssetOperations getAssetOperations() {
         return assetOperations;
@@ -99,7 +145,7 @@ public final class HGBrasilClient implements AutoCloseable {
      * Accesses operations to retrieve currency exchange rates against the Brazilian Real (BRL)
      * and Bitcoin quotes.
      *
-     * @return Instance of {@link HGBrasilExchangeOperations}
+     * @return {@link ExchangeOperations} interface for exchange rates and Bitcoin queries
      */
     public ExchangeOperations getExchangeOperations() {
         return exchangeOperations;
@@ -108,7 +154,7 @@ public final class HGBrasilClient implements AutoCloseable {
     /**
      * Accesses operations to retrieve the history and details of the Ibovespa index.
      *
-     * @return Instance of {@link HGBrasilIbovespaOperations}
+     * @return {@link IbovespaOperations} interface for Ibovespa queries
      */
     public IbovespaOperations getIbovespaOperations() {
         return ibovespaOperations;
@@ -118,7 +164,7 @@ public final class HGBrasilClient implements AutoCloseable {
      * Accesses operations to retrieve the history and details of dividends,
      * interest on equity (JCP), stock bonuses, and other earnings for stocks, REITs and BDRs.
      *
-     * @return Instance of {@link HGBrasilDividendOperations}
+     * @return {@link DividendOperations} interface for dividend queries
      */
     public DividendOperations getDividendOperations() {
         return dividendOperations;
@@ -128,7 +174,7 @@ public final class HGBrasilClient implements AutoCloseable {
      * Accesses operations to retrieve the history and details of stock splits
      * and reverse splits for financial market assets (stocks, REITs and BDRs).
      *
-     * @return Instance of {@link HGBrasilSplitOperations}
+     * @return {@link SplitOperations} interface for stock split and reverse split queries
      */
     public SplitOperations getSplitOperations() {
         return splitOperations;
@@ -137,7 +183,7 @@ public final class HGBrasilClient implements AutoCloseable {
     /**
      * Accesses operations to retrieve the history and details of Brazilian economic indicators.
      *
-     * @return Instance of {@link HGBrasilIndicatorOperations}
+     * @return {@link IndicatorOperations} interface for indicator queries
      */
     public IndicatorOperations getIndicatorOperations() {
         return indicatorOperations;
@@ -165,7 +211,7 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
-         * Sets the API key.
+         * Sets the HG Brasil API key required for authentication.
          *
          * @param apiKey HG Brasil API key
          * @return This builder instance
@@ -180,6 +226,7 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
+         * Sets a custom connection timeout for the underlying HTTP client.
          * Optional - if omitted, the default value of {@value DEFAULT_CONNECTION_TIMEOUT_SECONDS} seconds is used.
          *
          * @param timeout Maximum waiting time for connections
@@ -195,11 +242,12 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
+         * Sets a fully customized {@link HttpClient}.
          * Optional - if omitted, a default {@link HttpClient} is created, configured with HTTP/2,
          * normal redirects, and the specified (or default) timeout and executor.
          * <p>
-         * NOTE: If a custom HttpClient is provided, the SDK will ignore any executor or timeout
-         * settings defined in this builder, as the HttpClient's internal configuration is immutable.
+         *     NOTE: If a custom HttpClient is provided, the SDK will ignore any executor or timeout
+         *     settings defined in this builder, as the HttpClient's internal configuration is immutable.
          * </p>
          *
          * @param httpClient Custom HttpClient instance
@@ -211,13 +259,14 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
+         * Sets a custom Jackson {@link ObjectMapper} for JSON deserialization.
          * Optional - if omitted, the default {@link JsonMapper} configured with {@link JavaTimeModule}
          * and {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} enabled is used.
          * <p>
-         * NOTE: If you wish to inject a custom {@link ObjectMapper}, it is highly recommended
-         * to register the {@link JavaTimeModule} for proper date conversion and enable
-         * {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} to safely handle
-         * unknown enum values.
+         *     NOTE: If you wish to inject a custom {@link ObjectMapper}, it is highly recommended
+         *     to register the {@link JavaTimeModule} for proper date conversion and enable
+         *     {@code DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE} to safely handle
+         *     unknown enum values.
          * </p>
          *
          * @param objectMapper Custom ObjectMapper
@@ -229,6 +278,7 @@ public final class HGBrasilClient implements AutoCloseable {
         }
 
         /**
+         * Sets a custom {@link Executor} to manage threads for the underlying HTTP client.
          * Optional - if omitted, an {@link Executor} based on Virtual Threads per task is used.
          *
          * @param executor Custom executor to manage HTTP threads
@@ -243,6 +293,7 @@ public final class HGBrasilClient implements AutoCloseable {
          * Builds and returns the configured HG Brasil client.
          *
          * @return {@link HGBrasilClient}
+         * @throws IllegalStateException if the API key was not provided
          */
         public HGBrasilClient build() {
             return new HGBrasilClient(this);
