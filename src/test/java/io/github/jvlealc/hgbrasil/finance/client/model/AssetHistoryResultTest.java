@@ -16,9 +16,9 @@ class AssetHistoryResultTest {
         AssetHistoryResult result = createAssertHistoryResult(null);
 
         assertNotNull(result.getSafeSamples());
-        assertNotNull(result.findFirstSamples());
+        assertNotNull(result.findFirstSample());
         assertTrue(result.getSafeSamples().isEmpty());
-        assertTrue(result.findFirstSamples().isEmpty());
+        assertTrue(result.findFirstSample().isEmpty());
     }
 
     @Test
@@ -27,7 +27,7 @@ class AssetHistoryResultTest {
         AssetHistoryResult result = createAssertHistoryResult(List.of());
 
         assertTrue(result.getSafeSamples().isEmpty());
-        assertTrue(result.findFirstSamples().isEmpty());
+        assertTrue(result.findFirstSample().isEmpty());
     }
 
     @Test
@@ -38,7 +38,7 @@ class AssetHistoryResultTest {
         AssetHistoryResult result = createAssertHistoryResult(List.of(firstSample, secondSample));
 
         List<AssetHistorySample> samples = result.getSafeSamples();
-        Optional<AssetHistorySample> firstSampleResult = result.findFirstSamples();
+        Optional<AssetHistorySample> firstSampleResult = result.findFirstSample();
 
         assertEquals(2, samples.size());
         assertTrue(firstSampleResult.isPresent());
