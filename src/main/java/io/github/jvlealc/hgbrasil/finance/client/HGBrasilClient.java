@@ -82,6 +82,7 @@ public final class HGBrasilClient implements AutoCloseable {
     private final DividendOperations dividendOperations;
     private final SplitOperations splitOperations;
     private final IndicatorOperations indicatorOperations;
+    private final AssetHistoryOperations assetHistoryOperations;
 
     private HGBrasilClient(Builder builder) {
         if (builder.apiKey == null || builder.apiKey.isBlank()) {
@@ -124,6 +125,7 @@ public final class HGBrasilClient implements AutoCloseable {
         this.dividendOperations = new HGBrasilDividendOperations(builder.apiKey, httpClient, objectMapper);
         this.splitOperations = new HGBrasilSplitOperations(builder.apiKey, httpClient, objectMapper);
         this.indicatorOperations = new HGBrasilIndicatorOperations(builder.apiKey, httpClient, objectMapper);
+        this.assetHistoryOperations = new HGBrasilAssetHistoryOperations(builder.apiKey, httpClient, objectMapper);
     }
 
     /**
@@ -191,6 +193,16 @@ public final class HGBrasilClient implements AutoCloseable {
      */
     public IndicatorOperations getIndicatorOperations() {
         return indicatorOperations;
+    }
+
+    /**
+     * Accesses operations to retrieve the asset history time-series data (OHCLV)
+     * of stocks, REITs, BDRs and ETFs.
+     *
+     * @return {@link AssetHistoryOperations} interface for asset history queries
+     */
+    public AssetHistoryOperations getAssetHistoryOperations() {
+        return assetHistoryOperations;
     }
 
     @Override
