@@ -59,7 +59,7 @@ class HGBrasilTickerResponseTest {
         List<ApiError> safeErrors = response.getSafeErrors();
 
         assertFalse(response.hasErrors());
-        assertNotNull(response.errors);
+        assertNotNull(safeErrors);//aqui
         assertTrue(safeErrors.isEmpty());
     }
 

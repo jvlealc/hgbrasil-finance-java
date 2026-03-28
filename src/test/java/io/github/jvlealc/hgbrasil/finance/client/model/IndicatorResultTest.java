@@ -48,7 +48,7 @@ class IndicatorResultTest {
     private static IndicatorResult createIndicatorResult(List<IndicatorSeries> series) {
         return new IndicatorResult(
                 null, null, null, null, null, null, null,
-                null, null, null, null
+                null, null, series, null
         );
     }
 }

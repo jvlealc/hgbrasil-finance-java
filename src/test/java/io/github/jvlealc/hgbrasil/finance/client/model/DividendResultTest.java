@@ -2,7 +2,6 @@ package io.github.jvlealc.hgbrasil.finance.client.model;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.List;
 import java.util.Optional;
@@ -49,7 +48,7 @@ class DividendResultTest {
     private static DividendResult createDividendResult(List<DividendSeries> series) {
         return new DividendResult(
                 null, null, null, null, null, null, null,
-                null, null
+                series, null
         );
     }
 
