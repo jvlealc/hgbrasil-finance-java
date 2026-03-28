@@ -68,7 +68,7 @@ import java.util.concurrent.Executors;
  */
 public final class HGBrasilClient implements AutoCloseable {
 
-    private static final long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 20L;
+    private static final long DEFAULT_CONNECTION_TIMEOUT_SECONDS = 15L;
     private static final ObjectMapper DEFAULT_OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
             .enable(DeserializationFeature.READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE)
@@ -96,23 +96,27 @@ public final class HGBrasilClient implements AutoCloseable {
                 ? builder.objectMapper
                 : DEFAULT_OBJECT_MAPPER;
 
-        Executor executor = builder.executor;
-        ExecutorService virtualExecutor = null;
+        Executor customExecutor = builder.executor;
+        ExecutorService managedExecutor = null;
 
-        if (executor == null && builder.httpClient == null) {
-            virtualExecutor = Executors.newVirtualThreadPerTaskExecutor();
-            executor = virtualExecutor;
+        if (customExecutor == null && builder.httpClient == null) {
+            managedExecutor = tryCreateVirtualThreadExecutor();
+            customExecutor = managedExecutor;
         }
-        this.internalExecutor = virtualExecutor;
+        this.internalExecutor = managedExecutor;
+
+        HttpClient.Builder defaultHttpClient = HttpClient.newBuilder()
+                .version(HttpClient.Version.HTTP_2)
+                .connectTimeout(timeout)
+                .followRedirects(HttpClient.Redirect.NORMAL);
+
+        if (customExecutor != null) {
+            defaultHttpClient.executor(customExecutor);
+        }
 
         HttpClient httpClient = builder.httpClient != null
                 ? builder.httpClient
-                : HttpClient.newBuilder()
-                .version(HttpClient.Version.HTTP_2)
-                .connectTimeout(timeout)
-                .executor(executor)
-                .followRedirects(HttpClient.Redirect.NORMAL)
-                .build();
+                : defaultHttpClient.build();
 
         this.assetOperations = new HGBrasilAssetOperations(builder.apiKey, httpClient, objectMapper);
         this.exchangeOperations = new HGBrasilExchangeOperations(builder.apiKey, httpClient, objectMapper);
@@ -297,6 +301,24 @@ public final class HGBrasilClient implements AutoCloseable {
          */
         public HGBrasilClient build() {
             return new HGBrasilClient(this);
+        }
+    }
+
+    /**
+     * Tries to instantiate an Executor based on Virtual Threads using reflection.
+     * <p>
+     *     This approach ensures that the SDK compiles correctly in Java 17,
+     *     while providing the benefit of scalability without I/O blocking for systems using Java 21+.
+     * </p>
+     *
+     * @return {@link ExecutorService} based on Virtual Threads, or {@code null} if not supported by the current JVM
+     */
+    private static ExecutorService tryCreateVirtualThreadExecutor() {
+        try {
+            var method = Executors.class.getDeclaredMethod("newVirtualThreadPerTaskExecutor");
+            return (ExecutorService) method.invoke(null);
+        } catch (ReflectiveOperationException ignored) {
+            return null;
         }
     }
 }
