@@ -44,8 +44,7 @@ class HGBrasilClientTest {
                         .httpClient(customHttpClient)
                         .objectMapper(customObjectMapper)
                         .executor(customExecutor)
-                        .build(),
-                "Must not throw exception"
+                        .build()
         )) {
             assertAllOperationsInitialized(hgClient);
         }
@@ -62,8 +61,7 @@ class HGBrasilClientTest {
                         .apiKey(FAKE_API_KEY)
                         .timeout(customTimeout)
                         .httpClient(customHttpClient)
-                        .build(),
-                "Must not throws exception"
+                        .build()
         )) {
             assertAllOperationsInitialized(hgClient);
         }
@@ -75,13 +73,10 @@ class HGBrasilClientTest {
         String expectedMessage = "API key cannot be null or blank.";
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> HGBrasilClient.builder()
-                        .apiKey("   "),
-                "Must throw IllegalArgumentException when missing API key"
+                () -> HGBrasilClient.builder().apiKey("   ")
         );
 
-        String actual = exception.getMessage();
-        assertEquals(expectedMessage, actual, "Must return correct error message");
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
@@ -90,12 +85,10 @@ class HGBrasilClientTest {
         String expectedMessage = "API key cannot be null or blank.";
 
         IllegalArgumentException exception = assertThrows(IllegalArgumentException.class,
-                () -> HGBrasilClient.builder()
-                        .apiKey(null),
-                "Must throw IllegalArgumentException when missing API key"
+                () -> HGBrasilClient.builder().apiKey(null)
         );
 
-        assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
@@ -104,12 +97,10 @@ class HGBrasilClientTest {
         String expectedMessage = "API key is required to build the client. Use builder().apiKey(...) before calling build().";
 
         IllegalStateException exception = assertThrows(IllegalStateException.class,
-                HGBrasilClient.builder()
-                        .timeout(Duration.ofSeconds(20L))::build,
-                "Must throw IllegalStateException when missing API key"
+                HGBrasilClient.builder().timeout(Duration.ofSeconds(20L))::build
         );
 
-        assertEquals(expectedMessage, exception.getMessage(), "Must return correct error message");
+        assertEquals(expectedMessage, exception.getMessage());
     }
 
     @Test
@@ -120,8 +111,8 @@ class HGBrasilClientTest {
                         .apiKey(FAKE_API_KEY)
                         .build()
         ) {
-            assertDoesNotThrow(client::close, "Closing the client must not throw any exception");
-            assertDoesNotThrow(client::close, "Closing the client multiple times must not throw any exception");
+            assertDoesNotThrow(client::close);
+            assertDoesNotThrow(client::close);
         }
     }
 
@@ -141,14 +132,15 @@ class HGBrasilClientTest {
     }
 
     private static void assertAllOperationsInitialized(HGBrasilClient hgClient) {
-        assertAll("Verify operations initialization",
-                () -> assertNotNull(hgClient, "The HGBrasilClient must not be null"),
+        assertNotNull(hgClient);
+        assertAll(
                 () -> assertNotNull(hgClient.getAssetOperations(), "Asset operations must be initialized"),
                 () -> assertNotNull(hgClient.getExchangeOperations(), "Exchange operations must be initialized"),
                 () -> assertNotNull(hgClient.getIbovespaOperations(), "Ibovespa operations must be initialized"),
                 () -> assertNotNull(hgClient.getDividendOperations(), "Dividend operations must be initialized"),
                 () -> assertNotNull(hgClient.getSplitOperations(), "Split operations must be initialized"),
-                () -> assertNotNull(hgClient.getIndicatorOperations(), "Indicator operations must be initialized")
+                () -> assertNotNull(hgClient.getIndicatorOperations(), "Indicator operations must be initialized"),
+                () -> assertNotNull(hgClient.getAssetHistoryOperations(), "Asset-History operations must be initialized")
         );
     }
 }
