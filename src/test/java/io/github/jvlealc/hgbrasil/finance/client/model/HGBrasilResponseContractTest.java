@@ -5,7 +5,7 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-interface AbstractHGBrasilResponseTest {
+interface HGBrasilResponseContractTest {
 
     HGBrasilResponse createResponse(Boolean validKey, Boolean fromCache);
 
