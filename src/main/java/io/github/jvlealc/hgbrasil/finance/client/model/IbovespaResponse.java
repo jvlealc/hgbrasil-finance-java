@@ -12,13 +12,14 @@ import java.util.List;
 public record IbovespaResponse(
         String by,
         @JsonProperty("valid_key")
-        boolean validKey,
+        Boolean validKey,
         List<IbovespaResult> results,
         @JsonProperty("execution_time")
-        double executionTime,
+        Double executionTime,
         @JsonProperty("from_cache")
-        boolean fromCache
-) {
+        Boolean fromCache
+) implements HGBrasilResponse {
+
         /**
          * Ensures that the 'results' list is never null, preventing {@link NullPointerException}.
          *

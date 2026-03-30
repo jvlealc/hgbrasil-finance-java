@@ -10,10 +10,10 @@ import com.fasterxml.jackson.annotation.JsonProperty;
 public record BitcoinResponse(
         String by,
         @JsonProperty("valid_key")
-        boolean validKey,
+        Boolean validKey,
         BitcoinResults results,
         @JsonProperty("execution_time")
-        double executionTime,
+        Double executionTime,
         @JsonProperty("from_cache")
-        boolean fromCache
-) {}
+        Boolean fromCache
+) implements HGBrasilResponse {}
