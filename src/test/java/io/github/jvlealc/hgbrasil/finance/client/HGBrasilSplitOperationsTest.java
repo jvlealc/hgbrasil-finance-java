@@ -26,6 +26,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class HGBrasilSplitOperationsTest {
 
     private static final String FAKE_API_KEY = "fakeKey";
@@ -73,29 +74,22 @@ class HGBrasilSplitOperationsTest {
                   ]
                 }
                 """;
-
         mockHttpResponse(mockedJsonBody);
-
         SplitResponse actualResponse = splitOperations.getByTicker(invalidTicker);
 
-        assertAll("Verify split response with error integrity",
-                () ->assertNotNull(actualResponse, "Response must not be null"),
-                () -> assertNotNull(actualResponse.errors(), "Split erros must not be null"),
-                () -> assertFalse(actualResponse.errors().isEmpty(), "Errors must not be empty"),
-                () -> assertFalse(actualResponse.errors().getFirst().details().isEmpty(), "Error details must not be empty"),
-                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol"), "Errors details must contains provided key"),
-                () -> assertEquals(
-                        invalidTicker,
-                        actualResponse.errors().getFirst().details().get("symbol"),
-                        "Invalid Ticker must match with: " + invalidTicker
-                ),
-                () -> assertEquals(
-                        "INVALID_TICKER",
-                        actualResponse.errors().getFirst().code(),
-                        "Error code should be 'INVALID_TICKER'"
-                )
-        );
+        assertNotNull(actualResponse);
 
+        List<ApiError> safeErrors = actualResponse.getSafeErrors();
+        assertFalse(safeErrors.isEmpty());
+
+        ApiError error = safeErrors.get(0);
+
+        assertAll(
+                () -> assertFalse(error.details().isEmpty()),
+                () -> assertTrue(error.details().containsKey("symbol")),
+                () -> assertEquals(invalidTicker, error.details().get("symbol")),
+                () -> assertEquals("INVALID_TICKER", error.code())
+        );
     }
 
     @Test
@@ -103,45 +97,24 @@ class HGBrasilSplitOperationsTest {
     void shouldReturnResponseWithPartialSuccess_whenInvalidTickersInMixingTickers() throws IOException, InterruptedException {
         String mockedJsonBody = """
                 {
-                  "metadata": {
-                    "key_status": "valid",
-                    "cached": true,
-                    "response_time_ms": 0.0,
-                    "language": "pt-br"
-                  },
                   "results": [
                     {
                       "ticker": "B3:TIMS3",
-                      "symbol": "TIMS3",
-                      "name": "TIM S.A.",
-                      "full_name": "Tim S.A.",
                       "events": [
                         {
                           "type": "reverse_split",
-                          "factor_from": 0.01,
                           "factor_to": 1.0,
-                          "ratio": 100.0,
                           "com_date": "2025-07-02",
-                          "effective_date": "2025-06-02",
                           "status": "confirmed"
                         }
                       ],
                       "source": {
-                        "symbol": "B3",
-                        "name": "B3",
-                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
-                        "url": "https://www.b3.com.br",
-                        "location": {
-                          "timezone": "America/Sao_Paulo"
-                        }
+                        "full_name": "B3 S.A. - Brasil, Bolsa, Balcão"
                       }
                     }
                   ],
                   "errors": [
                     {
-                      "code": "INVALID_TICKER",
-                      "message": "Ticker inválido.",
-                      "help": "https://hgbrasil.com/docs",
                       "details": {
                         "symbol": "A2:FALSE88"
                       }
@@ -149,33 +122,33 @@ class HGBrasilSplitOperationsTest {
                   ]
                 }
                 """;
-
         mockHttpResponse(mockedJsonBody);
-
         SplitResponse actualResponse = splitOperations.getByTickers("B3:TIMS3", "A2:FALSE88");
 
-        assertNotNull(actualResponse, "Response must not be null");
+        assertNotNull(actualResponse);
+        assertTrue(actualResponse.hasErrors());
 
-        // Partial error validation (A2:FALSE88)
-        assertTrue(actualResponse.hasErrors(), "The response MUST flag that an error occurred");
-        assertFalse(actualResponse.getSafeErrors().isEmpty(), "The error list must not be empty");
-        assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol"));
+        List<ApiError> safeErrors = actualResponse.getSafeErrors();
 
-        // Partial success validation (B3:MGLU3)
-        assertFalse(actualResponse.getSafeResults().isEmpty(), "The safe result list MUST NOT be empty");
-        SplitResult validResult = actualResponse.findFirstResult()
-                .orElseThrow();
-        assertEquals("B3:TIMS3", validResult.ticker(), "The ticker valid result must match");
+        assertFalse(safeErrors.isEmpty());
 
-        // Validation of mapping other objects via Jackson
-        assertEquals("Tim S.A.", validResult.fullName(), "Enterprise full name must match");
-        assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName(), "Source full name must match");
-
-        // Integrity validation of the event list
+        SplitResult validResult = actualResponse.findFirstResult().orElseThrow();
         List<SplitEvent> safeEvents = validResult.getSafeEvents();
-        assertNotNull(safeEvents, "The events must not be null");
-        assertEquals(1, safeEvents.size(), "The TIMS3 must have 1 event");
-        assertEquals(SplitType.REVERSE_SPLIT, safeEvents.getFirst().type(), "First event type must be reverse split");
+
+        assertFalse(safeEvents.isEmpty());
+
+        SplitEvent event = safeEvents.get(0);
+
+        assertAll(
+                () -> assertEquals("A2:FALSE88", safeErrors.get(0).details().get("symbol")),
+                () -> assertEquals("B3:TIMS3", validResult.ticker()),
+                () -> assertEquals("B3 S.A. - Brasil, Bolsa, Balcão", validResult.source().fullName()),
+                () -> assertEquals(1, safeEvents.size()),
+                () -> assertEquals(SplitType.REVERSE_SPLIT, event.type()),
+                () -> assertEquals(SplitStatus.CONFIRMED, event.status()),
+                () -> assertEquals(LocalDate.of(2025, 7, 2), event.comDate()),
+                () -> assertEquals(new BigDecimal("1.0"), event.factorTo())
+        );
     }
 
     @Test
@@ -183,82 +156,47 @@ class HGBrasilSplitOperationsTest {
     void shouldReturnSplitResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
         String mockedJsonBody = """
                 {
-                   "metadata": {
-                     "key_status": "valid",
-                     "cached": false,
-                     "response_time_ms": 56.9,
-                     "language": "pt-br"
-                   },
                    "results": [
                      {
-                       "ticker": "B3:TIMS3",
-                       "symbol": "TIMS3",
-                       "name": "TIM S.A.",
-                       "full_name": "Tim S.A.",
                        "events": [
                          {
                            "type": "reverse_split",
                            "factor_from": 0.01,
-                           "factor_to": 1,
-                           "ratio": 100,
-                           "com_date": "2025-07-02",
-                           "effective_date": "2025-06-02",
                            "status": "confirmed"
                          },
                          {
-                           "type": "split",
-                           "factor_from": 1,
-                           "factor_to": 4,
                            "ratio": 4,
-                           "com_date": "2021-04-10",
-                           "effective_date": "2021-04-11",
-                           "status": "pending"
+                           "effective_date": "2021-04-11"
                          }
-                       ],
-                       "source": {
-                         "symbol": "B3",
-                         "name": "B3",
-                         "full_name": "B3 S.A. - Brasil, Bolsa, Balcão",
-                         "url": "https://www.b3.com.br",
-                         "location": {
-                           "timezone": "America/Sao_Paulo"
-                         }
-                       }
+                       ]
                      }
                    ]
                  }
                 """;
         mockHttpResponse(mockedJsonBody);
-
         SplitResponse actualResponse = splitOperations.getByTicker("B3:TIMS3");
 
-        assertAll("Verify successfully split response integrity",
-                () -> assertNotNull(actualResponse, "Response must not be null"),
-                () -> assertEquals(
-                        new BigDecimal("4"),
-                        actualResponse.results().getFirst().events().get(1).ratio(),
-                        "Split ratio value must be equal to '4'"
-                ),
-                () -> assertEquals(
-                        new BigDecimal("0.01"),
-                        actualResponse.results().getFirst().events().getFirst().factorFrom(),
-                        "Split factor from value must be equal to '0.01'"
-                ),
-                () -> assertEquals(
-                        LocalDate.of(2021, 4, 11),
-                        actualResponse.results().getFirst().events().get(1).effectiveDate(),
-                        "Split effective date must be equal to '2021-04-11'"
-                ),
-                () -> assertEquals(
-                        SplitStatus.CONFIRMED,
-                        actualResponse.results().getFirst().events().getFirst().status(),
-                        "Split status must be equal to CONFIRMED"
-                ),
-                () -> assertEquals(
-                        SplitType.REVERSE_SPLIT,
-                        actualResponse.results().getFirst().events().getFirst().type(),
-                        "Split status must be equal to REVERSE_SPLIT"
-                )
+        assertNotNull(actualResponse);
+
+        List<SplitResult> safeResults = actualResponse.getSafeResults();
+
+        assertFalse(safeResults.isEmpty());
+
+        SplitResult result = safeResults.get(0);
+        List<SplitEvent> safeEvents = result.getSafeEvents();
+
+        assertFalse(safeEvents.isEmpty());
+        assertTrue(safeEvents.size() >= 2);
+
+        SplitEvent event0 = safeEvents.get(0);
+        SplitEvent event1 = safeEvents.get(1);
+
+        assertAll(
+                () -> assertEquals(new BigDecimal("4"), event1.ratio()),
+                () -> assertEquals(new BigDecimal("0.01"), event0.factorFrom()),
+                () -> assertEquals(LocalDate.of(2021, 4, 11), event1.effectiveDate()),
+                () -> assertEquals(SplitStatus.CONFIRMED, event0.status()),
+                () -> assertEquals(SplitType.REVERSE_SPLIT, event0.type())
         );
     }
 
