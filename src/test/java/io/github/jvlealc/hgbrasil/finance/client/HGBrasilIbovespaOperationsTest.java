@@ -2,6 +2,7 @@ package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.model.IbovespaIntradayPoint;
 import io.github.jvlealc.hgbrasil.finance.client.model.IbovespaResponse;
+import io.github.jvlealc.hgbrasil.finance.client.model.IbovespaResult;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -20,12 +21,14 @@ import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
 import java.time.LocalDateTime;
+import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class HGBrasilIbovespaOperationsTest {
 
     private static final String FAKE_API_KEY = "fakeKey";
@@ -50,21 +53,11 @@ class HGBrasilIbovespaOperationsTest {
     @Test
     @DisplayName("Should return mapped IbovespaResponse when success")
     void shouldReturnIbovespaResponse_whenApiRespondsSuccessfully() throws IOException, InterruptedException {
-        String expectedResponse = """
+        String mockedJsonBody = """
                 {
-                  "by": "last_business_day",
-                  "valid_key": true,
                   "results": [
                     {
-                      "date": "2026-03-04",
-                      "close": 185366,
                       "high": 186299,
-                      "low": 183110,
-                      "last": 185366,
-                      "volume": 0,
-                      "change_percent": 1.24,
-                      "previous_date": "2026-03-03",
-                      "previous_close": 183105.0,
                       "data": [
                         {
                           "points": 183110.3,
@@ -80,20 +73,12 @@ class HGBrasilIbovespaOperationsTest {
                           "points": 183122.05,
                           "change": 0.01,
                           "date": "20260304100200"
-                        },
-                        {
-                          "points": 183427.59,
-                          "change": 0.18,
-                          "date": "20260304100300"
                         }
                       ]
                     }
-                  ],
-                  "execution_time": 0,
-                  "from_cache": true
+                  ]
                 }
                 """;
-
         IbovespaIntradayPoint expectedPointObj = new IbovespaIntradayPoint(
                 new BigDecimal("183122.05"),
                 new BigDecimal("0.01"),
@@ -101,29 +86,23 @@ class HGBrasilIbovespaOperationsTest {
         );
 
         when(httpResponseMock.statusCode()).thenReturn(200);
-        when(httpResponseMock.body()).thenReturn(expectedResponse);
+        when(httpResponseMock.body()).thenReturn(mockedJsonBody);
         when(httpClientMock.send(any(HttpRequest.class), ArgumentMatchers.<HttpResponse.BodyHandler<String>>any()))
                 .thenReturn(httpResponseMock);
 
         IbovespaResponse actualResponse = ibovespaOperations.getIbovespa();
 
-        assertAll("Verify successfully IBOVESPA response integrity",
-                () -> assertNotNull(actualResponse, "Response must not be null"),
-                () -> assertEquals(
-                        new BigDecimal("186299"),
-                        actualResponse.results().getFirst().high(),
-                        "High value must be equal to 186299"
-                ),
-                () -> assertEquals(
-                        new BigDecimal("183110.02"),
-                        actualResponse.results().getFirst().data().get(1).points(),
-                        "Point value must be equal to 183110.02"
-                ),
-                () -> assertEquals(
-                        expectedPointObj,
-                        actualResponse.results().getFirst().data().get(2),
-                        "IBOVESPA intraday points must match"
-                )
+        assertNotNull(actualResponse);
+        assertFalse(actualResponse.results().isEmpty());
+
+        IbovespaResult result = actualResponse.getSafeResults().get(0);
+        List<IbovespaIntradayPoint> safeData = result.getSafeData();
+
+        assertFalse(safeData.isEmpty());
+        assertAll(
+                () -> assertEquals(new BigDecimal("186299"), result.high()),
+                () -> assertEquals(new BigDecimal("183110.02"), safeData.get(1).points()),
+                () -> assertEquals(expectedPointObj, safeData.get(2))
         );
     }
 }
