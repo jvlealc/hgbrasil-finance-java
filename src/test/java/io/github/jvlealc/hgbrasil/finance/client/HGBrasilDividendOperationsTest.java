@@ -65,18 +65,18 @@ class HGBrasilDividendOperationsTest {
                   ]
                 }
                 """;
-
         mockHttpResponse(mockedJsonBody);
-
         DividendResponse actualResponse = dividendOperations.getByTicker(invalidTicker);
 
         assertNotNull(actualResponse);
+        assertFalse(actualResponse.getSafeErrors().isEmpty());
+
+        ApiError error = actualResponse.getSafeErrors().get(0);
 
         assertAll(
-                () -> assertFalse(actualResponse.errors().isEmpty()),
-                () -> assertTrue(actualResponse.errors().getFirst().details().containsKey("symbol")),
-                () -> assertEquals(invalidTicker, actualResponse.errors().getFirst().details().get("symbol")),
-                () -> assertEquals("INVALID_TICKER", actualResponse.errors().getFirst().code())
+                () -> assertTrue(error.details().containsKey("symbol")),
+                () -> assertEquals(invalidTicker, error.details().get("symbol")),
+                () -> assertEquals("INVALID_TICKER", error.code())
         );
     }
 
@@ -109,9 +109,7 @@ class HGBrasilDividendOperationsTest {
                   ]
                 }
                 """;
-
         mockHttpResponse(mockedJsonBody);
-
         DividendResponse actualResponse = dividendOperations.getByTickers("B3:MGLU3", "A2:FALSE88");
 
         assertNotNull(actualResponse);
@@ -125,7 +123,7 @@ class HGBrasilDividendOperationsTest {
                 // Partial error validation
                 () -> assertTrue(actualResponse.hasErrors()),
                 () -> assertFalse(actualResponse.getSafeErrors().isEmpty()),
-                () -> assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol")),
+                () -> assertEquals("A2:FALSE88", actualResponse.getSafeErrors().get(0).details().get("symbol")),
 
                 // Partial success validation
                 () -> assertFalse(actualResponse.getSafeResults().isEmpty()),
@@ -161,21 +159,19 @@ class HGBrasilDividendOperationsTest {
                   ]
                 }
                 """;
-
         mockHttpResponse(mockedJsonBody);
-
         DividendResponse actualResponse = dividendOperations.getByTicker("B3:PETR4");
 
         assertNotNull(actualResponse);
 
         DividendResult result = actualResponse.findFirstResult().orElseThrow();
-        DividendSeries series = result.findFirstSeries().orElseThrow();
+        DividendSeries firstSerie = result.findFirstSeries().orElseThrow();
 
         assertAll(
                 () -> assertEquals(new BigDecimal("7.77"), result.summary().yield12mPercent()),
-                () -> assertEquals(new BigDecimal("0.175182"), series.amount()),
-                () -> assertEquals(LocalDate.of(2025, 12, 22), series.comDate()),
-                () -> assertEquals(DividendStatus.APPROVED, series.status())
+                () -> assertEquals(new BigDecimal("0.175182"), firstSerie.amount()),
+                () -> assertEquals(LocalDate.of(2025, 12, 22), firstSerie.comDate()),
+                () -> assertEquals(DividendStatus.APPROVED, firstSerie.status())
         );
     }
 
