@@ -7,6 +7,7 @@ import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class IbovespaResultTest {
 
     @Test
@@ -37,7 +38,7 @@ class IbovespaResultTest {
         List<IbovespaIntradayPoint> dataPoints = result.getSafeData();
 
         assertEquals(2, dataPoints.size());
-        assertEquals(firstPoint, dataPoints.getFirst());
+        assertEquals(firstPoint, dataPoints.get(0));
     }
 
     private static IbovespaResult createIbovespaResult(List<IbovespaIntradayPoint> data) {
