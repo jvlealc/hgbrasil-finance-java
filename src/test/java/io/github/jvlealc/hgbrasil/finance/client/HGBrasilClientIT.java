@@ -9,6 +9,7 @@ import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -91,7 +92,7 @@ class HGBrasilClientIT {
             assertAll(
                     () -> assertEquals("BRL", response.results().currencies().source()),
                     () -> assertTrue(response.results().currencies().rates().containsKey("EUR")),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(response.isKeyValid())
             );
 
             LOGGER.debug("Currencies response:\n{}\n", response);
@@ -105,7 +106,7 @@ class HGBrasilClientIT {
             assertNotNull(response);
             assertAll(
                     () -> assertTrue(response.results().bitcoin().containsKey("blockchain_info")),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(response.isKeyValid())
             );
 
             LOGGER.debug("Bitcoin response:\n{}\n", response);
@@ -125,7 +126,7 @@ class HGBrasilClientIT {
             assertAll(
                     () -> assertTrue(response.results().containsKey("PETR4")),
                     () -> assertNotNull(response.results().get("PETR4").price()),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(response.isKeyValid())
             );
 
             LOGGER.debug("Single symbol - Asset response:\n{}\n", response);
@@ -138,14 +139,18 @@ class HGBrasilClientIT {
             AssetResponse response = assetOperations.getBySymbols(symbols);
 
             assertNotNull(response);
+            assertTrue(response.isKeyValid());
+
+            Map<String, AssetResult> safeResults = response.getSafeResults();
+
+            assertFalse(safeResults.isEmpty());
             assertAll(
-                    () -> assertTrue(response.results().containsKey("PETR4")),
-                    () -> assertNotNull(response.results().get("PETR4").price()),
-                    () -> assertTrue(response.results().containsKey("BPAC11")),
-                    () -> assertNotNull(response.results().get("BPAC11").price()),
-                    () -> assertTrue(response.results().containsKey("RBRY11")),
-                    () -> assertNotNull(response.results().get("RBRY11").price()),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(safeResults.containsKey("PETR4")),
+                    () -> assertNotNull(safeResults.get("PETR4").price()),
+                    () -> assertTrue(safeResults.containsKey("BPAC11")),
+                    () -> assertNotNull(safeResults.get("BPAC11").price()),
+                    () -> assertTrue(safeResults.containsKey("RBRY11")),
+                    () -> assertNotNull(safeResults.get("RBRY11").price())
             );
 
             LOGGER.debug("List - Asset response:\n{}\n", response);
@@ -165,7 +170,7 @@ class HGBrasilClientIT {
                     () -> assertNotNull(response.results().get("JURO11").price()),
                     () -> assertFalse(response.results().get("USDBRL").error()),
                     () -> assertNotNull(response.results().get("USDBRL").price()),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(response.isKeyValid())
             );
 
             LOGGER.debug("Array - Asset response:\n{}", response);
@@ -180,7 +185,7 @@ class HGBrasilClientIT {
             assertAll(
                     () -> assertTrue(response.results().get("UNEXISTENTSYMBOL11").error()),
                     () -> assertNotNull(response.results().get("UNEXISTENTSYMBOL11").message()),
-                    () -> assertTrue(response.validKey())
+                    () -> assertTrue(response.isKeyValid())
             );
 
             LOGGER.debug("Invalid symbol - Asset response:\n{}\n", response);
@@ -221,7 +226,7 @@ class HGBrasilClientIT {
             IbovespaIntradayPoint intradayPoint = ibovespaResult.data().get(0);
 
             assertAll(
-                    () -> assertTrue(response.validKey()),
+                    () -> assertTrue(response.isKeyValid()),
                     () -> assertNotNull(intradayPoint.date()),
                     () -> assertEquals(LocalDateTime.class, intradayPoint.date().getClass())
             );
@@ -306,7 +311,7 @@ class HGBrasilClientIT {
         @Test
         @DisplayName("Should successfully fetch dividend historical using 'date' query parameter")
         void shouldFetchHistoricalDividend_withDate() {
-            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", LocalDate.of(2025, 1, 1));
+            DividendResponse response = dividendOperations.getHistorical("B3:PETR4", LocalDate.of(2025, 1, 10));
 
             assertNotNull(response);
 
@@ -419,7 +424,7 @@ class HGBrasilClientIT {
         @Test
         @DisplayName("Should successfully fetch split historical using 'date' query parameter")
         void shouldFetchHistoricalSplit_withDate() {
-            SplitResponse response = splitOperations.getHistorical("B3:TIMS3", LocalDate.of(2025, 1, 1));
+            SplitResponse response = splitOperations.getHistorical("B3:TIMS3", LocalDate.of(2025, 1, 10));
 
             assertNotNull(response);
 
@@ -527,7 +532,7 @@ class HGBrasilClientIT {
         @Test
         @DisplayName("Should successfully fetch indicator historical using 'date' query parameter")
         void shouldFetchHistoricalIndicator_withDate() {
-            IndicatorResponse response = indicatorOperations.getHistorical("BCB:CDI", LocalDate.of(2025, 1, 1));
+            IndicatorResponse response = indicatorOperations.getHistorical("BCB:CDI", LocalDate.of(2025, 1, 10));
 
             assertNotNull(response);
 
@@ -560,6 +565,100 @@ class HGBrasilClientIT {
             );
 
             LOGGER.debug("Historical with days ago - Indicator response:\n{}\n", response);
+        }
+    }
+
+    @Nested
+    class HGBrasilAssetHistoryOperationsIT {
+
+        @Test
+        @DisplayName("Should return AssetHistoryResponse with error when fetching an invalid ticker")
+        void shouldReturnError_whenTickerIsInvalid() {
+            AssetHistoryResponse response = assetHistoryOperations.getHistorical("A3:FALSE88", 0);
+
+            assertNotNull(response);
+            assertFalse(response.getSafeErrors().isEmpty());
+
+            ApiError error = response.getSafeErrors().get(0);
+
+            assertAll(
+                    () -> assertEquals("valid", response.metadata().keyStatus()),
+                    () -> assertTrue(response.hasErrors()),
+                    () -> assertNotNull(error.message()),
+                    () -> assertFalse(error.message().isBlank()),
+                    () -> assertTrue(response.getSafeResults().isEmpty())
+            );
+
+            LOGGER.debug("Invalid ticker - Asset History response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch asset history using 'startDate' and 'endDate' query parameters")
+        void shouldFetchAssetHistory_withDateRange() {
+            LocalDate startDate = LocalDate.of(2025, 1, 1);
+            LocalDate endDate = LocalDate.of(2025, 12, 31);
+
+            AssetHistoryResponse response = assetHistoryOperations.getHistorical("B3:PETR4", startDate, endDate, AssetSampleBy.ONE_MONTH);
+
+            assertNotNull(response);
+
+            AssetHistoryResult historyResult = response.findFirstResult().orElseThrow();
+
+            assertFalse(historyResult.getSafeSamples().isEmpty());
+
+            // Conversion for comparison
+            LocalDate firstSampleDate = historyResult.getSafeSamples().get(0).date().toLocalDate();
+
+            assertAll(
+                    () -> assertEquals("valid", response.metadata().keyStatus()),
+                    () -> assertFalse(response.hasErrors()),
+                    () -> assertTrue(
+                            !firstSampleDate.isBefore(startDate) && !firstSampleDate.isAfter(endDate),
+                            "The asset history sample date must be between the requested date range (inclusive)"
+                    )
+            );
+
+            LOGGER.debug("Historical with date range - Asset History response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch asset history using 'date' query parameter")
+        void shouldFetchAssetHistory_withDate() {
+            AssetHistoryResponse response = assetHistoryOperations.getHistorical("B3:BPAC11", LocalDate.of(2025, 1, 10));
+
+            assertNotNull(response);
+
+            AssetHistoryResult historyResult = response.findFirstResult().orElseThrow();
+
+            boolean has2025Samples = historyResult.getSafeSamples().stream()
+                    .anyMatch(sample -> sample.date() != null && sample.date().getYear() == 2025);
+
+            assertAll(
+                    () -> assertEquals("valid", response.metadata().keyStatus()),
+                    () -> assertFalse(response.hasErrors()),
+                    () -> assertFalse(historyResult.getSafeSamples().isEmpty()),
+                    () -> assertTrue(has2025Samples)
+            );
+
+            LOGGER.debug("Historical with date - Asset History response:\n{}\n", response);
+        }
+
+        @Test
+        @DisplayName("Should successfully fetch asset history using 'days_ago' query parameter")
+        void shouldFetchAssetHistory_withDaysAgo() {
+            AssetHistoryResponse response = assetHistoryOperations.getHistorical("B3:MGLU3", 365, AssetSampleBy.ONE_MONTH);
+
+            assertNotNull(response);
+
+            AssetHistoryResult historyResult = response.findFirstResult().orElseThrow();
+
+            assertAll(
+                    () -> assertEquals("valid", response.metadata().keyStatus()),
+                    () -> assertFalse(response.hasErrors()),
+                    () -> assertFalse(historyResult.getSafeSamples().isEmpty())
+            );
+
+            LOGGER.debug("Historical with days ago - Asset History response:\n{}\n", response);
         }
     }
 }
