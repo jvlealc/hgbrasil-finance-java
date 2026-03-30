@@ -2,120 +2,135 @@ package io.github.jvlealc.hgbrasil.finance.client.model;
 
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import org.mockito.Mockito;
 
 import java.util.Map;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.when;
 
-class AssetResponseTest {
+class AssetResponseTest implements HGBrasilResponseContractTest {
+
+    private static final String PETR4_SYMBOL = "PETR4";
+
+    private final AssetResult defaultAssetResult = createAssetResult(false);
+
+    @Override
+    public HGBrasilResponse createResponse(Boolean validKey, Boolean fromCache) {
+        return new AssetResponse("symbol", validKey, null, 0.0D, fromCache);
+    }
 
     @Test
     @DisplayName("Should return Optional with AssetResult when results Map has items")
     void shouldReturnAssetResult_whenResultsHasItems()  {
-        // Arrange
-        AssetResult assetResultMock = Mockito.mock(AssetResult.class);
-        Map<String, AssetResult> assetResultMap = Map.of("PETR4", assetResultMock);
-        AssetResponse response = new AssetResponse("symbol", true, assetResultMap, 0.0d, false);
+        AssetResponse response = createAssetResponse(true, Map.of(PETR4_SYMBOL, defaultAssetResult), false);
 
-        // Act
         Optional<AssetResult> result = response.findFirstResult();
 
-        // Assert
-        assertTrue(result.isPresent(), "The Optional should not be empty");
-        assertEquals(assetResultMock, result.get(), "The returned asset must match the one in the map");
+        assertTrue(result.isPresent());
+        assertEquals(defaultAssetResult, result.get());
     }
 
     @Test
     @DisplayName("Should return results Map when results contains items")
     void shouldReturnResultsMap_whenResultsHasItems()  {
-        AssetResult assetResultMock = Mockito.mock(AssetResult.class);
-        Map<String, AssetResult> assetResultMap = Map.of("PETR4", assetResultMock);
-        AssetResponse response = new AssetResponse("symbol", true, assetResultMap, 0.0d, false);
+        AssetResponse response = createAssetResponse(true, Map.of(PETR4_SYMBOL, defaultAssetResult), false);
 
         Map<String, AssetResult> safeResults = response.getSafeResults();
 
-        assertTrue(safeResults.containsKey("PETR4"), "Result must contain key PETR4");
-        assertEquals(assetResultMock, safeResults.get("PETR4"), "The returned asset must match the one in the map");
+        assertTrue(safeResults.containsKey(PETR4_SYMBOL));
+        assertEquals(defaultAssetResult, safeResults.get(PETR4_SYMBOL));
     }
 
     @Test
     @DisplayName("Should return empty Map when results is null")
     void shouldReturnEmptyMap_whenResultsIsNull()  {
-        AssetResponse response = new AssetResponse("symbol", true, null, 0.0d, false);
+        AssetResponse response = createAssetResponse(true,null, false);
 
         Map<String, AssetResult> safeResults = response.getSafeResults();
 
-        assertNotNull(safeResults, "Results must not be null");
-        assertTrue(safeResults.isEmpty(), "getSafeResults() should return empty when map is null");
+        assertNotNull(safeResults);
+        assertTrue(safeResults.isEmpty());
     }
 
     @Test
     @DisplayName("Should return empty Map when 'results' is empty")
     void shouldReturnEmptyMap_whenResultsIsEmpty()  {
-        AssetResponse response = new AssetResponse("symbol", true, Map.of(), 0.0d, false);
+        AssetResponse response = createAssetResponse(true, Map.of(), false);
 
         Map<String, AssetResult> safeResults = response.getSafeResults();
 
-        assertTrue(safeResults.isEmpty(), "getSafeResults() should return empty when map is empty");
+        assertTrue(safeResults.isEmpty());
     }
 
     @Test
     @DisplayName("Should return Optional.empty() when results is null")
     void shouldReturnEmptyOptional_whenResultsIsNull()  {
-        AssetResponse response = new AssetResponse("symbol", true, null, 0.0d, false);
+        AssetResponse response = createAssetResponse(true, null, false);
 
         Optional<AssetResult> result = response.findFirstResult();
 
-        assertNotNull(result, "Result must not be null");
-        assertTrue(result.isEmpty(), "Should return empty when map is null");
+        assertNotNull(result);
+        assertTrue(result.isEmpty());
     }
 
     @Test
     @DisplayName("Should return Optional.empty() when results Map is empty")
     void shouldReturnEmptyOptional_whenResultsIsEmpty()  {
-        AssetResponse response = new AssetResponse("symbol", true, Map.of(), 0.0d, false);
+        AssetResponse response = createAssetResponse(true, Map.of(), false);
 
         Optional<AssetResult> result = response.findFirstResult();
 
-        assertTrue(result.isEmpty(), "Should return empty when map is empty");
+        assertTrue(result.isEmpty());
     }
 
     @Test
     @DisplayName("Should return true for hasErrors() when at least one asset in the map has an error")
     void shouldReturnTrue_whenAtLeastOneAssetHasError()  {
-        AssetResult validAssetMock = Mockito.mock(AssetResult.class);
-        when(validAssetMock.error()).thenReturn(false);
+        AssetResult validAssetMock = createAssetResult(false);
+        AssetResult errorAssetMock = createAssetResult(true);
 
-        AssetResult errorAssetMock = Mockito.mock(AssetResult.class);
-        when(errorAssetMock.error()).thenReturn(true);
-
-        Map<String, AssetResult> results = Map.of(
-                "PETR4", validAssetMock,
-                "FALSE88", errorAssetMock
+        AssetResponse response = createAssetResponse(
+                true,
+                Map.of(
+                        "VALID", validAssetMock,
+                        "ERROR", errorAssetMock
+                ),
+                false
         );
-        AssetResponse response = new AssetResponse("symbol", true, results, 0.0d, false);
 
-        assertTrue(response.hasErrors(), "should return true");
+        assertTrue(response.hasErrors());
     }
 
     @Test
     @DisplayName("Should return false for hasErrors() when all assets are valid")
     void shouldReturnFalse_whenAllAssetsAreValid()  {
-        AssetResult validAssetMock1 = Mockito.mock(AssetResult.class);
-        when(validAssetMock1.error()).thenReturn(false);
+        AssetResult validAssetMock1 = createAssetResult(false);
+        AssetResult validAssetMock2 = createAssetResult(false);
 
-        AssetResult validAssetMock2 = Mockito.mock(AssetResult.class);
-        when(validAssetMock2.error()).thenReturn(false);
-
-        Map<String, AssetResult> results = Map.of(
-                "PETR4", validAssetMock1,
-                "VALE3", validAssetMock2
+        AssetResponse response = createAssetResponse(
+                true,
+                Map.of(
+                        PETR4_SYMBOL, validAssetMock1,
+                        "VALE3", validAssetMock2
+                ),
+                false
         );
-        AssetResponse response = new AssetResponse("symbol", true, results, 0.0d, false);
 
-        assertFalse(response.hasErrors(), "Should return false");
+        assertFalse(response.hasErrors());
+    }
+
+    // --- FACTORY METHODS ---
+
+    private static AssetResponse createAssetResponse(Boolean isValidKey, Map<String, AssetResult> results, Boolean isFromCache) {
+        return new AssetResponse("symbol", isValidKey, results, 0.0d, isFromCache);
+    }
+
+    private static AssetResult createAssetResult(boolean hasError) {
+        return new AssetResult(
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, null, null, null, null, null, null,
+                null, hasError, null
+        );
     }
 }
