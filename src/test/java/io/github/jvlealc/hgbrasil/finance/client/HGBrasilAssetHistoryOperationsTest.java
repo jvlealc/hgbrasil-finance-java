@@ -34,6 +34,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
+@SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class HGBrasilAssetHistoryOperationsTest {
 
     private static final String FAKE_API_KEY = "fakeKey";
@@ -61,7 +62,6 @@ class HGBrasilAssetHistoryOperationsTest {
     @Test
     @DisplayName("Should build correct URI query parameters including sample_by")
     void shouldBuildCorrectUri_whenGetHistoricalIncludesSampleBy() throws IOException, InterruptedException {
-        // We mock an empty JSON just to prevent NPE during mapping
         mockHttpResponse("{}");
 
         assetHistoryOperations.getHistorical("B3:PETR4", 5, AssetSampleBy.ONE_DAY);
@@ -103,8 +103,8 @@ class HGBrasilAssetHistoryOperationsTest {
 
         assertAll(
                 () -> assertFalse(actualResponse.errors().isEmpty()),
-                () -> assertEquals("INVALID_TICKER", actualResponse.errors().getFirst().code()),
-                () -> assertEquals(invalidTicker, actualResponse.errors().getFirst().details().get("symbol"))
+                () -> assertEquals("INVALID_TICKER", actualResponse.errors().get(0).code()),
+                () -> assertEquals(invalidTicker, actualResponse.errors().get(0).details().get("symbol"))
         );
     }
 
@@ -160,7 +160,7 @@ class HGBrasilAssetHistoryOperationsTest {
         assertAll(
                 // Partial error validation
                 () -> assertTrue(actualResponse.hasErrors()),
-                () -> assertEquals("A2:FALSE88", actualResponse.getSafeErrors().getFirst().details().get("symbol")),
+                () -> assertEquals("A2:FALSE88", actualResponse.getSafeErrors().get(0).details().get("symbol")),
 
                 // Partial success validation (B3:VALE3)
                 () -> assertEquals("B3:VALE3", validResult.ticker()),
@@ -169,7 +169,7 @@ class HGBrasilAssetHistoryOperationsTest {
 
                 // Samples integrity and Jackson mapping
                 () -> assertEquals(2, samples.size()),
-                () -> assertEquals(OffsetDateTime.of(2026, 3, 2, 0, 0, 0, 0, ZoneOffset.of("Z")), samples.getFirst().date()),
+                () -> assertEquals(OffsetDateTime.of(2026, 3, 2, 0, 0, 0, 0, ZoneOffset.of("Z")), samples.get(0).date()),
                 () -> assertEquals(new BigDecimal("82.55"), samples.get(1).low())
         );
     }
