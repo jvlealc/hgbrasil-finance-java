@@ -1,6 +1,6 @@
-# HG Brasil Finance Client - SDK Java (em desenvolvimento...)
+# HG Brasil Finance Client - SDK Java
 
-![Java 21](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Java 17+](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/jvlealc/hgbrasil-finance-java/maven-ci.yml?branch=main&style=for-the-badge)
 
@@ -10,15 +10,14 @@ HG Brasil Finance Client é um SDK Java de código aberto desenvolvido para simp
 
 O projeto oferece uma interface tipada e segura para o consumo de dados do mercado financeiro, eliminando a necessidade de implementações manuais de chamadas HTTP, mapeamento extensivo de JSON, e tratamento de erros boilerplate.
 
-## Tecnologias e Requisitos
+## Tecnologias
 
-O SDK foi construído com foco em performance e modernidade, utilizando as seguintes tecnologias:
+O SDK foi construído com forte foco em performance e modernidade, utilizando as seguintes tecnologias:
 
-* **Java 21:** Utilização de recursos da versão LTS mais recente, aproveitando Virtual Threads para maximizar desempenho de chamadas a baixo custo computacional
-* **HTTP Client Nativo:** Uso do `java.net.http.HttpClient` para requisições
-* **Jackson 3 (Core e JSR310):** Motor de desempenho para processamento e bind de JSON
-* **SLF4J 2:** Abstração para logs da biblioteca
-* **Testes e Qualidade:** Cobertura de testes unitários e de integração utilizando **JUnit 5** e **Mockito** 
+* **HTTP Client (Nativo):** Uso do `java.net.http.HttpClient` para requisições de rede.
+* **Jackson 3 (Core e JSR310):** Motor de alto desempenho para processamento e data binding de JSON.
+* **SLF4J 2:** Camada de abstração de logs para a biblioteca.
+* **JUnit 5 & Mockito:** Cobertura abrangente de testes unitários e de integração.
 
 ## Features
 
@@ -31,7 +30,14 @@ O client entrega dados estruturados através de *Records* dos seguintes recursos
 * **Indicadores Econômicos:** Taxas de juros (SELIC, CDI, TR) e indicadores de inflação (IPCA, IGP, INCC) com séries históricas.
 * **Série Histórica:** Dados históricos e intradiários de ativos da B3, índices, moedas e criptomoedas.
 
-### Arquitetura
+## Arquitetura
+
+### Concorrência via Reflection (Java 17 e 21+)
+
+Um dos principais pontos fortes deste SDK é o seu **Motor de Execução Adaptativo**. O projeto é compilado tendo como alvo o **Java 17** para garantir ampla compatibilidade corporativa. No entanto, em tempo de execução, o SDK usa **Java Reflection** para detectar dinamicamente as capacidades da sua JVM:
+
+* **Java 21+ (Virtual Threads):** Se o SDK detectar uma JVM moderna e nenhum `HttpClient` ou `Executor` customizado for fornecido, ele instanciará automaticamente um `VirtualThreadPerTaskExecutor`. Isso permite concorrência massiva e I/O não-bloqueante "out-of-the-box", ideal para consultas de dados financeiros em alta frequência.
+* **Java 17 (Platform Threads):** Se rodar em uma JVM mais antiga, ele fará o fallback graciosamente para o executor padrão do `HttpClient` nativo, garantindo total estabilidade.
 
 A classe central que gerencia o ciclo de vida e fornece acesso às operações da API é o `HGBrasilClient.java`.
 Ele foi projetado utilizando o padrão Builder para garantir uma configuração e inicialização fluente e segura.
@@ -77,10 +83,10 @@ public class Main {
 
          AssetOperations assetOperations = client.getAssetOperations();
 
-         // Consulta padrão navegando no Map 'results'
+        // Consulta utilizando o método utilitário findFirstResult()
          AssetResult petr4 = assetOperations.getBySymbol("PETR4")
-                 .results()
-                 .get("PETR4");
+                 .findFirstResult()
+                 .orElseThrow();
 
          System.out.println("Asset: " + petr4.name());
          System.out.println("Price: R$ " + petr4.price());
@@ -89,6 +95,18 @@ public class Main {
    }
 }
 ```
+
+## Operações Disponíveis
+
+| Operação                      | Descrição                                                                            |
+|:------------------------------|:-------------------------------------------------------------------------------------|
+| `getAssetOperations()`        | Cotações em tempo real para Ações, FIIs, BDRs, Cripto e Índices.                     |
+| `getAssetHistoryOperations()` | Dados de séries históricas OHLCV para ativos da B3.                                  |
+| `getExchangeOperations()`     | Moedas fiduciárias globais (USD, EUR, etc.) em relação ao BRL e cotações de Bitcoin. |
+| `getDividendOperations()`     | Histórico abrangente de dividendos, JCP (Juros sobre Capital Próprio) e proventos.   |
+| `getSplitOperations()`        | Histórico de eventos corporativos (Desdobramentos e Grupamentos).                    |
+| `getIndicatorOperations()`    | Indicadores econômicos brasileiros (SELIC, CDI, IPCA, IGP-M, TR).                    |
+| `getIbovespaOperations()`     | Pontos intradiários e dados históricos do índice de mercado Ibovespa.                |
 
 ---
 
@@ -119,6 +137,6 @@ Consulte o arquivo `LICENSE` no repositório para obter mais detalhes.
 
 Desenvolvido por João Leal
 
-`- E-mail: [jv.leal.dev@gmail.com](mailto:jv.leal.dev@gmail.com)
+- E-mail: [jv.leal.dev@gmail.com](mailto:jv.leal.dev@gmail.com)
 - LinkedIn: [linkedin.com/in/joaovlc](https://linkedin.com/in/joaovlc)
 - GitHub: [github.com/jvlealc](https://github.com/jvlealc)`

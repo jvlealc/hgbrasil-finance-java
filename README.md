@@ -1,6 +1,6 @@
-# HG Brasil Finance Client - Java SDK (WIP)
+# HG Brasil Finance Client - Java SDK
 
-![Java 21](https://img.shields.io/badge/Java_21-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+![Java 17+](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/jvlealc/hgbrasil-finance-java/maven-ci.yml?branch=main&style=for-the-badge)
 
@@ -10,15 +10,14 @@ The HG Brasil Finance Client is an open-source Java SDK developed to simplify in
 
 The project provides a strongly typed and safe interface for consuming financial market data, eliminating the need for manual HTTP calls, extensive JSON mapping, and boilerplate error handling.
 
-## Technologies and Requirements
+## Technologies
 
 The SDK was built with a strong focus on performance and modernity, utilizing the following technologies:
 
-* **Java 21:** Takes advantage of the latest LTS version features, leveraging Virtual Threads to maximize the performance of concurrent calls at a low computational cost.
-* **Native HTTP Client:** Uses `java.net.http.HttpClient` for network requests.
+* **HTTP Client (Native):** Uses `java.net.http.HttpClient` for network requests.
 * **Jackson 3 (Core and JSR310):** High-performance engine for JSON processing and data binding.
 * **SLF4J 2:** Logging abstraction layer for the library.
-* **Testing and Quality:** Comprehensive unit and integration test coverage using **JUnit 5** and **Mockito**.
+* **JUnit 5 & Mockito:** Comprehensive unit and integration test coverage.
 
 ## Features
 
@@ -31,7 +30,14 @@ The client delivers structured data through modern, immutable **Records** for th
 * **Brazilian Economic Indicators:** Key interest rates (SELIC, CDI, TR) and inflation indicators (IPCA, IGP, INCC) including historical series.
 * **Historical Series:** Comprehensive historical and intraday data for B3 assets, indices, currencies, and cryptocurrencies.
 
-### Architecture
+## Architecture
+
+### Concurrency via Reflection (Java 17 & 21+)
+
+One of the core strengths of this SDK is its **Adaptive Execution Engine**. The project is compiled targeting **Java 17** to ensure broad enterprise compatibility. However, at runtime, the SDK uses **Java Reflection** to dynamically detect the capabilities of your JVM:
+
+* **Java 21+ (Virtual Threads):** If the SDK detects a modern JVM and no custom `HttpClient` or `Executor` is provided, it automatically instantiates a `VirtualThreadPerTaskExecutor`. This allows for massive concurrency and non-blocking I/O out-of-the-box, ideal for high-frequency financial data polling.
+* **Java 17 (Platform Threads):** If running on an older JVM, it gracefully falls back to the native `HttpClient` default executor, ensuring full stability.
 
 The core class that manages the lifecycle and provides access to the API operations is `HGBrasilClient.java`.
 It was designed using the Builder pattern to ensure a fluent and thread-safe configuration and initialization.
@@ -77,10 +83,10 @@ public class Main {
 
          AssetOperations assetOperations = client.getAssetOperations();
 
-         // Standard query navigating through the 'results' Map 
+         // Query using utility method findFirstResult()
          AssetResult petr4 = assetOperations.getBySymbol("PETR4")
-                 .results()
-                 .get("PETR4");
+                 .findFirstResult()
+                 .orElseThrow();
 
          System.out.println("Asset: " + petr4.name());
          System.out.println("Price: R$ " + petr4.price());
@@ -89,6 +95,18 @@ public class Main {
    }
 }
 ```
+
+## Available Operations
+
+| Operation                     | Description                                                             |
+|:------------------------------|:------------------------------------------------------------------------|
+| `getAssetOperations()`        | Real-time quotes for Stocks, FIIs, BDRs, Crypto, and Indices.           |
+| `getAssetHistoryOperations()` | OHLCV historical time-series data for B3 assets.                        |
+| `getExchangeOperations()`     | Global fiat currencies (USD, EUR, etc.) against BRL and Bitcoin quotes. |
+| `getDividendOperations()`     | Comprehensive dividend, JCP (Interest on Equity), and earnings history. |
+| `getSplitOperations()`        | Corporate actions history (Splits and Reverse Splits).                  |
+| `getIndicatorOperations()`    | Brazilian economic indicators (SELIC, CDI, IPCA, IGP-M, TR).            |
+| `getIbovespaOperations()`     | Intraday points and historical data for the Ibovespa market index.      |
 
 ## Contributing
 
