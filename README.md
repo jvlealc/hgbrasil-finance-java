@@ -6,18 +6,40 @@
 
 :us: English
 
-The HG Brasil Finance Client is an open-source Java SDK developed to simplify integration with the HG Brasil Finance API.
+The HG Brasil Finance Client is an open-source Java SDK designed to simplify integration with the HG Brasil Finance API.
 
-The project provides a strongly typed and safe interface for consuming financial market data, eliminating the need for manual HTTP calls, extensive JSON mapping, and boilerplate error handling.
+The project provides a type-safe interface for consuming financial market data, eliminating the need for manual HTTP calls, extensive JSON mapping, and boilerplate error handling.
 
 ## Technologies
 
-The SDK was built with a strong focus on performance and modernity, utilizing the following technologies:
+The SDK was designed with a strong focus on performance and modern Java practices.
 
 * **HTTP Client (Native):** Uses `java.net.http.HttpClient` for network requests.
 * **Jackson 3 (Core and JSR310):** High-performance engine for JSON processing and data binding.
 * **SLF4J 2:** Logging abstraction layer for the library.
 * **JUnit 5 & Mockito:** Comprehensive unit and integration test coverage.
+
+## Architecture
+
+### Concurrency via Reflection (Java 17 & 21+)
+
+One of the core strengths of this SDK is its **Adaptive Execution Engine**. The project is compiled targeting **Java 17** to ensure broad enterprise compatibility. However, at runtime, the SDK uses **Java Reflection** to dynamically detect the capabilities of your JVM:
+
+* **Java 21+ (Virtual Threads):** If the SDK detects a modern JVM and no custom `HttpClient` or `Executor` is provided, it automatically instantiates a `VirtualThreadPerTaskExecutor`. This allows for massive concurrency and non-blocking I/O out-of-the-box, ideal for high-frequency financial data polling.
+* **Java 17 (Platform Threads):** If running on an older JVM, it gracefully falls back to the native `HttpClient` default executor, ensuring full stability.
+
+### Main Client (HGBrasilClient)
+
+The core class that manages the lifecycle and provides access to the API operations is `HGBrasilClient.java`.
+It was designed using the Builder pattern to ensure a fluent and thread-safe configuration and initialization.
+
+To get started, the only required parameter is your `apiKey`. However, keeping in mind the architectural flexibility of different applications and aiming for an excellent *Developer Experience* (DX),
+the `Builder` allows you to inject custom components, enabling you to use your own instances of `HttpClient`, `ObjectMapper`, and `ExecutorService` to seamlessly integrate the SDK into your ecosystem.
+
+**Warning:** The SDK automatically manages date conversions and the safe mapping of predefined values (`Enums`) from the API's JSON to the model *Records*.
+If you choose to inject a custom `ObjectMapper`, it is **highly recommended** to register the `JavaTimeModule` and enable the `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE` feature in your *mapper*. This ensures that deserialization occurs without failures.
+
+---
 
 ## Features
 
@@ -29,24 +51,6 @@ The client delivers structured data through modern, immutable **Records** for th
 * **Currencies and Crypto:** Exchange rates for fiat currencies in Brazilian Real (BRL) and cryptocurrency quotes in US Dollars (USD).
 * **Brazilian Economic Indicators:** Key interest rates (SELIC, CDI, TR) and inflation indicators (IPCA, IGP, INCC) including historical series.
 * **Historical Series:** Comprehensive historical and intraday data for B3 assets, indices, currencies, and cryptocurrencies.
-
-## Architecture
-
-### Concurrency via Reflection (Java 17 & 21+)
-
-One of the core strengths of this SDK is its **Adaptive Execution Engine**. The project is compiled targeting **Java 17** to ensure broad enterprise compatibility. However, at runtime, the SDK uses **Java Reflection** to dynamically detect the capabilities of your JVM:
-
-* **Java 21+ (Virtual Threads):** If the SDK detects a modern JVM and no custom `HttpClient` or `Executor` is provided, it automatically instantiates a `VirtualThreadPerTaskExecutor`. This allows for massive concurrency and non-blocking I/O out-of-the-box, ideal for high-frequency financial data polling.
-* **Java 17 (Platform Threads):** If running on an older JVM, it gracefully falls back to the native `HttpClient` default executor, ensuring full stability.
-
-The core class that manages the lifecycle and provides access to the API operations is `HGBrasilClient.java`.
-It was designed using the Builder pattern to ensure a fluent and thread-safe configuration and initialization.
-
-To get started, the only required parameter is your `apiKey`. However, keeping in mind the architectural flexibility of different applications and aiming for an excellent *Developer Experience* (DX),
-the `Builder` allows the injection of custom components to adapt the SDK to your ecosystem. You can provide your own instances of `HttpClient`, `ObjectMapper`, and `ExecutorService`.
-
-**Warning:** The SDK automatically manages date conversions and the safe mapping of predefined values (`Enums`) from the API's JSON to the model *Records*.
-If you choose to inject a custom `ObjectMapper`, it is **highly recommended** to register the `JavaTimeModule` and enable the `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE` feature in your *mapper*. This ensures that deserialization occurs without failures.
 
 ---
 
