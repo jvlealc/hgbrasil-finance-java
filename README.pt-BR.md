@@ -3,41 +3,13 @@
 ![Java 17+](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
 ![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
 ![Build Status](https://img.shields.io/github/actions/workflow/status/jvlealc/hgbrasil-finance-java/maven-ci.yml?branch=main&style=for-the-badge)
+![Maven Central](https://img.shields.io/maven-central/v/io.github.jvlealc/hgbrasil-finance-client?style=for-the-badge)
 
 :brazil: Português
 
 HG Brasil Finance Client é um SDK Java de código aberto desenvolvido para simplificar a integração com a API HG Brasil Finance.
 
 O projeto oferece uma interface tipada e segura para o consumo de dados do mercado financeiro, eliminando a necessidade de implementações manuais de chamadas HTTP, mapeamento extensivo de JSON e tratamento de erros boilerplate.
-
-## Tecnologias
-
-O SDK foi projetado com forte foco em performance e práticas modernas de Java.
-
-* **HTTP Client (Nativo):** Uso do `java.net.http.HttpClient` para requisições de rede.
-* **Jackson 3 (Core e JSR310):** Motor de alto desempenho para processamento e data binding de JSON.
-* **SLF4J 2:** Camada de abstração de logs para a biblioteca.
-* **JUnit 5 & Mockito:** Cobertura abrangente de testes unitários e de integração.
-
-## Arquitetura
-
-### Concorrência via Reflection (Java 17 e 21+)
-
-Um dos principais pontos fortes deste SDK é o seu **Motor de Execução Adaptativo**. O projeto é compilado tendo como alvo o **Java 17** para garantir ampla compatibilidade corporativa. No entanto, em tempo de execução, o SDK usa **Java Reflection** para detectar dinamicamente as capacidades da sua JVM:
-
-* **Java 21+ (Virtual Threads):** Se o SDK detectar uma JVM moderna e nenhum `HttpClient` ou `Executor` customizado for fornecido, ele instanciará automaticamente um `VirtualThreadPerTaskExecutor`. Isso permite concorrência massiva e I/O não-bloqueante "out-of-the-box", ideal para consultas de dados financeiros em alta frequência.
-* **Java 17 (Platform Threads):** Se rodar em uma JVM mais antiga, ele fará o fallback graciosamente para o executor padrão do `HttpClient` nativo, garantindo total estabilidade.
-
-### Cliente Principal (HGBrasilClient)
-A classe central que gerencia o ciclo de vida e fornece acesso às operações da API é o `HGBrasilClient.java`.
-Ele foi projetado utilizando o padrão Builder para garantir uma configuração e inicialização fluente e segura.
-
-Para começar, o único parâmetro obrigatório é a `apiKey`. No entanto, pensando na flexibilidade arquitetural de cada aplicação e em uma excelente *Developer Experience* (DX),
-o `Builder` permite a injeção de componentes customizados, possibilitando que você utilize suas próprias instâncias de `HttpClient`, `ObjectMapper` e `ExecutorService` para melhor integração com o seu ecossistema.
-
-**Atenção:** O SDK gerencia automaticamente as conversões de datas e o mapeamento seguro de valores predefinidos (`Enums`) do JSON da API para os *Records* modelo.
-Caso opte por injetar um `ObjectMapper` customizado, é **estritamente aconselhável** registrar o módulo `JavaTimeModule` e habilitar a feature `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
-no seu *mapper*. Isso garante que a desserialização ocorra sem falhas.
 
 ---
 
@@ -99,6 +71,8 @@ public class Main {
 }
 ```
 
+**Veja mais exemplos práticos na [Galeria de Exemplos](./examples/README.md).**
+
 ## Operações Disponíveis
 
 | Operação                      | Descrição                                                                            |
@@ -110,6 +84,68 @@ public class Main {
 | `getSplitOperations()`        | Histórico de eventos corporativos (Desdobramentos e Grupamentos).                    |
 | `getIndicatorOperations()`    | Indicadores econômicos brasileiros (SELIC, CDI, IPCA, IGP-M, TR).                    |
 | `getIbovespaOperations()`     | Pontos intradiários e dados históricos do índice de mercado Ibovespa.                |
+
+---
+
+## Tecnologias
+
+O SDK foi projetado com forte foco em performance e práticas modernas de Java.
+
+* **HTTP Client (Nativo):** Uso do `java.net.http.HttpClient` para requisições de rede.
+* **Jackson 3 (Core e JSR310):** Motor de alto desempenho para processamento e data binding de JSON.
+* **JUnit 5 & Mockito:** Cobertura abrangente de testes unitários e de integração.
+
+## Arquitetura
+
+### Concorrência via Reflection (Java 17 e 21+)
+
+Um dos principais pontos fortes deste SDK é o seu **Motor de Execução Adaptativo**. O projeto é compilado tendo como alvo o **Java 17** para garantir ampla compatibilidade corporativa. No entanto, em tempo de execução, o SDK usa **Java Reflection** para detectar dinamicamente as capacidades da sua JVM:
+
+* **Java 21+ (Virtual Threads):** Se o SDK detectar uma JVM moderna e nenhum `HttpClient` ou `Executor` customizado for fornecido, ele instanciará automaticamente um `VirtualThreadPerTaskExecutor`. Isso permite concorrência massiva e I/O não-bloqueante "out-of-the-box", ideal para consultas de dados financeiros em alta frequência.
+* **Java 17 (Platform Threads):** Se rodar em uma JVM mais antiga, ele fará o fallback graciosamente para o executor padrão do `HttpClient` nativo, garantindo total estabilidade.
+
+### Cliente Principal (HGBrasilClient)
+A classe central que gerencia o ciclo de vida e fornece acesso às operações da API é o `HGBrasilClient.java`.
+Ele foi projetado utilizando o padrão Builder para garantir uma configuração e inicialização fluente e segura.
+
+Para começar, o único parâmetro obrigatório é a `apiKey`. No entanto, pensando na flexibilidade arquitetural de cada aplicação e em uma excelente *Developer Experience* (DX),
+o `Builder` permite a injeção de componentes customizados, possibilitando que você utilize suas próprias instâncias de `HttpClient`, `ObjectMapper` e `ExecutorService` para melhor integração com o seu ecossistema.
+
+**Atenção:** O SDK gerencia automaticamente as conversões de datas e o mapeamento seguro de valores predefinidos (`Enums`) do JSON da API para os *Records* modelo.
+Caso opte por injetar um `ObjectMapper` customizado, é **estritamente aconselhável** registrar o módulo `JavaTimeModule` e habilitar a feature `READ_UNKNOWN_ENUM_VALUES_USING_DEFAULT_VALUE`
+no seu *mapper*. Isso garante que a desserialização ocorra sem falhas.
+
+### Arquitetura (Visão Geral do Fluxo)
+
+> O client atua como uma Facade de configuração e acesso às classes que realizam as operações, enquanto as Operations encapsulam a construção das requisições e o processamento das respostas via um executor HTTP compartilhado.
+
+```mermaid
+flowchart TD
+   classDef app fill:#2d3436,stroke:#636e72,stroke-width:2px,color:#fff
+   classDef client fill:#0984e3,stroke:#000,stroke-width:0px,color:#fff
+   classDef api fill:#0b1f3a,stroke:#071633,stroke-width:2px,color:#fff
+
+   App([Sua Aplicação Java/Spring]):::app -->|1. Instancia via Builder| Client
+
+   Client[HGBrasilClient]:::client
+
+   Client -->|2. Fornece Operations| Ops[Operações de Domínio <br/><small>Asset, Dividend, History, Exchange, etc.</small>]:::domain
+   Client -.->|3. Configura| ExecutionEngine
+
+   subgraph ExecutionEngine [Execution Engine]
+      direction LR
+      Reflect{"Detecta JVM<br/>via reflection<br/>(17 ou 21+)"}:::engine --> Threads[Virtual ou<br/>Platform Threads]:::engine
+      Threads --> Http[HttpClient]:::engine
+      Http <--> Json[Jackson 3]:::engine
+   end
+
+   Ops -->|4. Monta requisição HTTP| Http
+   Http -->|5. Executa requisição GET| API{{HG Brasil Finance API}}:::api
+   API -->|6. Retorna JSON| Http
+   Http -->|7. Desserializa| Json
+   Json -->|8. Mapeia para Records| Ops
+   Ops -->|9. Retorna Response| App
+```
 
 ---
 
