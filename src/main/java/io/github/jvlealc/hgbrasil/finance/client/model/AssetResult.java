@@ -43,7 +43,8 @@ public record AssetResult(
         @JsonProperty("updated_at")
         @JsonFormat(pattern = "yyyy-MM-dd HH:mm:ss")
         LocalDateTime updatedAt,
-        // campos de erro
+
+        // error fields
         Boolean error,
         String message
 ) {
@@ -54,5 +55,14 @@ public record AssetResult(
                 if (error == null) {
                         error = false;
                 }
+        }
+
+        /**
+         * Ensures that the 'related' String list is never null, preventing {@link NullPointerException}.
+         *
+         * @return a list containing the assets related or an empty list if 'related' is null.
+         */
+        public List<String> getSafeRelated() {
+                return (related != null) ? related : List.of();
         }
 }

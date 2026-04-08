@@ -10,4 +10,13 @@ import java.util.Map;
 @JsonIgnoreProperties(ignoreUnknown = true)
 public record BitcoinResults(
         Map<String, BitcoinExchange> bitcoin
-) {}
+) {
+    /**
+     * Ensures that the 'bitcoin' Map is never null, preventing {@link NullPointerException}.
+     *
+     * @return a Map containing bitcoin results or an empty Map if 'bicoint' is null.
+     */
+    public Map<String, BitcoinExchange> getSafeBitcoin() {
+        return bitcoin != null ? bitcoin : Map.of();
+    }
+}

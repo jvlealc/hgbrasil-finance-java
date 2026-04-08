@@ -16,4 +16,13 @@ public record BitcoinExchange(
         BigDecimal buy,
         BigDecimal sell,
         BigDecimal variation
-) {}
+) {
+    /**
+     * Ensures that the 'format' Map is never null, preventing {@link NullPointerException}.
+     *
+     * @return a List containing base currency of the prices or an empty List if 'format' is null.
+     */
+    public List<String> getSafeFormat() {
+        return format != null ? format : List.of();
+    }
+}
