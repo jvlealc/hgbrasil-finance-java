@@ -6,14 +6,14 @@
 
     <groupId>io.github.jvlealc</groupId>
     <artifactId>hgbrasil-finance-client</artifactId>
-    <version>0.1.0-SNAPSHOT</version>
-    <name>hgbrasil-finance-java</name>
-    <url>https://github.com/jvlealc/hgbrasil-finance-java</url>
+    <version>1.0.0</version>
+    <packaging>jar</packaging>
 
+    <name>HG Brasil Finance Client</name>
     <description>
-        SDK Java open-source para integração com a API do Mercado Financeiro da HGBrasil.
-        Link para documentação do site: https://hgbrasil.com/docs/finance
+        Open-source Java SDK for integration with the HG Brasil Financial Market API.
     </description>
+    <url>https://github.com/jvlealc/hgbrasil-finance-java</url>
 
     <licenses>
         <license>
@@ -26,7 +26,7 @@
     <developers>
         <developer>
             <id>jvlealc</id>
-            <name>João Vitor Leal de Castro</name>
+            <name>João Leal</name>
             <email>jv.leal.dev@gmail.com</email>
             <url>https://linkedin.com/in/joaovlc</url>
             <roles>
@@ -43,7 +43,7 @@
     </scm>
 
     <properties>
-        <java.version>21</java.version>
+        <java.version>17</java.version>
         <maven.compiler.source>${java.version}</maven.compiler.source>
         <maven.compiler.target>${java.version}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
@@ -54,12 +54,10 @@
         <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
-        <jackson.core.version>3.1.0</jackson.core.version>
-        <jackson.datatype.version>3.0.0-rc2</jackson.datatype.version>
+        <jackson.core.version>3.1.1</jackson.core.version>
+        <jackson.jsr310.version>3.0.0-rc2</jackson.jsr310.version>
         <junit.version>5.14.3</junit.version>
         <mockito.version>5.21.0</mockito.version>
-        <sl4j.version>2.0.17</sl4j.version>
-        <logback.version>1.5.32</logback.version>
     </properties>
 
     <dependencies>
@@ -72,11 +70,11 @@
         <dependency>
             <groupId>tools.jackson.datatype</groupId>
             <artifactId>jackson-datatype-jsr310</artifactId>
-            <version>${jackson.datatype.version}</version>
+            <version>${jackson.jsr310.version}</version>
             <scope>compile</scope>
         </dependency>
 
-        <!-- Dependências de teste -->
+        <!-- Test dependencies -->
         <dependency>
             <groupId>org.junit.jupiter</groupId>
             <artifactId>junit-jupiter-api</artifactId>
