@@ -7,8 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import tools.jackson.databind.DeserializationFeature;
 import tools.jackson.databind.ObjectMapper;
 import tools.jackson.databind.json.JsonMapper;
@@ -26,8 +24,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class AbstractHttpExecutorTest {
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(AbstractHttpExecutorTest.class);
 
     private static final ObjectMapper OBJECT_MAPPER = JsonMapper.builder()
             .addModule(new JavaTimeModule())
@@ -265,8 +261,6 @@ class AbstractHttpExecutorTest {
                 () -> assertFalse(exceptionMessage.contains("SECRET_KEY_111"), "!!!SECURITY BREACH: Exception message MUST NOT contain API key"),
                 () -> assertFalse(exceptionMessage.contains("key="), "!!!SECURITY BREACH: Exception message MUST NOT contain key query parameters")
         );
-
-        LOGGER.debug(exceptionMessage);
     }
 
     private void mockSuccessfulHttpResponseWithBody(String mockedJsonBody) throws IOException, InterruptedException {

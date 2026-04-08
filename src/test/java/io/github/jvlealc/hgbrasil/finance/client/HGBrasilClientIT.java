@@ -2,8 +2,6 @@ package io.github.jvlealc.hgbrasil.finance.client;
 
 import io.github.jvlealc.hgbrasil.finance.client.model.*;
 import org.junit.jupiter.api.*;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
 import java.time.Duration;
 import java.time.LocalDate;
@@ -17,8 +15,6 @@ import static org.junit.jupiter.api.Assertions.*;
 @TestInstance(TestInstance.Lifecycle.PER_CLASS)
 @SuppressWarnings("SequencedCollectionMethodCanBeUsed")
 class HGBrasilClientIT {
-
-    private static final Logger LOGGER =  LoggerFactory.getLogger(HGBrasilClientIT.class);
 
     private static final String HGBRASIL_API_KEY = System.getenv("HGBRASIL_API_KEY");
     private static final String INVALID_API_KEY = "invalid-api-key";
@@ -58,7 +54,6 @@ class HGBrasilClientIT {
     void cleanup() {
         if (client != null) {
             client.close();
-            LOGGER.info("Client was closed.");
         }
     }
 
@@ -75,8 +70,6 @@ class HGBrasilClientIT {
                     () -> clientWithInvalidKey.getAssetOperations().getBySymbol("PETR4")
             );
             assertNotNull(exception.getMessage());
-
-            LOGGER.debug("Request with invalid API key:\n{}\n", exception.getMessage(), exception);
         }
     }
 
@@ -94,8 +87,6 @@ class HGBrasilClientIT {
                     () -> assertTrue(response.results().currencies().rates().containsKey("EUR")),
                     () -> assertTrue(response.isKeyValid())
             );
-
-            LOGGER.debug("Currencies response:\n{}\n", response);
         }
 
         @Test
@@ -108,8 +99,6 @@ class HGBrasilClientIT {
                     () -> assertTrue(response.results().bitcoin().containsKey("blockchain_info")),
                     () -> assertTrue(response.isKeyValid())
             );
-
-            LOGGER.debug("Bitcoin response:\n{}\n", response);
         }
     }
 
@@ -128,8 +117,6 @@ class HGBrasilClientIT {
                     () -> assertNotNull(response.results().get("PETR4").price()),
                     () -> assertTrue(response.isKeyValid())
             );
-
-            LOGGER.debug("Single symbol - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -152,8 +139,6 @@ class HGBrasilClientIT {
                     () -> assertTrue(safeResults.containsKey("RBRY11")),
                     () -> assertNotNull(safeResults.get("RBRY11").price())
             );
-
-            LOGGER.debug("List - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -172,8 +157,6 @@ class HGBrasilClientIT {
                     () -> assertNotNull(response.results().get("USDBRL").price()),
                     () -> assertTrue(response.isKeyValid())
             );
-
-            LOGGER.debug("Array - Asset response:\n{}", response);
         }
 
         @Test
@@ -187,8 +170,6 @@ class HGBrasilClientIT {
                     () -> assertNotNull(response.results().get("UNEXISTENTSYMBOL11").message()),
                     () -> assertTrue(response.isKeyValid())
             );
-
-            LOGGER.debug("Invalid symbol - Asset response:\n{}\n", response);
         }
 
         @Test
@@ -230,8 +211,6 @@ class HGBrasilClientIT {
                     () -> assertNotNull(intradayPoint.date()),
                     () -> assertEquals(LocalDateTime.class, intradayPoint.date().getClass())
             );
-
-            LOGGER.debug("Ibovespa response:\n{}\n", response);
         }
     }
 
@@ -254,8 +233,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(dividendResult.getSafeSeries().isEmpty()),
                     () -> assertNotNull(series.comDate())
             );
-
-            LOGGER.debug("Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -276,8 +253,6 @@ class HGBrasilClientIT {
                     () -> assertTrue(response.getSafeResults().isEmpty()),
                     () -> assertTrue(response.findFirstResult().isEmpty())
             );
-
-            LOGGER.debug("Invalid ticker - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -304,8 +279,6 @@ class HGBrasilClientIT {
                             "The dividend com_date must be between the requested date range (inclusive)"
                     )
             );
-
-            LOGGER.debug("Historical with date range - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -325,8 +298,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(dividendResult.getSafeSeries().isEmpty()),
                     () -> assertTrue(has2025Event)
             );
-
-            LOGGER.debug("Historical with date - Dividend response:\n{}\n", response);
         }
 
         @Test
@@ -343,8 +314,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(response.hasErrors()),
                     () -> assertFalse(dividendResult.getSafeSeries().isEmpty())
             );
-
-            LOGGER.debug("Historical with days ago - Dividend response:\n{}\n", response);
         }
     }
 
@@ -368,8 +337,6 @@ class HGBrasilClientIT {
                     () -> assertNotNull(events.comDate()),
                     () -> assertEquals(LocalDate.class, events.comDate().getClass())
             );
-
-            LOGGER.debug("Split response:\n{}\n", response);
         }
 
         @Test
@@ -389,8 +356,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(error.message().isBlank()),
                     () -> assertTrue(response.getSafeResults().isEmpty())
             );
-
-            LOGGER.debug("Invalid ticker - Split response:\n{}\n", response);
         }
 
         @Test
@@ -417,8 +382,6 @@ class HGBrasilClientIT {
                             "The split com_date must be between the requested date range (inclusive)"
                     )
             );
-
-            LOGGER.debug("Historical with date range - Split response:\n{}\n", response);
         }
 
         @Test
@@ -439,8 +402,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(splitResult.getSafeEvents().isEmpty()),
                     () -> assertTrue(has2025Event)
             );
-
-            LOGGER.debug("Historical with date - Split response:\n{}\n", response);
         }
 
         @Test
@@ -457,8 +418,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(response.hasErrors()),
                     () -> assertFalse(splitResult.getSafeEvents().isEmpty())
             );
-
-            LOGGER.debug("Historical with days ago - Split response:\n{}\n", response);
         }
     }
 
@@ -482,8 +441,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(indicatorResult.getSafeSeries().isEmpty()),
                     () -> assertNotNull(serie.period())
             );
-
-            LOGGER.debug("Indicator response:\n{}\n", response);
         }
 
         @Test
@@ -503,8 +460,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(error.message().isBlank()),
                     () -> assertTrue(response.getSafeResults().isEmpty())
             );
-
-            LOGGER.debug("Invalid ticker - Indicator response:\n{}\n", response);
         }
 
         @Test
@@ -525,8 +480,6 @@ class HGBrasilClientIT {
                     () -> assertEquals(IndicatorPeriodicity.MONTHLY, indicatorResult.periodicity()),
                     () -> assertFalse(indicatorResult.getSafeSeries().isEmpty())
             );
-
-            LOGGER.debug("Historical with date range - Indicator response:\n{}\n", response);
         }
 
         @Test
@@ -544,8 +497,6 @@ class HGBrasilClientIT {
                     () -> assertEquals(IndicatorPeriodicity.DAILY, indicatorResult.periodicity()),
                     () -> assertFalse(indicatorResult.getSafeSeries().isEmpty())
             );
-
-            LOGGER.debug("Historical with date - Indicator response:\n{}\n", response);
         }
 
         @Test
@@ -563,8 +514,6 @@ class HGBrasilClientIT {
                     () -> assertEquals(IndicatorPeriodicity.DAILY, indicatorResult.periodicity()),
                     () -> assertFalse(indicatorResult.getSafeSeries().isEmpty())
             );
-
-            LOGGER.debug("Historical with days ago - Indicator response:\n{}\n", response);
         }
     }
 
@@ -588,8 +537,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(error.message().isBlank()),
                     () -> assertTrue(response.getSafeResults().isEmpty())
             );
-
-            LOGGER.debug("Invalid ticker - Asset History response:\n{}\n", response);
         }
 
         @Test
@@ -617,8 +564,6 @@ class HGBrasilClientIT {
                             "The asset history sample date must be between the requested date range (inclusive)"
                     )
             );
-
-            LOGGER.debug("Historical with date range - Asset History response:\n{}\n", response);
         }
 
         @Test
@@ -639,8 +584,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(historyResult.getSafeSamples().isEmpty()),
                     () -> assertTrue(has2025Samples)
             );
-
-            LOGGER.debug("Historical with date - Asset History response:\n{}\n", response);
         }
 
         @Test
@@ -657,8 +600,6 @@ class HGBrasilClientIT {
                     () -> assertFalse(response.hasErrors()),
                     () -> assertFalse(historyResult.getSafeSamples().isEmpty())
             );
-
-            LOGGER.debug("Historical with days ago - Asset History response:\n{}\n", response);
         }
     }
 }
