@@ -34,14 +34,14 @@ To use the client in your Maven project, add the following dependency to your `p
 <dependency>
     <groupId>io.github.jvlealc</groupId>
     <artifactId>hgbrasil-finance-client</artifactId>
-    <version>Coming Soon...</version>
+    <version>1.0.0</version>
 </dependency>
 ```
 
 For projects using Gradle:
 
 ```groovy
-implementation 'io.github.jvlealc:hgbrasil-finance-client:Coming Soon...'
+implementation 'io.github.jvlealc:hgbrasil-finance-client:1.0.0'
 ```
 
 ## Usage Example
