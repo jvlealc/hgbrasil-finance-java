@@ -1,9 +1,9 @@
 # HG Brasil Finance Client - SDK Java
 
-![Java 17+](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
-![MIT License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)
-![Build Status](https://img.shields.io/github/actions/workflow/status/jvlealc/hgbrasil-finance-java/maven-ci.yml?branch=main&style=for-the-badge)
-![Maven Central](https://img.shields.io/maven-central/v/io.github.jvlealc/hgbrasil-finance-client?style=for-the-badge)
+![Java](https://img.shields.io/badge/Java_17+-ED8B00?style=for-the-badge&logo=openjdk&logoColor=white)
+[![License](https://img.shields.io/badge/License-MIT-blue.svg?style=for-the-badge)](LICENSE)
+[![Build](https://img.shields.io/github/actions/workflow/status/jvlealc/hgbrasil-finance-java/maven-ci.yml?branch=main&style=for-the-badge)](https://github.com/jvlealc/hgbrasil-finance-java/actions)
+[![Maven Central](https://img.shields.io/maven-central/v/io.github.jvlealc/hgbrasil-finance-client?style=for-the-badge)](https://central.sonatype.com/artifact/io.github.jvlealc/hgbrasil-finance-client)
 
 :brazil: Português
 
