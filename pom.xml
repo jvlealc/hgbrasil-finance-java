@@ -11,7 +11,7 @@
 
     <name>HG Brasil Finance Client</name>
     <description>
-        Open-source Java SDK for integration with the HG Brasil Financial Market API.
+        A modern, high-performance, open-source, type-safe Java SDK for integrating with the HG Brasil Financial Market API, built for Java 17+.
     </description>
     <url>https://github.com/jvlealc/hgbrasil-finance-java</url>
 
@@ -33,8 +33,14 @@
                 <role>Developer</role>
                 <role>Maintainer</role>
             </roles>
+            <timezone>-3</timezone>
         </developer>
     </developers>
+
+    <organization>
+        <name>João Leal</name>
+        <url>https://github.com/jvlealc</url>
+    </organization>
 
     <scm>
         <connection>scm:git:git://github.com/jvlealc/hgbrasil-finance-java.git</connection>
@@ -112,7 +118,6 @@
                     <release>${java.version}</release>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-surefire-plugin</artifactId>
@@ -121,14 +126,10 @@
                     <argLine>-XX:+EnableDynamicAgentLoading</argLine>
                 </configuration>
             </plugin>
-
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-failsafe-plugin</artifactId>
                 <version>${maven.failsafe.plugin.version}</version>
-                <configuration>
-                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
-                </configuration>
                 <executions>
                     <execution>
                         <goals>
@@ -137,24 +138,12 @@
                         </goals>
                     </execution>
                 </executions>
-            </plugin>
-
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-javadoc-plugin</artifactId>
-                <version>${maven.javadoc.plugin.version}</version>
-                <executions>
-                    <execution>
-                        <id>attach-javadocs</id>
-                        <goals>
-                            <goal>jar</goal>
-                        </goals>
-                    </execution>
-                </executions>
+                <configuration>
+                    <argLine>-XX:+EnableDynamicAgentLoading</argLine>
+                </configuration>
             </plugin>
         </plugins>
     </build>
-
     <profiles>
         <profile>
             <id>release</id>
@@ -171,7 +160,6 @@
                             <waitUntil>published</waitUntil>
                         </configuration>
                     </plugin>
-
                     <plugin>
                         <groupId>org.apache.maven.plugins</groupId>
                         <artifactId>maven-gpg-plugin</artifactId>
@@ -185,6 +173,46 @@
                                 </goals>
                             </execution>
                         </executions>
+                        <configuration>
+                            <passphraseServerId>gpg.passphrase</passphraseServerId>
+                            <gpgArguments>
+                                <arg>--pinentry-mode</arg>
+                                <arg>loopback</arg>
+                            </gpgArguments>
+                            <executable>gpg</executable>
+                        </configuration>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>${maven.source.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>${maven.javadoc.plugin.version}</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                        <configuration>
+                            <source>${java.version}</source>
+                            <encoding>${project.build.sourceEncoding}</encoding>
+                            <doclint>none</doclint>
+                            <quiet>true</quiet>
+                        </configuration>
                     </plugin>
                 </plugins>
             </build>
