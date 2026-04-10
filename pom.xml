@@ -54,6 +54,7 @@
         <maven.javadoc.plugin.version>3.11.2</maven.javadoc.plugin.version>
         <maven.source.plugin.version>3.4.0</maven.source.plugin.version>
         <maven.gpg.plugin.version>3.2.8</maven.gpg.plugin.version>
+        <central.publishing.maven.plugin.version>0.10.0</central.publishing.maven.plugin.version>
         <jackson.core.version>3.1.1</jackson.core.version>
         <jackson.jsr310.version>3.0.0-rc2</jackson.jsr310.version>
         <junit.version>5.14.3</junit.version>
@@ -160,17 +161,15 @@
             <build>
                 <plugins>
                     <plugin>
-                        <groupId>org.apache.maven.plugins</groupId>
-                        <artifactId>maven-source-plugin</artifactId>
-                        <version>${maven.source.plugin.version}</version>
-                        <executions>
-                            <execution>
-                                <id>attach-sources</id>
-                                <goals>
-                                    <goal>jar-no-fork</goal>
-                                </goals>
-                            </execution>
-                        </executions>
+                        <groupId>org.sonatype.central</groupId>
+                        <artifactId>central-publishing-maven-plugin</artifactId>
+                        <version>${central.publishing.maven.plugin.version}</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <publishingServerId>central</publishingServerId>
+                            <autoPublish>true</autoPublish>
+                            <waitUntil>published</waitUntil>
+                        </configuration>
                     </plugin>
 
                     <plugin>
