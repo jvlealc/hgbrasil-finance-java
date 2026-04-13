@@ -129,8 +129,8 @@ flowchart TD
 
    Client[HGBrasilClient]:::client
 
-   Client -->|2. Fornece Operations| Ops[Operações de Domínio <br/><small>Asset, Dividend, History, Exchange, etc.</small>]:::domain
-   Client -.->|3. Configura| ExecutionEngine
+   Client -.->|2. Configura| ExecutionEngine
+   Client -->|3. Fornece Operations| Ops[Operações de Domínio <br/><small>Asset, Dividend, History, Exchange, etc.</small>]:::domain
 
    subgraph ExecutionEngine [Execution Engine]
       direction LR
@@ -142,7 +142,7 @@ flowchart TD
    Ops -->|4. Monta requisição HTTP| Http
    Http -->|5. Executa requisição GET| API{{HG Brasil Finance API}}:::api
    API -->|6. Retorna JSON| Http
-   Http -->|7. Desserializa| Json
+   Http -->|7. Desserializa JSON| Json
    Json -->|8. Mapeia para Records| Ops
    Ops -->|9. Retorna Response| App
 ```
