@@ -130,14 +130,14 @@ flowchart TD
 
    Client[HGBrasilClient]:::client
 
-   Client -->|2. Provides Operations| Ops[Domain Operations <br/><small>Asset, Dividend, History, Exchange, etc.</small>]
-   Client -.->|3. Configures| ExecutionEngine
+   Client -.->|2. Configures| ExecutionEngine
+   Client -->|3. Provides Operations| Ops[Domain Operations <br/><small>Asset, Dividend, History, Exchange, etc.</small>]
 
    subgraph ExecutionEngine [Execution Engine]
       direction LR
       Reflect{"Detects JVM<br/>via reflection<br/>(17 or 21+)"} --> Threads[Virtual or<br/>Platform Threads]
       Threads --> Http[HttpClient]
-      Http <--> Json[Jackson 3]
+      Json[Jackson 3]
    end
 
    Ops -->|4. Builds HTTP request| Http
